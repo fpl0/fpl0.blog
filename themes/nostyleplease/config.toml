@@ -22,7 +22,7 @@
     lineNumbersInTable = true
     noClasses          = true
     noHl               = false
-    style              = 'rrt'
+    style              = 'catppuccin-latte'
     tabWidth           = 4
 
   [markup.tableOfContents]

@@ -5,3 +5,13 @@ title = 'Hello World'
 +++
 
 This is my first post!
+
+```go
+package main
+
+import "fmt"
+
+func main() {
+	fmt.Println("Hello, World!")
+}
+`
