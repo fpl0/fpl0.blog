@@ -1,0 +1,47 @@
+{{ define "main" }}
+
+<h1>{{ .Title }}</h1>
+
+{{ .Content }}
+
+{{- $paginator := .Paginate .Pages 20 -}}
+
+{{- if gt (len $paginator.Pages) 0 }}
+<ul>
+    {{- range $paginator.Pages -}}
+    <li>
+        <div>
+            <span>{{ .Date | time.Format "2006-01-02 15:04:05" }}</span>
+            {{- if .Params.model -}}
+            <span> • {{ .Params.model }}</span>
+            {{- end -}}
+        </div>
+        {{- $content := .Plain -}}
+        {{- if gt (len $content) 160 -}}
+            <div>{{ substr $content 0 160 }}...</div>
+        {{- else -}}
+            <div>{{ .Content }}</div>
+        {{- end -}}
+    </li>
+    {{ end }}
+</ul>
+
+{{- if or $paginator.HasPrev $paginator.HasNext }}
+<div class="pagination">
+    {{- if $paginator.HasPrev }}
+    <a href="{{ $paginator.Prev.URL | relURL }}">← Newer</a>
+    {{- end }}
+
+    <span>Page {{ $paginator.PageNumber }} of {{ $paginator.TotalPages }}</span>
+
+    {{- if $paginator.HasNext }}
+    <a href="{{ $paginator.Next.URL | relURL }}">Older →</a>
+    {{- end }}
+</div>
+{{- end }}
+
+{{ else }}
+<p>No posts yet.</p>
+{{ end }}
+
+{{ end }}
