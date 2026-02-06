@@ -16,10 +16,12 @@
       .forEach((table) => {
         // Skip if already wrapped
         if (table.parentElement?.classList.contains("table-wrapper")) return;
+        // Guard against null parentNode to prevent orphaning table
+        if (!table.parentNode) return;
 
         const wrapper = document.createElement("div");
         wrapper.className = "table-wrapper";
-        table.parentNode?.insertBefore(wrapper, table);
+        table.parentNode.insertBefore(wrapper, table);
         wrapper.appendChild(table);
       });
   }

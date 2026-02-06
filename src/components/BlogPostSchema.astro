@@ -10,9 +10,11 @@ interface Props {
   datePublished: Date;
   dateModified?: Date;
   url: string;
+  image?: string;
 }
 
-const { title, description, datePublished, dateModified, url } = Astro.props;
+const { title, description, datePublished, dateModified, url, image } =
+  Astro.props;
 
 const schema = {
   "@context": "https://schema.org",
@@ -22,6 +24,7 @@ const schema = {
   datePublished: datePublished.toISOString(),
   dateModified: (dateModified ?? datePublished).toISOString(),
   url: url,
+  ...(image && { image }),
   author: {
     "@type": "Person",
     name: "Filipe",

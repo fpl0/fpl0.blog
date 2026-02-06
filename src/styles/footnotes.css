@@ -68,6 +68,12 @@
 }
 
 /* --- Footnotes --- */
+/* Hide the <hr> that markdown places before footnotes - we use border-top instead */
+.content hr:has(+ section[data-footnotes]),
+.content hr:has(+ .footnotes) {
+  display: none;
+}
+
 .content section[data-footnotes],
 .content .footnotes {
   margin-top: 3rem;

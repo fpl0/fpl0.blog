@@ -70,6 +70,8 @@ import "../styles/search-modal.css";
   let results: SearchItem[] = [];
   let isInitialized = false;
   let abortController: AbortController | null = null;
+  let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+  let indexPromise: Promise<void> | null = null;
 
   // Constants
   const SEARCH_WEIGHTS = {
@@ -154,9 +156,14 @@ import "../styles/search-modal.css";
     return div.innerHTML;
   }
 
-  function renderResults(items: SearchItem[]): void {
+  function renderResults(items: SearchItem[], loading = false): void {
     const container = document.getElementById("search-results");
     if (!container) return;
+
+    if (loading) {
+      container.innerHTML = `<div class="search-empty">Loading...</div>`;
+      return;
+    }
 
     if (items.length === 0) {
       const input = document.getElementById(
@@ -208,10 +215,18 @@ import "../styles/search-modal.css";
     // Focus input after animation starts
     requestAnimationFrame(() => input?.focus());
 
-    // Show latest posts by default
+    // Show loading state if index not ready
     selectedIndex = 0;
-    results = getLatestPosts();
-    renderResults(results);
+    if (searchIndex.length === 0) {
+      renderResults([], true);
+      loadSearchIndex().then(() => {
+        results = getLatestPosts();
+        renderResults(results);
+      });
+    } else {
+      results = getLatestPosts();
+      renderResults(results);
+    }
   }
 
   function closeSearch(): void {
@@ -273,18 +288,30 @@ import "../styles/search-modal.css";
   async function loadSearchIndex(): Promise<void> {
     if (searchIndex.length > 0) return;
 
-    try {
-      const response = await fetch("/search.json");
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      searchIndex = await response.json();
-    } catch (error) {
-      console.error("[SearchModal] Failed to load search index:", error);
-    }
+    // Return existing promise if already loading
+    if (indexPromise) return indexPromise;
+
+    indexPromise = (async () => {
+      try {
+        const response = await fetch("/search.json");
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        searchIndex = await response.json();
+      } catch (error) {
+        console.error("[SearchModal] Failed to load search index:", error);
+      }
+    })();
+
+    return indexPromise;
   }
 
   function initSearch(): void {
     // Cleanup previous listeners if reinitializing
     if (abortController) {
+      // Clear debounce timer on cleanup
+      if (debounceTimer) {
+        clearTimeout(debounceTimer);
+        debounceTimer = null;
+      }
       abortController.abort();
     }
     abortController = new AbortController();
@@ -313,11 +340,10 @@ import "../styles/search-modal.css";
     );
 
     // Search input handler with debounce
-    let debounceTimer: ReturnType<typeof setTimeout>;
     input?.addEventListener(
       "input",
       () => {
-        clearTimeout(debounceTimer);
+        if (debounceTimer) clearTimeout(debounceTimer);
         debounceTimer = setTimeout(() => {
           selectedIndex = 0;
           results = input.value.trim()

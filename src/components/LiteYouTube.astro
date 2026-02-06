@@ -98,14 +98,22 @@
   class LiteYouTube extends HTMLElement {
     private static preconnected = false;
     private videoId = "";
-    private initialized = false;
+    private abortController: AbortController | null = null;
 
     connectedCallback(): void {
-      if (this.initialized) return;
-      this.initialized = true;
+      // Clean up any previous listeners (handles View Transitions)
+      this.abortController?.abort();
+      this.abortController = new AbortController();
+      const { signal } = this.abortController;
 
       this.videoId = this.getAttribute("videoid") ?? "";
       if (!this.videoId) return;
+
+      // Reset activated state on re-init (for View Transitions)
+      if (this.classList.contains("lyt-activated")) {
+        // Already activated, keep the iframe
+        return;
+      }
 
       // Set high-quality thumbnail
       this.style.backgroundImage = `url("https://i.ytimg.com/vi/${this.videoId}/hqdefault.jpg")`;
@@ -122,10 +130,16 @@
       // Warm connections on hover
       this.addEventListener("pointerover", LiteYouTube.warmConnections, {
         once: true,
+        signal,
       });
 
       // Load on click
-      this.addEventListener("click", this.activate);
+      this.addEventListener("click", this.activate, { signal });
+    }
+
+    disconnectedCallback(): void {
+      this.abortController?.abort();
+      this.abortController = null;
     }
 
     private static warmConnections(): void {

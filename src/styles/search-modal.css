@@ -155,6 +155,13 @@
   opacity: 0.8;
 }
 
+/* Focus styles for keyboard navigation */
+.search-result:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  background-color: var(--color-highlight);
+}
+
 /* Footer hint */
 .search-footer {
   display: flex;

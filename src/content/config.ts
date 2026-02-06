@@ -12,9 +12,13 @@ const blog = defineCollection({
   schema: z
     .object({
       title: z.string(),
-      summary: z.string().max(160, "Summary must be 160 characters or less for SEO"),
+      summary: z
+        .string()
+        .min(50, "Summary must be at least 50 characters")
+        .max(160, "Summary must be 160 characters or less for SEO"),
       author: z.string().default("Filipe Lima"),
-      tags: z.array(z.string()).default([]),
+      tags: z.array(z.string().min(1, "Tags cannot be empty")).default([]),
+      image: z.string().optional(),
       isDraft: z.boolean().default(true),
       createdDate: z.coerce.date(),
       publicationDate: z.coerce.date().optional(),

@@ -127,13 +127,3 @@
    color: var(--color-text); /* H3s don't need to be as loud as H2s even when active, or maybe keep primary? Let's use primary for consistency */
    color: var(--color-primary);
 }
-
-/* Scrollbar tweaks */
-.toc-sidebar::-webkit-scrollbar {
-  width: 3px;
-}
-.toc-sidebar::-webkit-scrollbar-thumb {
-  background: var(--color-border);
-  border-radius: 2px;
-}
-

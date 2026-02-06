@@ -40,7 +40,7 @@
 }
 
 .content h3 {
-  font-family: var(--font-sans);
+  font-family: var(--font-serif);
   font-weight: 600;
   font-style: normal;
   margin-top: 2rem;
@@ -127,6 +127,12 @@
   margin: 2.5rem 0 0 0;
 }
 
+/* Remove bottom margin from image paragraph - the caption provides spacing */
+.content p:has(> img) {
+  margin-bottom: 0;
+}
+
+/* Image caption styling (paragraph after image paragraph) - matches table caption */
 .content p:has(> img) + p {
   font-family: var(--font-sans);
   font-size: var(--font-size-sm);

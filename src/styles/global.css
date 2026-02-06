@@ -57,7 +57,7 @@
   /* Borders & Dividers */
   --color-border: hsl(20, 10%, 18%);
   --color-border-subtle: hsl(20, 8%, 14%);
-  
+
   /* Shadows */
   --shadow-color: rgba(10, 5, 0, 0.6);
 
@@ -86,26 +86,26 @@
 
 [data-theme="light"] {
   /* Background Layers - Warm paper tones */
-  --color-bg: hsl(45, 40%, 96%);           /* Warm cream paper */
-  --color-surface: hsl(45, 30%, 92%);       /* Slightly darker cream */
+  --color-bg: hsl(45, 40%, 96%); /* Warm cream paper */
+  --color-surface: hsl(45, 30%, 92%); /* Slightly darker cream */
   --color-surface-raised: hsl(45, 25%, 88%);
   --color-highlight: hsl(45, 45%, 90%);
-  
+
   /* Text Hierarchy - Rich sepia-brown tones */
-  --color-text: hsl(25, 30%, 18%);          /* Deep warm brown - 8.5:1 contrast */
+  --color-text: hsl(25, 30%, 18%); /* Deep warm brown - 8.5:1 contrast */
   --color-text-secondary: hsl(25, 25%, 35%); /* Enriched brown */
-  --color-text-muted: hsl(25, 20%, 50%);     /* Enriched muted brown */
-  
+  --color-text-muted: hsl(25, 20%, 50%); /* Enriched muted brown */
+
   /* Primary Accent - Rich amber/cognac */
-  --color-primary: hsl(28, 80%, 38%);       /* Deep amber - readable on both bg */
+  --color-primary: hsl(28, 80%, 38%); /* Deep amber - readable on both bg */
   --color-primary-dim: hsl(28, 60%, 48%);
-  
+
   /* Cool Accent (Teal for harmony) */
-  --color-accent-cool: hsl(180, 30%, 35%);  /* Deep Teal */
+  --color-accent-cool: hsl(180, 30%, 35%); /* Deep Teal */
 
   /* Shadows */
   --shadow-color: rgba(60, 40, 20, 0.12);
-  
+
   /* Borders & Dividers */
   --color-border: hsl(35, 25%, 82%);
   --color-border-subtle: hsl(35, 20%, 88%);
@@ -141,7 +141,7 @@
 
 /* Light mode code block - warm cream tones matching page */
 [data-theme="light"] .content pre {
-  background-color: hsl(40, 30%, 95%) !important;  /* Warm cream */
+  background-color: hsl(40, 30%, 95%) !important; /* Warm cream */
   border: 1px solid hsl(35, 25%, 85%);
 }
 
@@ -157,19 +157,19 @@
 }
 
 [data-theme="light"] .code-header .code-lang {
-  color: var(--color-primary);  /* Amber accent */
+  color: var(--color-primary); /* Amber accent */
 }
 
 /* Inline code - warm cream background */
 [data-theme="light"] .content :not(pre) > code {
   background-color: hsl(40, 30%, 90%);
-  color: hsl(25, 50%, 35%);  /* Warm brown text */
+  color: hsl(25, 50%, 35%); /* Warm brown text */
   border-color: hsl(35, 25%, 80%);
 }
 
 /* Light theme selection */
 [data-theme="light"] ::selection {
-  background-color: hsl(35, 60%, 75%);  /* Warm gold selection */
+  background-color: hsl(35, 60%, 75%); /* Warm gold selection */
   color: hsl(25, 40%, 15%);
 }
 
@@ -285,28 +285,18 @@ h3 {
 }
 
 h1 {
-  letter-spacing: -0.04em;
+  letter-spacing: -0.035em;
   font-size: var(--font-size-h1);
   line-height: 1.1;
 }
 h2 {
-  letter-spacing: -0.03em;
+  letter-spacing: -0.025em;
   font-size: var(--font-size-h2);
   line-height: 1.2;
 }
 h3 {
-  letter-spacing: -0.015em;
-  font-size: var(--font-size-h3);
-}
-
-h1 {
-  letter-spacing: -0.035em;
-}
-h2 {
-  letter-spacing: -0.025em;
-}
-h3 {
   letter-spacing: -0.01em;
+  font-size: var(--font-size-h3);
 }
 
 /* Links */
