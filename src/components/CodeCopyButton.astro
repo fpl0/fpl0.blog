@@ -1,0 +1,90 @@
+---
+/**
+ * CodeCopyButton - Adds header with language label and copy button to code blocks
+ * Minimal DOM changes to preserve Shiki's styling
+ */
+---
+
+<script is:inline>
+  (function () {
+    var FEEDBACK_MS = 2000;
+    var PROCESSED = "code-processed";
+
+    function initCodeCopy() {
+      var preTags = document.querySelectorAll(".content pre");
+      preTags.forEach(function (pre) {
+        if (pre.classList.contains(PROCESSED)) return;
+        pre.classList.add(PROCESSED);
+
+        // Get language
+        var code = pre.querySelector("code");
+        var lang = pre.dataset.language || "";
+        if (!code) return;
+
+        if (!lang) {
+          var cls = Array.from(code.classList).find(function (c) {
+            return c.startsWith("language-");
+          });
+          lang = cls ? cls.replace("language-", "") : "";
+        }
+
+        // Create Wrapper
+        var wrapper = document.createElement("div");
+        wrapper.className = "code-wrapper";
+
+        // Move pre inside wrapper
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(pre);
+
+        // Create Language Label
+        if (lang) {
+          var langEl = document.createElement("span");
+          langEl.className = "code-lang";
+          langEl.textContent = lang;
+          wrapper.appendChild(langEl);
+        }
+
+        // Create Copy Button with Morphing Icons
+        var copyBtn = document.createElement("button");
+        copyBtn.className = "code-copy";
+        copyBtn.setAttribute("aria-label", "Copy code");
+        copyBtn.innerHTML =
+          // Icon: Copy (Clipboard)
+          '<svg class="icon-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+          '<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>' +
+          '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>' +
+          "</svg>" +
+          // Icon: Check
+          '<svg class="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">' +
+          '<polyline points="20 6 9 17 4 12"></polyline>' +
+          "</svg>";
+
+        // Store original text
+        var originalText = code.textContent || "";
+
+        copyBtn.addEventListener("click", function () {
+          navigator.clipboard
+            .writeText(originalText)
+            .then(function () {
+              copyBtn.classList.add("copied");
+              setTimeout(function () {
+                copyBtn.classList.remove("copied");
+              }, FEEDBACK_MS);
+            })
+            .catch(function (e) {
+              console.error("Copy failed:", e);
+            });
+        });
+
+        wrapper.appendChild(copyBtn);
+      });
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initCodeCopy);
+    } else {
+      initCodeCopy();
+    }
+    document.addEventListener("astro:page-load", initCodeCopy);
+  })();
+</script>

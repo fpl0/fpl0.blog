@@ -1,0 +1,29 @@
+---
+/**
+ * TableWrapper - Wraps tables for responsive horizontal scrolling
+ * Auto-injected via client-side script for all tables in .content
+ *
+ * Features:
+ * - Automatic wrapper injection
+ * - Prevents double-wrapping with guard check
+ */
+---
+
+<script>
+  function initTables(): void {
+    document
+      .querySelectorAll<HTMLTableElement>(".content table")
+      .forEach((table) => {
+        // Skip if already wrapped
+        if (table.parentElement?.classList.contains("table-wrapper")) return;
+
+        const wrapper = document.createElement("div");
+        wrapper.className = "table-wrapper";
+        table.parentNode?.insertBefore(wrapper, table);
+        wrapper.appendChild(table);
+      });
+  }
+
+  document.addEventListener("DOMContentLoaded", initTables);
+  document.addEventListener("astro:page-load", initTables);
+</script>

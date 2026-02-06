@@ -1,0 +1,139 @@
+/* ==========================================================================
+   TABLE OF CONTENTS SIDEBAR ("The Quiet Navigator")
+   
+   Design Philosophy: "Subtractive Design"
+   The TOC should be visible when looked at, but invisible when reading.
+   It uses opacity and proximity rather than heavy borders or backgrounds.
+   ========================================================================== */
+
+.toc-sidebar {
+  display: none;
+}
+
+/* Show on large screens */
+@media (min-width: 1280px) {
+  .toc-sidebar {
+    display: block;
+    position: fixed;
+    top: 8rem;
+    left: calc(50% + 400px); /* Pushed out slightly further for breathing room */
+    width: 220px;
+    max-height: calc(100vh - 12rem);
+    overflow-y: auto;
+    /* Hide scrollbar completely - "Invisible Scroll" */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    transition: opacity 0.4s ease;
+    opacity: 0.6; /* Default state: Ghosted */
+  }
+
+  .toc-sidebar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .toc-sidebar:hover {
+    opacity: 1; /* Focus state: Clear */
+  }
+}
+
+@media (min-width: 1440px) {
+  .toc-sidebar {
+    left: calc(50% + 440px);
+  }
+}
+
+.toc {
+  font-family: var(--font-sans);
+  position: relative;
+}
+
+.toc-title {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-muted);
+  margin: 0 0 1.5rem 0;
+  opacity: 0.7;
+}
+
+/* The Timeline Track - Very subtle guide line */
+.toc-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  position: relative;
+  /* Extremely subtle border */
+  border-left: 1px solid var(--color-border-subtle);
+}
+
+.toc-item {
+  margin: 0;
+  position: relative;
+}
+
+/* Base Link Styles */
+.toc-link {
+  display: block;
+  text-decoration: none;
+  margin-left: -1px;
+  border-left: 2px solid transparent;
+  transition: all 0.2s ease;
+}
+
+/* ==========================================================================
+   HIERARCHY: H2 vs H3
+   ========================================================================== */
+
+/* H2: The Anchors */
+.toc-item--h2 .toc-link {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+  padding: 0.35rem 0 0.35rem 1rem;
+  margin-top: 0.75rem;
+}
+
+/* H3: The Details (Receded) */
+.toc-item--h3 .toc-link {
+  font-size: var(--font-size-xs);
+  font-weight: 400;
+  color: var(--color-text-muted);
+  line-height: 1.3;
+  padding: 0.2rem 0 0.2rem 1.5rem;
+  opacity: 0.8; /* Recede visually */
+}
+
+/* Hover States */
+.toc-link:hover {
+  color: var(--color-text);
+  border-left-color: var(--color-text-muted); /* Subtle feedback */
+  opacity: 1;
+}
+
+/* Active State - Precision Marker */
+.toc-link.is-active {
+  color: var(--color-primary);
+  border-left-color: var(--color-primary);
+  font-weight: 500;
+  opacity: 1 !important;
+  /* No background gradient - purely typographic/border indication */
+}
+
+/* Scrolled Active State for H3s */
+.toc-item--h3 .toc-link.is-active {
+   color: var(--color-text); /* H3s don't need to be as loud as H2s even when active, or maybe keep primary? Let's use primary for consistency */
+   color: var(--color-primary);
+}
+
+/* Scrollbar tweaks */
+.toc-sidebar::-webkit-scrollbar {
+  width: 3px;
+}
+.toc-sidebar::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 2px;
+}
+

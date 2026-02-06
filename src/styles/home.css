@@ -1,0 +1,213 @@
+.home-header {
+  margin-bottom: 3rem;
+  padding-bottom: 0;
+}
+
+.logo {
+  font-family: var(--font-mono-brand);
+  font-size: 2.2rem;
+  font-weight: 500;
+  margin: 0;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+  color: var(--color-text);
+  /* Prevent layout shift during font loading */
+  display: flex;
+  align-items: baseline;
+}
+
+.cursor {
+  display: inline-block;
+  color: var(--color-primary);
+  margin-left: 0.05em;
+  animation: blink 1s step-end infinite;
+  /* Fixed width prevents shift when font loads */
+  width: 0.6em;
+  text-align: center;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.home-nav {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-top: 1.5rem;
+  font-family: var(--font-mono-brand);
+  font-size: var(--font-size-xs);
+  color: var(--color-muted);
+}
+
+.home-nav a {
+  color: var(--color-muted);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.home-nav a:hover {
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.separator {
+  color: var(--color-border);
+  font-size: 0.8em;
+}
+
+/* Search Hint Button */
+.search-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: transparent;
+  border: none;
+  padding: 0;
+  font-family: var(--font-mono-brand);
+  font-size: var(--font-size-xs);
+  color: var(--color-muted);
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.search-hint:hover {
+  color: var(--color-primary);
+}
+
+.search-hint kbd {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-label);
+  padding: 0.1rem 0.35rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  color: var(--color-muted);
+}
+
+.bio-quote {
+  margin: 1.5rem 0 0 0;
+  max-width: 100%;
+  border-left: none;
+  padding-left: 0;
+}
+
+.bio-quote p {
+  font-family: var(--font-serif);
+  font-style: normal;
+  font-size: clamp(1rem, 2.5vw + 0.5rem, var(--font-size-lead));
+  line-height: var(--line-height-normal);
+  color: var(--color-text);
+  font-weight: 400;
+  margin: 0;
+  text-wrap: balance;
+}
+
+.bio-quote p em {
+  font-style: italic;
+  color: var(--color-primary);
+}
+
+.bio-quote cite {
+  display: block;
+  font-family: var(--font-mono-brand);
+  font-size: var(--font-size-label);
+  letter-spacing: 0.05em;
+  font-weight: 500;
+  color: var(--color-muted);
+  margin-top: 0.5rem;
+  font-style: normal;
+}
+
+/* Post List Redesign */
+.post-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.post-item {
+  margin: 0;
+}
+
+.post-link {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  text-decoration: none;
+  border-bottom: none;
+  padding: 0.75rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  position: relative;
+  left: -0.75rem;
+  width: calc(100% + 1.5rem);
+}
+
+.post-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  width: 100%;
+}
+
+.post-link:hover {
+  background-color: var(--color-highlight);
+  border-bottom: none;
+}
+
+.post-link:hover .post-title {
+  color: var(--color-primary);
+}
+
+.post-link:hover .post-summary {
+  color: var(--color-text);
+}
+
+@media (max-width: 600px) {
+  .post-link {
+    border-radius: 0;
+    position: static;
+    margin-left: -0.75rem;
+    margin-right: -0.75rem;
+    width: auto;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+  
+  .post-head {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+}
+
+.post-title {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: var(--font-size-lead);
+  color: var(--color-text);
+  transition: color 0.2s ease;
+}
+
+.post-summary {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-muted);
+  font-family: var(--font-sans);
+  line-height: var(--line-height-relaxed);
+  max-width: 60ch;
+  transition: color 0.2s ease;
+}
+
+.post-date {
+  font-family: var(--font-mono-brand);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--font-size-xxs);
+  color: var(--color-muted);
+  white-space: nowrap;
+}

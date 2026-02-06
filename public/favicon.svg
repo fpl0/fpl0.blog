@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Background: Ultra-Dark Walnut -->
+  <rect width="32" height="32" rx="6" fill="#161311" />
+  
+  <!-- The Spark / Compass Symbol in Pale Bronze -->
+  <!-- A geometric 4-pointed star representing discovery and direction -->
+  <path d="M16 4L18.5 13.5L28 16L18.5 18.5L16 28L13.5 18.5L4 16L13.5 13.5L16 4Z" fill="#d9cba4" />
+  
+  <!-- Subtle center void for architectural detail -->
+  <circle cx="16" cy="16" r="1.5" fill="#161311" />
+</svg>

@@ -1,0 +1,154 @@
+---
+/**
+ * TableOfContents - Sidebar navigation with active heading tracking
+ *
+ * Features:
+ * - Intersection-based active heading detection
+ * - Smooth scroll on click with history update
+ * - AbortController for proper cleanup
+ */
+
+interface HeadingItem {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+interface Props {
+  headings: HeadingItem[];
+}
+
+const { headings } = Astro.props;
+
+// Filter to only H2 and H3
+const tocHeadings = headings.filter((h) => h.depth === 2 || h.depth === 3);
+---
+
+{
+  tocHeadings.length > 0 && (
+    <aside class="toc-sidebar" aria-label="Table of contents">
+      <nav class="toc">
+        <h2 class="toc-title">Contents</h2>
+        <ul class="toc-list">
+          {tocHeadings.map((heading) => (
+            <li
+              class={`toc-item toc-item--${heading.depth === 2 ? "h2" : "h3"}`}
+              data-heading={heading.slug}
+            >
+              <a href={`#${heading.slug}`} class="toc-link">
+                {heading.text}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </aside>
+  )
+}
+
+<script>
+  // The pixel offset effectively acting as the "reading line"
+  // 150px down usually clears the header and sits comfortably in the user's view
+  const READING_ZONE_OFFSET = 150;
+
+  let abortController: AbortController | null = null;
+
+  function initTOC(): void {
+    abortController?.abort();
+    abortController = new AbortController();
+    const { signal } = abortController;
+
+    const tocLinks = document.querySelectorAll<HTMLAnchorElement>(".toc-link");
+    const headings = Array.from(
+      document.querySelectorAll<HTMLElement>(
+        ".content h2[id], .content h3[id]",
+      ),
+    );
+
+    if (tocLinks.length === 0 || headings.length === 0) return;
+
+    function updateActiveHeading(): void {
+      let activeId: string | null = null;
+      let minDistance = Infinity;
+
+      // Find which heading is currently "active"
+      // Strategy: The active heading is the one closest to the top,
+      // but still above the "reading line" (or the first one visible).
+
+      // We iterate backwards to find the last heading that is "scrolled past"
+      for (let i = headings.length - 1; i >= 0; i--) {
+        const heading = headings[i];
+        const rect = heading.getBoundingClientRect();
+
+        // If the heading is above the reading line
+        if (rect.top <= READING_ZONE_OFFSET) {
+          activeId = heading.id;
+          break; // Found the deepeset heading that we've passed
+        }
+      }
+
+      // Fallback: If no heading is passed (we're at the very top),
+      // highlight the first one if it's visible or close
+      if (!activeId && headings[0]) {
+        activeId = headings[0].id;
+      }
+
+      // Update UI
+      tocLinks.forEach((link) => {
+        const href = link.getAttribute("href");
+        const isActive = href === `#${activeId}`;
+
+        link.classList.toggle("is-active", isActive);
+
+        // Optional: Scroll TOC to keep active item in view if TOC is long
+        if (isActive && link.offsetParent) {
+          // Simple logic to keep it visible could be added here if needed
+          // For now, browser default behavior + fixed position usually works well
+        }
+      });
+    }
+
+    // Throttled scroll
+    let ticking = false;
+    window.addEventListener(
+      "scroll",
+      () => {
+        if (!ticking) {
+          requestAnimationFrame(() => {
+            updateActiveHeading();
+            ticking = false;
+          });
+          ticking = true;
+        }
+      },
+      { signal, passive: true },
+    );
+
+    // Initial check
+    updateActiveHeading();
+
+    // Smooth scroll interception
+    tocLinks.forEach((link) => {
+      link.addEventListener(
+        "click",
+        (e) => {
+          e.preventDefault();
+          const href = link.getAttribute("href");
+          if (!href) return;
+
+          const target = document.querySelector(href);
+          if (target) {
+            // Push history first
+            history.pushState(null, "", href);
+            // Smooth scroll
+            target.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        },
+        { signal },
+      );
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", initTOC);
+  document.addEventListener("astro:page-load", initTOC);
+</script>

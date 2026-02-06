@@ -1,0 +1,173 @@
+---
+/**
+ * LiteYouTube - Lazy-loading YouTube facade component
+ * Renders a thumbnail placeholder; loads iframe only on click
+ *
+ * Performance:
+ * - Defers ~800 KiB of YouTube iframe until interaction
+ * - Preconnects to YouTube on hover for faster iframe load
+ * - Uses youtube-nocookie.com for privacy
+ */
+---
+
+<!-- This component only registers the custom element - renders nothing visible -->
+<lite-youtube
+  videoid={Astro.props.videoid}
+  title={Astro.props.title}
+  content-title={Astro.props.title}></lite-youtube>
+<style is:global>
+  lite-youtube {
+    display: block;
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background-color: var(--color-surface);
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    contain: content;
+    background-position: center center;
+    background-size: cover;
+    margin: 2rem 0;
+  }
+
+  lite-youtube::before {
+    content: attr(title);
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 0.75rem 1rem;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7), transparent);
+    color: white;
+    font-size: var(--font-size-sm);
+    font-family: var(--font-sans);
+    z-index: 1;
+  }
+
+  lite-youtube .lyt-playbtn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 68px;
+    height: 48px;
+    background-color: #cc181e;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    z-index: 1;
+    transition: filter 0.2s ease;
+  }
+
+  lite-youtube .lyt-playbtn::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-35%, -50%);
+    border-style: solid;
+    border-width: 11px 0 11px 19px;
+    border-color: transparent transparent transparent #fff;
+  }
+
+  lite-youtube:hover .lyt-playbtn {
+    filter: brightness(1.1);
+  }
+
+  lite-youtube.lyt-activated {
+    cursor: unset;
+  }
+
+  lite-youtube.lyt-activated::before,
+  lite-youtube.lyt-activated .lyt-playbtn {
+    display: none;
+  }
+
+  lite-youtube iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+</style>
+
+<script>
+  class LiteYouTube extends HTMLElement {
+    private static preconnected = false;
+    private videoId = "";
+    private initialized = false;
+
+    connectedCallback(): void {
+      if (this.initialized) return;
+      this.initialized = true;
+
+      this.videoId = this.getAttribute("videoid") ?? "";
+      if (!this.videoId) return;
+
+      // Set high-quality thumbnail
+      this.style.backgroundImage = `url("https://i.ytimg.com/vi/${this.videoId}/hqdefault.jpg")`;
+
+      // Add play button if not present
+      if (!this.querySelector(".lyt-playbtn")) {
+        const btn = document.createElement("button");
+        btn.className = "lyt-playbtn";
+        btn.type = "button";
+        btn.ariaLabel = `Play: ${this.getAttribute("title") ?? "Video"}`;
+        this.appendChild(btn);
+      }
+
+      // Warm connections on hover
+      this.addEventListener("pointerover", LiteYouTube.warmConnections, {
+        once: true,
+      });
+
+      // Load on click
+      this.addEventListener("click", this.activate);
+    }
+
+    private static warmConnections(): void {
+      if (LiteYouTube.preconnected) return;
+      LiteYouTube.preconnected = true;
+
+      const preconnect = (url: string): void => {
+        const link = document.createElement("link");
+        link.rel = "preconnect";
+        link.href = url;
+        document.head.appendChild(link);
+      };
+
+      preconnect("https://www.youtube-nocookie.com");
+      preconnect("https://www.google.com");
+    }
+
+    private activate = (): void => {
+      if (this.classList.contains("lyt-activated")) return;
+
+      const iframe = document.createElement("iframe");
+      iframe.title = this.getAttribute("title") ?? "YouTube Video";
+      iframe.allow =
+        "accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture";
+      iframe.allowFullscreen = true;
+      iframe.src = `https://www.youtube-nocookie.com/embed/${this.videoId}?autoplay=1&rel=0`;
+      iframe.loading = "lazy";
+
+      this.classList.add("lyt-activated");
+      this.appendChild(iframe);
+    };
+  }
+
+  // Register custom element if not already defined
+  if (!customElements.get("lite-youtube")) {
+    customElements.define("lite-youtube", LiteYouTube);
+  }
+
+  // Re-init after Astro page transitions
+  document.addEventListener("astro:page-load", () => {
+    document.querySelectorAll<LiteYouTube>("lite-youtube").forEach((el) => {
+      el.connectedCallback();
+    });
+  });
+</script>

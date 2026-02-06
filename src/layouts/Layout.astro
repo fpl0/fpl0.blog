@@ -1,0 +1,163 @@
+---
+/**
+ * Layout - Base layout template for all pages
+ *
+ * Features:
+ * - Deferred Google Analytics (loads on interaction or 3s timeout)
+ * - Critical font preloading to prevent FOUT
+ * - View Transitions with ClientRouter
+ * - Skip-to-content link for accessibility
+ */
+
+// Fonts - Latin subset only for ~85% smaller bundle
+import "@fontsource-variable/inter/wght.css";
+import "@fontsource/merriweather/latin-400.css";
+import "@fontsource/merriweather/latin-700.css";
+import "@fontsource/space-mono/latin-400.css";
+import "@fontsource/jetbrains-mono/latin-400.css";
+import "../styles/global.css";
+import { ClientRouter } from "astro:transitions";
+import SearchModal from "../components/SearchModal.astro";
+import ScrollToTop from "../components/ScrollToTop.astro";
+import ThemeToggle from "../components/ThemeToggle.astro";
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const {
+  title,
+  description = "True delight is in the finding out rather than in the knowing.",
+} = Astro.props;
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+---
+
+<html lang="en">
+  <head>
+    <!-- Theme init - runs before paint to prevent flash -->
+    <script is:inline>
+      (function () {
+        function applyTheme() {
+          var theme = localStorage.getItem("theme");
+          if (!theme) {
+            theme = window.matchMedia("(prefers-color-scheme: light)").matches
+              ? "light"
+              : "dark";
+          }
+          document.documentElement.setAttribute("data-theme", theme);
+        }
+
+        // Apply on initial load
+        applyTheme();
+
+        // Re-apply before Astro swaps in new page (view transitions)
+        document.addEventListener("astro:before-swap", function (e) {
+          var theme = localStorage.getItem("theme") || "dark";
+          e.newDocument.documentElement.setAttribute("data-theme", theme);
+        });
+      })();
+    </script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+
+    <!-- SEO -->
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:site_name" content="fpl0" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+
+    <!-- Icons -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+
+    <!-- Resource hints for external domains -->
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+    <link rel="preconnect" href="https://i.ytimg.com" crossorigin />
+
+    <!-- RSS Feed -->
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title="fpl0 RSS Feed"
+      href="/rss.xml"
+    />
+
+    <!-- View Transitions -->
+    <ClientRouter />
+
+    <!-- Deferred Google Analytics -->
+    <script is:inline>
+      (function () {
+        var loaded = false;
+        var GA_ID = "G-1QYZZMNKT7";
+
+        function loadGA() {
+          if (loaded) return;
+          loaded = true;
+
+          var s = document.createElement("script");
+          s.src = "https://www.googletagmanager.com/gtag/js?id=" + GA_ID;
+          s.async = true;
+          document.head.appendChild(s);
+
+          window.dataLayer = window.dataLayer || [];
+          function gtag() {
+            dataLayer.push(arguments);
+          }
+          window.gtag = gtag;
+          gtag("js", new Date());
+          gtag("config", GA_ID);
+        }
+
+        // Load on interaction or after 3s
+        ["scroll", "click", "touchstart", "keydown"].forEach(function (e) {
+          document.addEventListener(e, loadGA, { once: true, passive: true });
+        });
+        setTimeout(loadGA, 3000);
+
+        // Handle Astro page transitions
+        document.addEventListener("astro:page-load", loadGA);
+      })();
+    </script>
+  </head>
+  <body class="fonts-loading">
+    <a href="#main-content" class="skip-link">Skip to content</a>
+    <SearchModal />
+    <ScrollToTop />
+    <ThemeToggle />
+    <slot />
+
+    <!-- Font loading state management -->
+    <script is:inline>
+      (function () {
+        function markFontsLoaded() {
+          document.body.classList.remove("fonts-loading");
+          document.body.classList.add("fonts-loaded");
+        }
+
+        if (document.fonts?.ready) {
+          document.fonts.ready.then(markFontsLoaded);
+        } else {
+          markFontsLoaded();
+        }
+
+        document.addEventListener("astro:page-load", function () {
+          document.fonts?.ready?.then(markFontsLoaded);
+        });
+      })();
+    </script>
+  </body>
+</html>

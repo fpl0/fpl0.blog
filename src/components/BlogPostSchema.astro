@@ -1,0 +1,41 @@
+---
+/**
+ * BlogPostSchema - JSON-LD structured data for blog posts
+ * Outputs schema.org BlogPosting markup for rich search results
+ */
+
+interface Props {
+  title: string;
+  description: string;
+  datePublished: Date;
+  dateModified?: Date;
+  url: string;
+}
+
+const { title, description, datePublished, dateModified, url } = Astro.props;
+
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  headline: title,
+  description: description,
+  datePublished: datePublished.toISOString(),
+  dateModified: (dateModified ?? datePublished).toISOString(),
+  url: url,
+  author: {
+    "@type": "Person",
+    name: "Filipe",
+    url: "https://fpl0.github.io/about",
+  },
+  publisher: {
+    "@type": "Person",
+    name: "Filipe",
+  },
+  mainEntityOfPage: {
+    "@type": "WebPage",
+    "@id": url,
+  },
+};
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(schema)} />

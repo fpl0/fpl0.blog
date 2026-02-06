@@ -1,0 +1,164 @@
+---
+/**
+ * ImageLightbox - Click to zoom images in posts
+ * Automatically attaches to all images in .content
+ *
+ * Features:
+ * - Smooth scale animation on open/close
+ * - Keyboard accessible (Escape to close)
+ * - AbortController for proper event cleanup
+ */
+---
+
+<div id="lightbox" class="lightbox">
+  <button class="lightbox-close" aria-label="Close lightbox">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M18 6L6 18M6 6l12 12"></path>
+    </svg>
+  </button>
+  <img id="lightbox-img" class="lightbox-img" src="" alt="" />
+</div>
+
+<style>
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(8px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 0.3s ease,
+      visibility 0.3s ease;
+    cursor: zoom-out;
+  }
+
+  .lightbox.is-open {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .lightbox-img {
+    max-width: 90vw;
+    max-height: 90vh;
+    object-fit: contain;
+    border-radius: 4px;
+    box-shadow: 0 25px 50px -12px var(--shadow-color);
+    transform: scale(0.95);
+    transition: transform 0.3s ease;
+  }
+
+  .lightbox.is-open .lightbox-img {
+    transform: scale(1);
+  }
+
+  .lightbox-close {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 50%;
+    color: var(--color-muted);
+    cursor: pointer;
+    transition:
+      color 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  .lightbox-close:hover {
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+  }
+
+  .lightbox-close svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* Make content images zoomable */
+  :global(.content img) {
+    cursor: zoom-in;
+    transition: opacity 0.2s ease;
+  }
+
+  :global(.content img:hover) {
+    opacity: 0.9;
+  }
+</style>
+
+<script>
+  let abortController: AbortController | null = null;
+
+  function initLightbox(): void {
+    // Cleanup previous listeners
+    abortController?.abort();
+    abortController = new AbortController();
+    const { signal } = abortController;
+
+    const lightbox = document.getElementById("lightbox");
+    const lightboxImg = document.getElementById(
+      "lightbox-img",
+    ) as HTMLImageElement | null;
+    const closeBtn = lightbox?.querySelector(".lightbox-close");
+
+    if (!lightbox || !lightboxImg) return;
+
+    const openLightbox = (src: string, alt: string): void => {
+      lightboxImg.src = src;
+      lightboxImg.alt = alt;
+      lightbox.classList.add("is-open");
+      document.body.style.overflow = "hidden";
+    };
+
+    const closeLightbox = (): void => {
+      lightbox.classList.remove("is-open");
+      document.body.style.overflow = "";
+    };
+
+    // Attach to all content images
+    document
+      .querySelectorAll<HTMLImageElement>(".content img")
+      .forEach((img) => {
+        img.addEventListener("click", () => openLightbox(img.src, img.alt), {
+          signal,
+        });
+      });
+
+    // Close on backdrop click
+    lightbox.addEventListener(
+      "click",
+      (e) => {
+        if (e.target === lightbox) closeLightbox();
+      },
+      { signal },
+    );
+
+    // Close button
+    closeBtn?.addEventListener("click", closeLightbox, { signal });
+
+    // Escape key
+    document.addEventListener(
+      "keydown",
+      (e) => {
+        if (e.key === "Escape" && lightbox.classList.contains("is-open")) {
+          closeLightbox();
+        }
+      },
+      { signal },
+    );
+  }
+
+  document.addEventListener("DOMContentLoaded", initLightbox);
+  document.addEventListener("astro:page-load", initLightbox);
+</script>

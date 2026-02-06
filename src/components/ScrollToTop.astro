@@ -1,0 +1,220 @@
+---
+/**
+ * ScrollToTop - Subtle floating button with Reading Progress Ring
+ *
+ * Features:
+ * - Circular progress indicator showing reading position
+ * - Throttled scroll handler using requestAnimationFrame
+ * - Smooth scroll animation
+ * - AbortController for proper cleanup
+ */
+---
+
+<button
+  id="scroll-to-top"
+  class="scroll-to-top"
+  aria-label="Scroll to top"
+  title="Back to top"
+>
+  <!-- Progress Ring SVG -->
+  <svg
+    class="progress-ring"
+    width="44"
+    height="44"
+    viewBox="0 0 44 44"
+    fill="none"
+  >
+    <circle
+      class="progress-ring__circle"
+      stroke="currentColor"
+      stroke-width="2"
+      fill="transparent"
+      r="20"
+      cx="22"
+      cy="22"></circle>
+  </svg>
+
+  <!-- Arrow Icon -->
+  <svg
+    class="arrow-icon"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+  >
+    <path d="M12 19V5M5 12l7-7 7 7"></path>
+  </svg>
+</button>
+
+<style>
+  .scroll-to-top {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-surface);
+    border: none; /* Border replaced by the ring */
+    border-radius: 50%;
+    color: var(--color-muted);
+    cursor: pointer;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition:
+      opacity 0.3s ease,
+      visibility 0.3s ease,
+      transform 0.3s ease,
+      color 0.2s ease,
+      box-shadow 0.2s ease;
+    z-index: 100;
+    box-shadow: 0 2px 12px var(--shadow-color);
+    padding: 0;
+  }
+
+  .scroll-to-top.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  /* Progress Ring Styling */
+  .progress-ring {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: rotate(-90deg); /* Start from top */
+    color: var(--color-primary);
+  }
+
+  .progress-ring__circle {
+    transition: stroke-dashoffset 0.1s linear; /* Smooth fill */
+    stroke-dasharray: 125.6; /* 2 * PI * r(20) ≈ 125.66 */
+    stroke-dashoffset: 125.6; /* Start empty */
+    stroke-linecap: round;
+  }
+
+  /* Arrow Styling */
+  .arrow-icon {
+    width: 20px;
+    height: 20px;
+    position: relative;
+    z-index: 2;
+    transition: transform 0.2s ease;
+  }
+
+  .scroll-to-top:hover {
+    color: var(--color-primary);
+    box-shadow: 0 4px 16px var(--shadow-color);
+  }
+
+  .scroll-to-top:hover .arrow-icon {
+    transform: translateY(-2px);
+  }
+
+  @media (max-width: 768px) {
+    .scroll-to-top {
+      bottom: 1.5rem;
+      right: 1.5rem;
+      width: 40px;
+      height: 40px;
+    }
+
+    .progress-ring {
+      width: 40px;
+      height: 40px;
+    }
+
+    .progress-ring__circle {
+      r: 18;
+      cx: 20;
+      cy: 20;
+      stroke-dasharray: 113.1; /* 2 * PI * 18 ≈ 113.1 */
+      stroke-dashoffset: 113.1;
+    }
+
+    .arrow-icon {
+      width: 18px;
+      height: 18px;
+    }
+  }
+</style>
+
+<script>
+  const SCROLL_THRESHOLD = 200;
+
+  let abortController: AbortController | null = null;
+
+  function initScrollToTop(): void {
+    // Cleanup previous listeners
+    abortController?.abort();
+    abortController = new AbortController();
+    const { signal } = abortController;
+
+    const button = document.getElementById("scroll-to-top");
+    if (!button) return;
+
+    const circle = button.querySelector(
+      ".progress-ring__circle",
+    ) as SVGCircleElement;
+
+    // Calculate circumference based on radius
+    // Mobile: r=18 -> 113.1, Desktop: r=20 -> 125.7
+    const radius = circle.r.baseVal.value;
+    const circumference = radius * 2 * Math.PI;
+
+    // Set initial state
+    circle.style.strokeDasharray = `${circumference} ${circumference}`;
+    circle.style.strokeDashoffset = `${circumference}`;
+
+    let ticking = false;
+
+    const updateProgress = (): void => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight;
+      const winHeight = window.innerHeight;
+
+      // Calculate scroll percentage (0 to 1)
+      const scrollPercent = scrollTop / (docHeight - winHeight);
+
+      // Invert for dashoffset (1 -> 0)
+      // Math.max to prevent negative values on overscroll
+      const offset = circumference - Math.min(scrollPercent, 1) * circumference;
+
+      circle.style.strokeDashoffset = offset.toString();
+
+      // Toggle visibility
+      button.classList.toggle("is-visible", scrollTop > SCROLL_THRESHOLD);
+
+      ticking = false;
+    };
+
+    window.addEventListener(
+      "scroll",
+      () => {
+        if (!ticking) {
+          requestAnimationFrame(updateProgress);
+          ticking = true;
+        }
+      },
+      { signal, passive: true },
+    );
+
+    button.addEventListener(
+      "click",
+      () => {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      },
+      { signal },
+    );
+
+    // Initial check
+    updateProgress();
+  }
+
+  document.addEventListener("DOMContentLoaded", initScrollToTop);
+  document.addEventListener("astro:page-load", initScrollToTop);
+</script>

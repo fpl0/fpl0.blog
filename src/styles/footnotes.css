@@ -1,0 +1,182 @@
+/* ==========================================================================
+   FOOTNOTES & DEFINITIONS
+   Footnote, definition list, and task list styling
+   ========================================================================== */
+
+/* --- Task Lists --- */
+.content ul.contains-task-list {
+  list-style: none;
+  padding-left: 0;
+  margin-left: 0;
+}
+
+.content li.task-list-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-left: 0;
+  margin-bottom: 0.5rem;
+}
+
+.content li.task-list-item::before {
+  content: none;
+  display: none;
+}
+
+/* Use attribute selector for higher specificity without !important */
+.content input[type="checkbox"][type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 1.35em;
+  height: 1.35em;
+  border: 1px solid var(--color-muted);
+  border-radius: 4px;
+  background-color: transparent;
+  display: grid;
+  place-content: center;
+  margin-top: 0;
+  flex-shrink: 0;
+  cursor: default;
+  opacity: 1;
+}
+
+.content input[type="checkbox"]::before {
+  content: "";
+  width: 0.8em;
+  height: 0.8em;
+  transform: scale(0);
+  transition: 120ms transform ease-in-out;
+  box-shadow: inset 1em 1em var(--color-bg);
+  transform-origin: center;
+  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+  background-color: var(--color-bg);
+}
+
+.content input[type="checkbox"]:checked {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  opacity: 1;
+}
+
+.content input[type="checkbox"]:checked::before {
+  transform: scale(1);
+}
+
+.content input[type="checkbox"]:disabled {
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+/* --- Footnotes --- */
+.content section[data-footnotes],
+.content .footnotes {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--color-border);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-muted);
+  max-width: none;
+}
+
+.content section[data-footnotes] ol,
+.content .footnotes ol {
+  padding-left: 0;
+  margin: 0;
+  list-style: none;
+  counter-reset: footnote;
+  max-width: none;
+}
+
+.content section[data-footnotes] li,
+.content .footnotes li {
+  margin-bottom: 0.75rem;
+  padding-left: 0;
+  max-width: none;
+  counter-increment: footnote;
+}
+
+.content section[data-footnotes] li::before,
+.content .footnotes li::before {
+  content: counter(footnote) ". ";
+  color: var(--color-primary);
+  font-family: var(--font-mono-brand);
+  font-size: 0.9em;
+}
+
+.content section[data-footnotes] li > p,
+.content .footnotes li > p {
+  display: inline;
+  margin: 0;
+}
+
+/* Footnote term labels */
+.content section[data-footnotes] strong,
+.content .footnotes strong {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+/* Footnote reference links (superscript in text) */
+.content a[data-footnote-ref],
+.content sup a {
+  text-decoration: none;
+  color: var(--color-primary);
+  font-weight: 600;
+  font-size: 0.75em;
+}
+
+.content a[data-footnote-ref]:hover,
+.content sup a:hover {
+  text-decoration: underline;
+  background-color: transparent;
+}
+
+/* Footnote back reference (return arrow) */
+.content a[data-footnote-backref],
+.content .footnote-backref {
+  text-decoration: none;
+  border: none;
+  margin-left: 0.35rem;
+  color: var(--color-primary);
+  font-size: 0.85em;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+}
+
+.content a[data-footnote-backref]:hover,
+.content .footnote-backref:hover {
+  opacity: 1;
+  background-color: transparent;
+}
+
+/* Superscript spacing */
+sup {
+  margin-left: 0.05em;
+  margin-right: 0.05em;
+  line-height: 0;
+}
+
+/* --- Definition Lists --- */
+.content dl {
+  margin: 2rem 0;
+  border-left: 1px solid var(--color-border);
+  padding-left: 1.5rem;
+}
+
+.content dt {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  color: var(--color-primary);
+  margin-top: 1.25rem;
+  font-size: 0.95rem;
+}
+
+.content dd {
+  margin-left: 0;
+  margin-bottom: 1.25rem;
+  color: var(--color-muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}

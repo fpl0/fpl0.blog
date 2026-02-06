@@ -1,0 +1,29 @@
+---
+/**
+ * PostCard - Blog post preview component
+ *
+ * Features:
+ * - Link prefetching on hover for instant navigation
+ * - Semantic HTML structure
+ */
+
+import type { CollectionEntry } from "astro:content";
+import FormattedDate from "./FormattedDate.astro";
+
+interface Props {
+  post: CollectionEntry<"blog">;
+}
+
+const { post } = Astro.props;
+const postUrl = `/blog/${post.slug}`;
+---
+
+<li class="post-item">
+  <a href={postUrl} class="post-link" data-astro-prefetch="hover">
+    <div class="post-head">
+      <span class="post-title">{post.data.title}</span>
+      <FormattedDate date={post.data.date} className="post-date" />
+    </div>
+    <p class="post-summary">{post.data.summary}</p>
+  </a>
+</li>

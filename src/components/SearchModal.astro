@@ -1,0 +1,372 @@
+---
+/**
+ * SearchModal - Full-site fuzzy search with Cmd/Ctrl+K
+ * Pre-loads search index at idle time for instant results
+ *
+ * Architecture:
+ * - Uses AbortController for proper event listener cleanup
+ * - Singleton pattern prevents duplicate listeners on View Transitions
+ * - Debounced search for performance
+ */
+import "../styles/search-modal.css";
+---
+
+<div class="search-backdrop" id="search-backdrop">
+  <div class="search-modal" role="dialog" aria-modal="true" aria-label="Search">
+    <div class="search-input-wrapper">
+      <svg
+        class="search-icon"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <circle cx="11" cy="11" r="8"></circle>
+        <path d="m21 21-4.35-4.35"></path>
+      </svg>
+      <input
+        type="text"
+        class="search-input"
+        id="search-input"
+        placeholder="Search posts..."
+        autocomplete="off"
+        spellcheck="false"
+        aria-label="Search posts"
+      />
+      <div class="search-kbd">
+        <kbd>esc</kbd>
+      </div>
+    </div>
+    <div
+      class="search-results"
+      id="search-results"
+      role="listbox"
+      aria-label="Search results"
+      aria-live="polite"
+    >
+      <div class="search-empty">Type to search...</div>
+    </div>
+    <div class="search-footer">
+      <div class="search-footer-hint">
+        <span><kbd>↑</kbd><kbd>↓</kbd> navigate</span>
+        <span><kbd>↵</kbd> select</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  interface SearchItem {
+    readonly title: string;
+    readonly summary: string;
+    readonly tags: readonly string[];
+    readonly slug: string;
+    readonly date: string;
+  }
+
+  // Module state - persists across View Transitions
+  let searchIndex: SearchItem[] = [];
+  let selectedIndex = 0;
+  let results: SearchItem[] = [];
+  let isInitialized = false;
+  let abortController: AbortController | null = null;
+
+  // Constants
+  const SEARCH_WEIGHTS = {
+    TITLE: 10,
+    TAG: 4,
+    SUMMARY: 1,
+  } as const;
+
+  const MAX_RESULTS = 8;
+  const MAX_VISIBLE_TAGS = 3;
+  const LATEST_POSTS_COUNT = 3;
+
+  /**
+   * Lightweight fuzzy matching algorithm
+   * Returns score based on match quality; 0 if no match
+   */
+  function fuzzyMatch(query: string, text: string): number {
+    const lowerQuery = query.toLowerCase();
+    const lowerText = text.toLowerCase();
+
+    // Exact substring match gets highest score
+    if (lowerText.includes(lowerQuery)) {
+      return 100 + (lowerQuery.length / lowerText.length) * 50;
+    }
+
+    // Fuzzy matching - all query chars must appear in order
+    let queryIndex = 0;
+    let score = 0;
+    let consecutiveBonus = 0;
+
+    for (
+      let i = 0;
+      i < lowerText.length && queryIndex < lowerQuery.length;
+      i++
+    ) {
+      if (lowerText[i] === lowerQuery[queryIndex]) {
+        score += 10 + consecutiveBonus;
+        consecutiveBonus += 5;
+        queryIndex++;
+      } else {
+        consecutiveBonus = 0;
+      }
+    }
+
+    return queryIndex === lowerQuery.length ? score : 0;
+  }
+
+  function searchPosts(query: string): SearchItem[] {
+    const trimmedQuery = query.trim();
+    if (!trimmedQuery) return [];
+
+    const scored = searchIndex.map((post) => {
+      const titleScore =
+        fuzzyMatch(trimmedQuery, post.title) * SEARCH_WEIGHTS.TITLE;
+      const tagScore = post.tags.reduce(
+        (max, tag) =>
+          Math.max(max, fuzzyMatch(trimmedQuery, tag) * SEARCH_WEIGHTS.TAG),
+        0,
+      );
+      const summaryScore =
+        fuzzyMatch(trimmedQuery, post.summary) * SEARCH_WEIGHTS.SUMMARY;
+
+      return { post, score: titleScore + tagScore + summaryScore };
+    });
+
+    return scored
+      .filter((item) => item.score > 0)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, MAX_RESULTS)
+      .map((item) => item.post);
+  }
+
+  function getLatestPosts(): SearchItem[] {
+    return [...searchIndex]
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .slice(0, LATEST_POSTS_COUNT);
+  }
+
+  function escapeHtml(text: string): string {
+    const div = document.createElement("div");
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  function renderResults(items: SearchItem[]): void {
+    const container = document.getElementById("search-results");
+    if (!container) return;
+
+    if (items.length === 0) {
+      const input = document.getElementById(
+        "search-input",
+      ) as HTMLInputElement | null;
+      container.innerHTML = `<div class="search-empty">${
+        input?.value ? "No results found" : "Type to search..."
+      }</div>`;
+      return;
+    }
+
+    container.innerHTML = items
+      .map((item, i) => {
+        const tagsHtml = item.tags
+          .slice(0, MAX_VISIBLE_TAGS)
+          .map(
+            (tag) =>
+              `<span class="search-result-tag">#${escapeHtml(tag)}</span>`,
+          )
+          .join("");
+        const isSelected = i === selectedIndex;
+
+        return `
+          <a href="/blog/${item.slug}" 
+             class="search-result ${isSelected ? "is-selected" : ""}" 
+             data-index="${i}" 
+             role="option" 
+             aria-selected="${isSelected}">
+            <div class="search-result-title">${escapeHtml(item.title)}</div>
+            <div class="search-result-meta">
+              <span class="search-result-summary">${escapeHtml(item.summary)}</span>
+              ${tagsHtml ? `<span class="search-result-tags">${tagsHtml}</span>` : ""}
+            </div>
+          </a>
+        `;
+      })
+      .join("");
+  }
+
+  function openSearch(): void {
+    const backdrop = document.getElementById("search-backdrop");
+    const input = document.getElementById(
+      "search-input",
+    ) as HTMLInputElement | null;
+
+    backdrop?.classList.add("is-open");
+    document.body.style.overflow = "hidden";
+
+    // Focus input after animation starts
+    requestAnimationFrame(() => input?.focus());
+
+    // Show latest posts by default
+    selectedIndex = 0;
+    results = getLatestPosts();
+    renderResults(results);
+  }
+
+  function closeSearch(): void {
+    const backdrop = document.getElementById("search-backdrop");
+    const input = document.getElementById(
+      "search-input",
+    ) as HTMLInputElement | null;
+
+    backdrop?.classList.remove("is-open");
+    if (input) input.value = "";
+    results = [];
+    selectedIndex = 0;
+    renderResults([]);
+    document.body.style.overflow = "";
+  }
+
+  function navigateToSelected(): void {
+    const selectedResult = results[selectedIndex];
+    if (selectedResult) {
+      window.location.href = `/blog/${selectedResult.slug}`;
+      closeSearch();
+    }
+  }
+
+  function handleKeydown(e: KeyboardEvent): void {
+    const backdrop = document.getElementById("search-backdrop");
+
+    // Toggle search with Cmd/Ctrl+K
+    if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+      e.preventDefault();
+      backdrop?.classList.contains("is-open") ? closeSearch() : openSearch();
+      return;
+    }
+
+    // Early return if modal not open
+    if (!backdrop?.classList.contains("is-open")) return;
+
+    switch (e.key) {
+      case "Escape":
+        closeSearch();
+        break;
+      case "ArrowDown":
+        e.preventDefault();
+        selectedIndex = Math.min(selectedIndex + 1, results.length - 1);
+        renderResults(results);
+        break;
+      case "ArrowUp":
+        e.preventDefault();
+        selectedIndex = Math.max(selectedIndex - 1, 0);
+        renderResults(results);
+        break;
+      case "Enter":
+        e.preventDefault();
+        navigateToSelected();
+        break;
+    }
+  }
+
+  async function loadSearchIndex(): Promise<void> {
+    if (searchIndex.length > 0) return;
+
+    try {
+      const response = await fetch("/search.json");
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      searchIndex = await response.json();
+    } catch (error) {
+      console.error("[SearchModal] Failed to load search index:", error);
+    }
+  }
+
+  function initSearch(): void {
+    // Cleanup previous listeners if reinitializing
+    if (abortController) {
+      abortController.abort();
+    }
+    abortController = new AbortController();
+    const { signal } = abortController;
+
+    const input = document.getElementById(
+      "search-input",
+    ) as HTMLInputElement | null;
+    const resultsContainer = document.getElementById("search-results");
+    const backdrop = document.getElementById("search-backdrop");
+
+    // Load search index during browser idle time
+    if ("requestIdleCallback" in window) {
+      requestIdleCallback(() => loadSearchIndex());
+    } else {
+      setTimeout(loadSearchIndex, 200);
+    }
+
+    // Click backdrop to close
+    backdrop?.addEventListener(
+      "click",
+      (e) => {
+        if (e.target === backdrop) closeSearch();
+      },
+      { signal },
+    );
+
+    // Search input handler with debounce
+    let debounceTimer: ReturnType<typeof setTimeout>;
+    input?.addEventListener(
+      "input",
+      () => {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+          selectedIndex = 0;
+          results = input.value.trim()
+            ? searchPosts(input.value)
+            : getLatestPosts();
+          renderResults(results);
+        }, 16); // Single frame debounce
+      },
+      { signal },
+    );
+
+    // Click to navigate
+    resultsContainer?.addEventListener(
+      "click",
+      (e) => {
+        const result = (e.target as HTMLElement).closest(".search-result");
+        if (result) {
+          const index = parseInt(result.getAttribute("data-index") ?? "0", 10);
+          selectedIndex = index;
+          navigateToSelected();
+        }
+      },
+      { signal },
+    );
+
+    // Hover to select
+    resultsContainer?.addEventListener(
+      "mousemove",
+      (e) => {
+        const result = (e.target as HTMLElement).closest(".search-result");
+        if (result) {
+          const index = parseInt(result.getAttribute("data-index") ?? "0", 10);
+          if (index !== selectedIndex) {
+            selectedIndex = index;
+            renderResults(results);
+          }
+        }
+      },
+      { signal },
+    );
+  }
+
+  // Global keyboard handler - singleton pattern
+  if (!isInitialized) {
+    isInitialized = true;
+    document.addEventListener("keydown", handleKeydown);
+  }
+
+  // Initialize on page load and after Astro View Transitions
+  document.addEventListener("DOMContentLoaded", initSearch);
+  document.addEventListener("astro:page-load", initSearch);
+</script>

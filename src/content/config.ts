@@ -1,0 +1,28 @@
+/**
+ * Blog Content Collection Schema
+ *
+ * Defines the frontmatter structure for blog posts.
+ * The `date` field is computed from publicationDate or createdDate.
+ */
+
+import { defineCollection, z } from "astro:content";
+
+const blog = defineCollection({
+  type: "content",
+  schema: z
+    .object({
+      title: z.string(),
+      summary: z.string().max(160, "Summary must be 160 characters or less for SEO"),
+      author: z.string().default("Filipe Lima"),
+      tags: z.array(z.string()).default([]),
+      isDraft: z.boolean().default(true),
+      createdDate: z.coerce.date(),
+      publicationDate: z.coerce.date().optional(),
+    })
+    .transform((data) => ({
+      ...data,
+      date: data.publicationDate ?? data.createdDate,
+    })),
+});
+
+export const collections = { blog } as const;

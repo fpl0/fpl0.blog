@@ -1,0 +1,14 @@
+---
+interface Props {
+  backLink?: string;
+  backText?: string;
+}
+
+const { backLink = "/", backText = "← home" } = Astro.props;
+---
+
+<header class="page-header-nav">
+  <nav>
+    <a href={backLink} class="back-link">{backText}</a>
+  </nav>
+</header>

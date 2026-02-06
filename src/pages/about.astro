@@ -1,0 +1,44 @@
+---
+/**
+ * About Page - Personal introduction and social links
+ */
+
+import Layout from "../layouts/Layout.astro";
+import PageHeader from "../components/PageHeader.astro";
+import "../styles/about.css";
+
+const description = "Engineering lead based in Dublin, endlessly curious.";
+---
+
+<Layout title="About | fpl0" description={description}>
+  <PageHeader />
+
+  <main id="main-content" class="about-main">
+    <section class="intro">
+      <h1 class="greeting">Hello, I'm Filipe.</h1>
+      <div class="bio">
+        <p class="bio-text">
+          I'm an engineering lead based in <strong>Dublin</strong>, and
+          endlessly curious.
+        </p>
+        <p class="bio-text">
+          This blog explores my interests, captures my thoughts, and documents
+          my learning journey.
+        </p>
+      </div>
+    </section>
+
+    <section class="details">
+      <h2 class="section-title">Connect</h2>
+      <div class="connect-links">
+        <a
+          href="https://github.com/fpl0"
+          target="_blank"
+          rel="me noopener noreferrer"
+          class="connect-link">GitHub</a
+        >
+        <a href="mailto:me@fpl0.io" rel="me" class="connect-link">Email</a>
+      </div>
+    </section>
+  </main>
+</Layout>

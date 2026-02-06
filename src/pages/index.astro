@@ -1,0 +1,70 @@
+---
+/**
+ * Home Page - Blog post listing with search
+ */
+
+import Layout from "../layouts/Layout.astro";
+import "../styles/home.css";
+import PostCard from "../components/PostCard.astro";
+import { getCollection } from "astro:content";
+
+const posts = await getCollection("blog", ({ data }) => !data.isDraft);
+const sortedPosts = posts.sort((a, b) => {
+  // Primary: descending by date
+  const dateDiff = b.data.date.valueOf() - a.data.date.valueOf();
+  // Secondary: ascending by slug for stable ordering when dates match
+  return dateDiff !== 0 ? dateDiff : a.slug.localeCompare(b.slug);
+});
+---
+
+<Layout title="fpl0">
+  <header class="home-header">
+    <h1 class="logo">fpl0<span class="cursor">_</span></h1>
+    <blockquote class="bio-quote">
+      <p>"True delight is in the finding out rather than in the knowing."</p>
+      <cite>Isaac Asimov</cite>
+    </blockquote>
+    <nav class="home-nav">
+      <a href="/about">about</a>
+      <span class="separator">/</span>
+      <a href="/tags">tags</a>
+      <span class="separator">/</span>
+      <button
+        class="search-hint"
+        id="search-hint"
+        type="button"
+        aria-label="Search"
+        aria-controls="search-backdrop"
+      >
+        <span class="search-hint-text">search</span>
+        <kbd>⌘K</kbd>
+      </button>
+    </nav>
+  </header>
+  <main id="main-content" class="home-main">
+    <section class="archive">
+      <ul class="post-list">
+        {sortedPosts.map((post) => <PostCard post={post} />)}
+      </ul>
+    </section>
+  </main>
+</Layout>
+
+<script>
+  function initSearchHint(): void {
+    const hint = document.getElementById("search-hint");
+    hint?.addEventListener("click", () => {
+      document.dispatchEvent(
+        new KeyboardEvent("keydown", {
+          key: "k",
+          metaKey: true,
+          ctrlKey: true,
+          bubbles: true,
+        }),
+      );
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", initSearchHint);
+  document.addEventListener("astro:page-load", initSearchHint);
+</script>

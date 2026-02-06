@@ -1,0 +1,137 @@
+---
+/**
+ * ThemeToggle - Dark/Light theme switcher
+ * Persists preference to localStorage, syncs across tabs
+ *
+ * Features:
+ * - Smooth icon transition (sun ↔ moon)
+ * - Respects prefers-color-scheme on first visit
+ * - No flash on page load (handled by inline script in Layout)
+ */
+---
+
+<button
+  id="theme-toggle"
+  class="theme-toggle"
+  type="button"
+  aria-label="Toggle dark/light theme"
+>
+  <svg
+    class="icon icon-sun"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+  >
+    <circle cx="12" cy="12" r="5"></circle>
+    <line x1="12" y1="1" x2="12" y2="3"></line>
+    <line x1="12" y1="21" x2="12" y2="23"></line>
+    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+    <line x1="1" y1="12" x2="3" y2="12"></line>
+    <line x1="21" y1="12" x2="23" y2="12"></line>
+    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+  </svg>
+  <svg
+    class="icon icon-moon"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+  >
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+  </svg>
+</button>
+
+<style>
+  .theme-toggle {
+    position: fixed;
+    bottom: 1.5rem;
+    left: 1.5rem;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 50%;
+    color: var(--color-muted);
+    cursor: pointer;
+    z-index: 100;
+    transition:
+      color 0.2s ease,
+      border-color 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  .theme-toggle:hover {
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+    transform: scale(1.05);
+  }
+
+  .icon {
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    transition:
+      opacity 0.3s ease,
+      transform 0.3s ease;
+  }
+
+  /* Dark theme (default): show sun icon */
+  .icon-sun {
+    opacity: 1;
+    transform: rotate(0deg);
+  }
+
+  .icon-moon {
+    opacity: 0;
+    transform: rotate(-90deg);
+  }
+
+  /* Light theme: show moon icon */
+  :global([data-theme="light"]) .icon-sun {
+    opacity: 0;
+    transform: rotate(90deg);
+  }
+
+  :global([data-theme="light"]) .icon-moon {
+    opacity: 1;
+    transform: rotate(0deg);
+  }
+
+  @media (max-width: 600px) {
+    .theme-toggle {
+      bottom: 1rem;
+      left: 1rem;
+    }
+  }
+</style>
+
+<script is:inline>
+  (function () {
+    function initThemeToggle() {
+      var toggle = document.getElementById("theme-toggle");
+      if (!toggle || toggle.dataset.initialized) return;
+      toggle.dataset.initialized = "true";
+
+      toggle.addEventListener("click", function () {
+        var current =
+          document.documentElement.getAttribute("data-theme") || "dark";
+        var next = current === "dark" ? "light" : "dark";
+        document.documentElement.setAttribute("data-theme", next);
+        localStorage.setItem("theme", next);
+      });
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initThemeToggle);
+    } else {
+      initThemeToggle();
+    }
+    document.addEventListener("astro:page-load", initThemeToggle);
+  })();
+</script>

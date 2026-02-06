@@ -1,0 +1,31 @@
+{
+  "name": "fpl0.blog",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "optimize-images": "find public/images -type f \\( -name '*.png' -o -name '*.jpg' -o -name '*.jpeg' \\) -exec sh -c 'cwebp -q 80 \"$1\" -o \"${1%.*}.webp\" && rm \"$1\"' _ {} \\;",
+    "prebuild": "bun run optimize-images || true",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/check": "^0.9.6",
+    "@astrojs/mdx": "^4.3.13",
+    "@astrojs/rss": "^4.0.15",
+    "@astrojs/sitemap": "^3.7.0",
+    "@fontsource-variable/inter": "^5.2.8",
+    "@fontsource/jetbrains-mono": "^5.2.8",
+    "@fontsource/merriweather": "^5.2.11",
+    "@fontsource/space-mono": "^5.2.9",
+    "astro": "^5.17.1",
+    "remark-gfm": "^4.0.1",
+    "sanitize-html": "^2.17.0",
+    "typescript": "^5.9.3"
+  },
+  "devDependencies": {
+    "@types/node": "^25.2.0",
+    "@types/sanitize-html": "^2.16.0"
+  }
+}
