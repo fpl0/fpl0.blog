@@ -5,7 +5,7 @@
 /* The Wrapper handles positioning */
 .code-wrapper {
   position: relative;
-  margin: 2rem 0;
+  margin: var(--space-8) 0;
   border-radius: 8px;
   background: var(--color-surface);
   /* Ensure border is on the wrapper, not pre, for clean edges */
@@ -20,8 +20,8 @@
 /* Language Label - Floating Top Left */
 .code-lang {
   position: absolute;
-  top: 0.75rem;
-  right: 3rem; /* Left of the copy button */
+  top: var(--space-3);
+  right: var(--space-12); /* Left of the copy button */
   font-family: var(--font-mono);
   font-size: 0.7rem;
   font-weight: 600;
@@ -37,8 +37,8 @@
 /* Copy Button - Floating Top Right */
 .code-copy {
   position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
+  top: var(--space-2);
+  right: var(--space-2);
   width: 2rem;
   height: 2rem;
   display: flex;
@@ -107,8 +107,8 @@
 /* Pre block styling updates */
 .content pre {
   margin: 0 !important;
-  padding: 1.25rem;
-  padding-top: 2.5rem; /* Space for the floating elements */
+  padding: var(--space-5);
+  padding-top: var(--space-10); /* Space for the floating elements */
   border: none !important;
   background: transparent !important;
   border-radius: 0 !important;
@@ -116,10 +116,10 @@
 }
 
 /* Mobile adjustments */
-@media (max-width: 767px) {
+@media (max-width: 600px) {
   .content pre {
-    padding: 1rem;
-    padding-top: 2.5rem;
+    padding: var(--space-4);
+    padding-top: var(--space-10);
     font-size: 0.8rem;
   }
 }

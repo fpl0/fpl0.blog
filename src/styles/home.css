@@ -1,5 +1,5 @@
 .home-header {
-  margin-bottom: 3rem;
+  margin-bottom: var(--space-12);
   padding-bottom: 0;
 }
 
@@ -33,9 +33,9 @@
 
 .home-nav {
   display: flex;
-  gap: 0.5rem;
+  gap: var(--space-2);
   align-items: center;
-  margin-top: 1.5rem;
+  margin-top: var(--space-6);
   font-family: var(--font-mono-brand);
   font-size: var(--font-size-xs);
   color: var(--color-muted);
@@ -62,7 +62,7 @@
 .search-hint {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: var(--space-2);
   background: transparent;
   border: none;
   padding: 0;
@@ -88,7 +88,7 @@
 }
 
 .bio-quote {
-  margin: 1.5rem 0 0 0;
+  margin: var(--space-6) 0 0 0;
   max-width: 100%;
   border-left: none;
   padding-left: 0;
@@ -117,7 +117,7 @@
   letter-spacing: 0.05em;
   font-weight: 500;
   color: var(--color-muted);
-  margin-top: 0.5rem;
+  margin-top: var(--space-2);
   font-style: normal;
 }
 
@@ -125,7 +125,7 @@
 .post-list {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--space-2);
   list-style: none;
   padding: 0;
   margin: 0;
@@ -138,10 +138,10 @@
 .post-link {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: var(--space-1);
   text-decoration: none;
   border-bottom: none;
-  padding: 0.75rem;
+  padding: var(--space-3);
   border-radius: 6px;
   transition: all 0.2s ease;
   position: relative;

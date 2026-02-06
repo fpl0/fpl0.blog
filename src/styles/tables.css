@@ -5,7 +5,7 @@
 
 .content .table-wrapper {
   overflow-x: auto;
-  margin: 2.5rem 0 0 0;
+  margin: var(--space-10) 0 0 0;
   border-radius: 6px;
   -webkit-overflow-scrolling: touch;
 }
@@ -58,8 +58,8 @@
   font-size: var(--font-size-sm);
   color: var(--color-muted);
   text-align: left;
-  margin-top: 0.75rem;
-  margin-bottom: 2.5rem;
+  margin-top: var(--space-3);
+  margin-bottom: var(--space-10);
   line-height: var(--line-height-relaxed);
   max-width: none;
 }
