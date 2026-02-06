@@ -101,7 +101,10 @@ const canonicalURL = new URL(`/blog/${post.slug}/`, Astro.site);
         link.className = "anchor-link";
         link.href = `#${header.id}`;
         link.textContent = "#";
-        link.ariaLabel = "Link to this section";
+        link.setAttribute(
+          "aria-label",
+          `Link to section: ${header.textContent}`,
+        );
         header.appendChild(link);
       });
   }

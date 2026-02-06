@@ -123,7 +123,10 @@
         const btn = document.createElement("button");
         btn.className = "lyt-playbtn";
         btn.type = "button";
-        btn.ariaLabel = `Play: ${this.getAttribute("title") ?? "Video"}`;
+        btn.setAttribute(
+          "aria-label",
+          `Play: ${this.getAttribute("title") ?? "Video"}`,
+        );
         this.appendChild(btn);
       }
 
