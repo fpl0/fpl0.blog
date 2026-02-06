@@ -5,7 +5,10 @@
 
 .logo {
   font-family: var(--font-mono-brand);
-  font-size: 2.2rem;
+  /* Logo Scale: Minor Third +3 over base? No, distinct display size.
+     Let's lock it to 2.0736rem (1.2^4 * 1rem) for mathematical harmony
+     or simply use the new H1 scale. Let's use H1 scale roughly. */
+  font-size: var(--font-size-h1);
   font-weight: 500;
   margin: 0;
   letter-spacing: -0.04em;
@@ -97,7 +100,10 @@
 .bio-quote p {
   font-family: var(--font-serif);
   font-style: normal;
-  font-size: clamp(1rem, 2.5vw + 0.5rem, var(--font-size-lead));
+  /* Quote Scale: Slightly larger than body, fluid.
+     Target: ~1.2x body.
+     Clamp: 1.2rem -> 1.275rem (matches H3 scale exactly) */
+  font-size: var(--font-size-h3);
   line-height: var(--line-height-normal);
   color: var(--color-text);
   font-weight: 400;
@@ -145,8 +151,9 @@
   border-radius: 6px;
   transition: all 0.2s ease;
   position: relative;
-  left: -0.75rem;
-  width: calc(100% + 1.5rem);
+  /* Grid alignment: -12px (space-3) to offset padding */
+  left: calc(var(--space-3) * -1);
+  width: calc(100% + var(--space-6)); /* 100% + 24px (2 * padding) */
 }
 
 .post-head {
@@ -189,7 +196,8 @@
 .post-title {
   font-family: var(--font-serif);
   font-weight: 500;
-  font-size: var(--font-size-lead);
+  /* Use strict H3 or Lead size. Let's stick to H3 for clear hierarchy */
+  font-size: var(--font-size-h3);
   color: var(--color-text);
   transition: color 0.2s ease;
 }
@@ -200,7 +208,7 @@
   color: var(--color-muted);
   font-family: var(--font-sans);
   line-height: var(--line-height-relaxed);
-  max-width: 60ch;
+  max-width: 72ch; /* Match global max-width */
   transition: color 0.2s ease;
 }
 

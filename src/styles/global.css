@@ -4,16 +4,21 @@
      Based on a Minor Third (1.2) ratio for harmonious sizing
      ========================================================================== */
 
-  /* Base: 16px → 18px fluid */
-  --font-size-base: clamp(1rem, 0.34vw + 0.91rem, 1.125rem);
+  /* Base: 16px (1rem) -> 17px (1.0625rem)
+     Slope: 0.11vw, Intercept: 0.96rem
+     Range: 320px -> 1200px */
+  --font-size-base: clamp(1rem, 0.11vw + 0.96rem, 1.0625rem);
 
-  /* Heading Scale */
-  --font-size-h1: clamp(2.44rem, 2.38vw + 1.85rem, 3.05rem);
-  --font-size-h2: clamp(1.8rem, 1.5vw + 1.4rem, 2.2rem);
-  --font-size-h3: clamp(1.1rem, 0.5vw + 1rem, 1.25rem);
+  /* Heading Scale - Minor Third (1.2) */
+  /* H1: 27.65px -> 29.38px */
+  --font-size-h1: clamp(1.728rem, 0.20vw + 1.66rem, 1.836rem);
+  /* H2: 23.04px -> 24.48px */
+  --font-size-h2: clamp(1.44rem, 0.16vw + 1.39rem, 1.53rem);
+  /* H3: 19.20px -> 20.40px */
+  --font-size-h3: clamp(1.2rem, 0.14vw + 1.15rem, 1.275rem);
 
-  /* Body & Reading */
-  --font-size-body: clamp(1rem, 0.5vw + 0.95rem, 1.1875rem);
+  /* Body & Reading - Matches Base for consistency in this density model */
+  --font-size-body: var(--font-size-base);
   --font-size-lead: 1.35rem;
 
   /* UI Scale (smaller sizes) */
@@ -27,8 +32,8 @@
   --line-height-snug: 1.25;
   --line-height-subhead: 1.4;
   --line-height-normal: 1.5;
-  --line-height-relaxed: 1.65;
-  --line-height-loose: 1.75;
+  --line-height-relaxed: 1.6; /* Was 1.65/1.75 - tighter for density */
+  --line-height-loose: 1.7; /* Was 1.75 */
 
   /* ==========================================================================
      COLOR SYSTEM
@@ -77,14 +82,14 @@
      Consistent spacing tokens for margins, padding, and gaps
      ========================================================================== */
   --space-1: 0.25rem;   /* 4px - micro spacing */
-  --space-2: 0.5rem;    /* 8px - tight spacing */
-  --space-3: 0.75rem;   /* 12px - compact spacing */
-  --space-4: 1rem;      /* 16px - base unit */
-  --space-5: 1.25rem;   /* 20px - comfortable */
-  --space-6: 1.5rem;    /* 24px - relaxed */
-  --space-8: 2rem;      /* 32px - section gap */
-  --space-10: 2.5rem;   /* 40px - large section */
-  --space-12: 3rem;     /* 48px - major section */
+  --space-2: 0.5rem;    /* 8px - strict grid unit */
+  --space-3: 0.75rem;   /* 12px */
+  --space-4: 1rem;      /* 16px */
+  --space-5: 1.25rem;   /* 20px */
+  --space-6: 1.5rem;    /* 24px */
+  --space-8: 2rem;      /* 32px */
+  --space-10: 2.5rem;   /* 40px */
+  --space-12: 3rem;     /* 48px */
 }
 
 /* ==========================================================================
@@ -198,7 +203,7 @@ body {
   line-height: var(--line-height-relaxed);
   background-color: var(--color-bg);
   color: var(--color-text);
-  max-width: 68ch;
+  max-width: 72ch; /* Increased from 68ch for better horizontal use */
   margin: 0 auto;
   padding: 4rem 1.5rem;
   -webkit-font-smoothing: antialiased;
@@ -299,17 +304,17 @@ h3 {
 }
 
 h1 {
-  letter-spacing: -0.035em;
+  letter-spacing: -0.02em; /* Optically tightened for lighter weight feel */
   font-size: var(--font-size-h1);
   line-height: 1.1;
 }
 h2 {
-  letter-spacing: -0.025em;
+  letter-spacing: -0.01em;
   font-size: var(--font-size-h2);
   line-height: 1.2;
 }
 h3 {
-  letter-spacing: -0.01em;
+  letter-spacing: 0;
   font-size: var(--font-size-h3);
 }
 

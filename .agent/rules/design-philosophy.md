@@ -22,19 +22,27 @@ This document is the SINGLE SOURCE OF TRUTH for this project's visual identity. 
 | `--font-mono-brand` | `Space Mono` | Brand elements: Logo, dates, metadata, error codes (`404`) |
 | `--font-mono` | `JetBrains Mono` | Code blocks, inline code, technical content |
 
-### Type Scale (Fluid, Minor Third Ratio)
+### Type Scale (Strict Minor Third - 1.200)
+
+**Framework:** Linear Interpolation (`slope * vw + intercept`) anchored to strict pixel values.
+
+- **Mobile Base:** `16px` (1rem)
+- **Desktop Base:** `17px` (1.0625rem)
 
 ```css
---font-size-base: clamp(1rem, 0.34vw + 0.91rem, 1.125rem);  /* 16px → 18px */
---font-size-h1: clamp(2.44rem, 2.38vw + 1.85rem, 3.05rem);
---font-size-h2: clamp(1.8rem, 1.5vw + 1.4rem, 2.2rem);
---font-size-h3: clamp(1.1rem, 0.5vw + 1rem, 1.25rem);
---font-size-body: 1.1875rem;
---font-size-lead: 1.35rem;
---font-size-sm: 0.9375rem;
---font-size-xs: 0.875rem;
---font-size-xxs: 0.8125rem;
---font-size-label: 0.75rem;
+  /* Base: 16px (1rem) -> 17px (1.0625rem) range */
+  --font-size-base: clamp(1rem, 0.11vw + 0.96rem, 1.0625rem);
+
+  /* Heading Scale - Minor Third (1.2) */
+  --font-size-h1: clamp(1.728rem, 0.20vw + 1.66rem, 1.836rem); /* 27.65px -> 29.38px */
+  --font-size-h2: clamp(1.44rem, 0.16vw + 1.39rem, 1.53rem);   /* 23.04px -> 24.48px */
+  --font-size-h3: clamp(1.2rem, 0.14vw + 1.15rem, 1.275rem);   /* 19.20px -> 20.40px */
+  --font-size-body: var(--font-size-base);
+  --font-size-lead: 1.35rem;
+
+  /* UI Scale */
+  --font-size-sm: 0.9375rem;
+  --font-size-xs: 0.875rem;
 ```
 
 ### Line Heights
@@ -44,8 +52,8 @@ This document is the SINGLE SOURCE OF TRUTH for this project's visual identity. 
 | `--line-height-tight` | 1.1 | Headings |
 | `--line-height-snug` | 1.25 | Subheadings |
 | `--line-height-normal` | 1.5 | UI text |
-| `--line-height-relaxed` | 1.65 | Body default |
-| `--line-height-loose` | 1.75 | Long-form prose |
+| `--line-height-relaxed` | 1.6 | Body default (Strict Density) |
+| `--line-height-loose` | 1.7 | Long-form prose |
 
 ---
 
@@ -108,13 +116,23 @@ This document is the SINGLE SOURCE OF TRUTH for this project's visual identity. 
 ## 3. Layout & Spacing
 
 ### Content Width
-- **Max-width**: `68ch` for body content.
-- **Prose max-width**: `65ch` for paragraphs.
+- **Max-width**: `72ch` for body content ("Density" Standard).
+- **Prose max-width**: `72ch` for paragraphs.
 - **Padding**: `4rem 1.5rem` (desktop), `1.5rem 0.75rem` (mobile < 600px).
+
+### Spacing System (Strict 4px/8px Grid)
+All spacing MUST be integer multiples of `0.25rem` (4px).
+
+- `--space-1`: 0.25rem (4px)
+- `--space-2`: 0.5rem (8px)
+- `--space-3`: 0.75rem (12px)
+- `--space-4`: 1rem (16px)
+- ...
+- `--space-6`: 1.5rem (24px) - *Baseline heartbeat*
 
 ### Margin Patterns
 - **Headings**: `margin-top: 3rem`, `margin-bottom: 1rem`.
-- **Paragraphs**: `margin-bottom: 1.75em`.
+- **Paragraphs**: `margin-bottom: 1.5em` (Strict Density).
 - **Code blocks / Figures**: `margin: 2.5rem 0`.
 
 ---

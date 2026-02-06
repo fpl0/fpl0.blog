@@ -8,7 +8,7 @@
   font-family: var(--font-serif);
   font-size: var(--font-size-body);
   color: var(--color-text);
-  line-height: var(--line-height-loose);
+  line-height: var(--line-height-relaxed); /* Use relaxed (1.6) instead of loose (1.7) */
   font-feature-settings:
     "kern" 1,
     "liga" 1,
@@ -20,8 +20,8 @@
 
 /* Spacing and Elements */
 .content p {
-  margin-bottom: 1.75em;
-  max-width: 65ch;
+  margin-bottom: 1.5em; /* Reduced from 1.75em */
+  max-width: 72ch; /* Increased from 65ch */
   text-wrap: pretty;
   hyphens: auto;
   hanging-punctuation: first last;
@@ -53,8 +53,8 @@
 
 .content ul,
 .content ol {
-  margin-bottom: 1.7em;
-  max-width: 60ch;
+  margin-bottom: 1.5em;
+  max-width: 68ch; /* Increased proportional to p */
 }
 
 .content li {

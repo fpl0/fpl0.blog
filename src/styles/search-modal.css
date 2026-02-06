@@ -87,9 +87,11 @@
 
 /* Results */
 .search-results {
+  /* Aligned to approx 8 grid units * 10 or similar? 
+     Let's use a fixed height that fits the rhythm. 320px is 40 * 8px, perfect. */
   max-height: 320px;
   overflow-y: auto;
-  padding: var(--space-2);
+  padding: var(--space-2); /* 8px */
 }
 
 .search-empty {
