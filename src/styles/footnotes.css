@@ -146,16 +146,26 @@
   border: none;
   margin-left: 0.35rem;
   color: var(--color-primary);
-  font-size: 0;  /* Hide the original ↩ emoji */
+  font-size: 0.85em;
   opacity: 0.6;
   transition: opacity 0.2s ease;
+  /* Hide the original ↩ which renders as emoji on iOS */
+  overflow: hidden;
+  display: inline-block;
+  width: 1em;
+  text-indent: -9999px;
+  vertical-align: baseline;
+  position: relative;
 }
 
-/* Replace with a plain text arrow that won't render as emoji on iOS */
+/* Replace with ← which never renders as emoji */
 .content a[data-footnote-backref]::after,
 .content .footnote-backref::after {
-  content: "↩\FE0E";  /* U+FE0E = text presentation selector */
-  font-size: var(--font-size-xs);
+  content: "←";
+  text-indent: 0;
+  position: absolute;
+  left: 0;
+  top: 0;
 }
 
 .content a[data-footnote-backref]:hover,
