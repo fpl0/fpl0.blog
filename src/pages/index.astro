@@ -19,26 +19,27 @@ const sortedPosts = posts.sort((a, b) => {
 
 <Layout title="fpl0">
   <header class="home-header">
-    <h1 class="logo">fpl0<span class="cursor">_</span></h1>
+    <div class="home-bar">
+      <h1 class="logo">fpl0<span class="cursor">_</span></h1>
+      <nav class="home-nav">
+        <a href="/about">about</a>
+        <span class="separator">/</span>
+        <button
+          class="search-hint"
+          id="search-hint"
+          type="button"
+          aria-label="Search"
+          aria-controls="search-backdrop"
+        >
+          <span class="search-hint-text">search</span>
+          <kbd>⌘K</kbd>
+        </button>
+      </nav>
+    </div>
     <blockquote class="bio-quote">
       <p>"True delight is in the finding out rather than in the knowing."</p>
       <cite>Isaac Asimov</cite>
     </blockquote>
-    <nav class="home-nav">
-      <a href="/about">about</a>
-      <span class="separator">/</span>
-
-      <button
-        class="search-hint"
-        id="search-hint"
-        type="button"
-        aria-label="Search"
-        aria-controls="search-backdrop"
-      >
-        <span class="search-hint-text">search</span>
-        <kbd>⌘K</kbd>
-      </button>
-    </nav>
   </header>
   <main id="main-content" class="home-main">
     <section class="archive">

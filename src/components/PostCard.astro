@@ -19,13 +19,11 @@ const postUrl = `/blog/${post.slug}`;
 ---
 
 <li class="post-item">
+  <FormattedDate date={post.data.date} className="post-date" />
   <div class="post-content">
-    <div class="post-head">
-      <a href={postUrl} class="post-title" data-astro-prefetch="hover">
-        {post.data.title}
-      </a>
-      <FormattedDate date={post.data.date} className="post-date" />
-    </div>
+    <a href={postUrl} class="post-title" data-astro-prefetch="hover">
+      {post.data.title}
+    </a>
     <p class="post-summary">{post.data.summary}</p>
   </div>
 </li>

@@ -1,20 +1,29 @@
+/* ==========================================================================
+   HOME PAGE
+   "The Ledger" — elegant editorial index
+   ========================================================================== */
+
 .home-header {
-  margin-bottom: var(--space-12);
+  margin-bottom: 4rem;
   padding-bottom: 0;
 }
 
+.home-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+/* --- Logo & Brand Mark --- */
+
 .logo {
   font-family: var(--font-mono-brand);
-  /* Logo Scale: Minor Third +3 over base? No, distinct display size.
-     Let's lock it to 2.0736rem (1.2^4 * 1rem) for mathematical harmony
-     or simply use the new H1 scale. Let's use H1 scale roughly. */
   font-size: var(--font-size-h1);
   font-weight: 500;
   margin: 0;
   letter-spacing: -0.04em;
   line-height: 1.1;
   color: var(--color-text);
-  /* Prevent layout shift during font loading */
   display: flex;
   align-items: baseline;
 }
@@ -24,7 +33,6 @@
   color: var(--color-primary);
   margin-left: 0.05em;
   animation: blink 1s step-end infinite;
-  /* Fixed width prevents shift when font loads */
   width: 0.6em;
   text-align: center;
 }
@@ -34,13 +42,49 @@
   50% { opacity: 0; }
 }
 
+/* --- Bio Quote --- */
+
+.bio-quote {
+  margin: var(--space-6) 0 0 0;
+  max-width: 100%;
+  border-left: none;
+  padding-left: 0;
+}
+
+.bio-quote p {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-text-secondary);
+  font-weight: 400;
+  margin: 0;
+}
+
+.bio-quote cite {
+  display: block;
+  font-family: var(--font-mono-brand);
+  font-size: var(--font-size-label);
+  letter-spacing: 0.04em;
+  font-weight: 400;
+  color: var(--color-muted);
+  margin-top: var(--space-1);
+  font-style: normal;
+}
+
+.bio-quote cite::before {
+  content: "— ";
+}
+
+/* --- Navigation --- */
+
 .home-nav {
   display: flex;
-  gap: var(--space-2);
+  gap: var(--space-3);
   align-items: center;
-  margin-top: var(--space-6);
   font-family: var(--font-mono-brand);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-xxs);
+  letter-spacing: 0.04em;
   color: var(--color-muted);
 }
 
@@ -58,10 +102,10 @@
 
 .separator {
   color: var(--color-border);
-  font-size: 0.8em;
 }
 
-/* Search Hint Button */
+/* --- Search Hint Button --- */
+
 .search-hint {
   display: flex;
   align-items: center;
@@ -70,7 +114,8 @@
   border: none;
   padding: 0;
   font-family: var(--font-mono-brand);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-xxs);
+  letter-spacing: 0.04em;
   color: var(--color-muted);
   cursor: pointer;
   transition: color 0.2s ease;
@@ -90,82 +135,49 @@
   color: var(--color-muted);
 }
 
-.bio-quote {
-  margin: var(--space-6) 0 0 0;
-  max-width: 100%;
-  border-left: none;
-  padding-left: 0;
-}
+/* ==========================================================================
+   POST LIST — Ledger Layout
+   Date column on the left, content on the right.
+   Whitespace-only separation between entries (no borders).
+   ========================================================================== */
 
-.bio-quote p {
-  font-family: var(--font-serif);
-  font-style: normal;
-  /* Quote Scale: Slightly larger than body, fluid.
-     Target: ~1.2x body.
-     Clamp: 1.2rem -> 1.275rem (matches H3 scale exactly) */
-  font-size: var(--font-size-h3);
-  line-height: var(--line-height-normal);
-  color: var(--color-text);
-  font-weight: 400;
-  margin: 0;
-  text-wrap: balance;
-}
-
-.bio-quote p em {
-  font-style: italic;
-  color: var(--color-primary);
-}
-
-.bio-quote cite {
-  display: block;
-  font-family: var(--font-mono-brand);
-  font-size: var(--font-size-label);
-  letter-spacing: 0.05em;
-  font-weight: 500;
-  color: var(--color-muted);
-  margin-top: var(--space-2);
-  font-style: normal;
-}
-
-/* Post List Redesign */
 .post-list {
   display: flex;
   flex-direction: column;
+  gap: var(--space-10);
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
+/* Each post: CSS Grid with date column + content column */
 .post-item {
+  display: grid;
+  grid-template-columns: 8rem 1fr;
+  gap: var(--space-4);
+  align-items: baseline;
+}
+
+.post-date {
+  font-family: var(--font-mono-brand);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--font-size-xxs);
+  color: var(--color-muted);
+  white-space: nowrap;
+  padding-top: 0.35em; /* Optical baseline alignment with serif title */
+}
+
+.post-content {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
 }
 
-.post-item:not(:last-child) {
-  border-bottom: 1px dashed var(--color-border-subtle);
-  margin-bottom: var(--space-6);
-  padding-bottom: var(--space-6);
-}
-
-.post-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  width: 100%;
-}
-
-@media (max-width: 600px) {
-  .post-head {
-    flex-direction: column;
-    gap: 0.25rem;
-  }
-}
-
 .post-title {
   font-family: var(--font-serif);
-  font-weight: 500;
+  font-weight: 400;
   font-size: var(--font-size-h3);
+  line-height: var(--line-height-snug);
   color: var(--color-text);
   text-decoration: none;
   transition: color 0.2s ease;
@@ -184,13 +196,19 @@
   color: var(--color-muted);
   font-family: var(--font-sans);
   line-height: var(--line-height-relaxed);
-  max-width: 72ch;
+  max-width: 60ch;
 }
 
-.post-date {
-  font-family: var(--font-mono-brand);
-  font-variant-numeric: tabular-nums;
-  font-size: var(--font-size-xxs);
-  color: var(--color-muted);
-  white-space: nowrap;
+/* --- Mobile: stack vertically --- */
+
+@media (max-width: 600px) {
+  .post-item {
+    grid-template-columns: 1fr;
+    gap: var(--space-1);
+  }
+
+  .post-date {
+    padding-top: 0;
+    order: -1;
+  }
 }
