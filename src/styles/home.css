@@ -131,29 +131,21 @@
 .post-list {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
 .post-item {
-  margin: 0;
-}
-
-.post-link {
   display: flex;
   flex-direction: column;
-  gap: var(--space-1);
-  text-decoration: none;
-  border-bottom: none;
-  padding: var(--space-3);
-  border-radius: 6px;
-  transition: all 0.2s ease;
-  position: relative;
-  /* Grid alignment: -12px (space-3) to offset padding */
-  left: calc(var(--space-3) * -1);
-  width: calc(100% + var(--space-6)); /* 100% + 24px (2 * padding) */
+  gap: var(--space-2);
+}
+
+.post-item:not(:last-child) {
+  border-bottom: 1px dashed var(--color-border-subtle);
+  margin-bottom: var(--space-6);
+  padding-bottom: var(--space-6);
 }
 
 .post-head {
@@ -163,30 +155,7 @@
   width: 100%;
 }
 
-.post-link:hover {
-  background-color: var(--color-highlight);
-  border-bottom: none;
-}
-
-.post-link:hover .post-title {
-  color: var(--color-primary);
-}
-
-.post-link:hover .post-summary {
-  color: var(--color-text);
-}
-
 @media (max-width: 600px) {
-  .post-link {
-    border-radius: 0;
-    position: static;
-    margin-left: -0.75rem;
-    margin-right: -0.75rem;
-    width: auto;
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
-  }
-  
   .post-head {
     flex-direction: column;
     gap: 0.25rem;
@@ -196,10 +165,17 @@
 .post-title {
   font-family: var(--font-serif);
   font-weight: 500;
-  /* Use strict H3 or Lead size. Let's stick to H3 for clear hierarchy */
   font-size: var(--font-size-h3);
   color: var(--color-text);
+  text-decoration: none;
   transition: color 0.2s ease;
+}
+
+.post-title:hover {
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-decoration-color: var(--color-primary);
+  text-underline-offset: 3px;
 }
 
 .post-summary {
@@ -208,8 +184,7 @@
   color: var(--color-muted);
   font-family: var(--font-sans);
   line-height: var(--line-height-relaxed);
-  max-width: 72ch; /* Match global max-width */
-  transition: color 0.2s ease;
+  max-width: 72ch;
 }
 
 .post-date {
