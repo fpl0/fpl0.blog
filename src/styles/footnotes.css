@@ -146,9 +146,16 @@
   border: none;
   margin-left: 0.35rem;
   color: var(--color-primary);
-  font-size: 0.85em;
+  font-size: 0;  /* Hide the original ↩ emoji */
   opacity: 0.6;
   transition: opacity 0.2s ease;
+}
+
+/* Replace with a plain text arrow that won't render as emoji on iOS */
+.content a[data-footnote-backref]::after,
+.content .footnote-backref::after {
+  content: "↩\FE0E";  /* U+FE0E = text presentation selector */
+  font-size: var(--font-size-xs);
 }
 
 .content a[data-footnote-backref]:hover,
