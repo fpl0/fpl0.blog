@@ -10,21 +10,13 @@
   display: none;
 }
 
-/* Show on large screens */
-@media (min-width: 1280px) {
+/* Show on large screens only (where there's room beside the 72ch body) */
+@media (min-width: 1440px) {
   .toc-sidebar {
     display: block;
     position: fixed;
     top: 8rem;
-    /* Center + Half Width (72ch approx 680px for layout calc, 72ch is more like ~720px at 1rem)
-       Grid-aligned position calculation:
-       72ch * ~9.6px (avg char width) ~= 690px width.
-       Half width = 345px.
-       Gap = 3rem (48px).
-       Left = 50% + 345px + 48px ~= +390px/400px.
-       Let's stick to the visual spacing but align with the 72ch body.
-    */
-    left: calc(50% + 22rem); /* Approx 352px + gap, tighter to the wider body */
+    left: calc(50% + 440px);
     width: 220px;
     max-height: calc(100vh - 12rem);
     overflow-y: auto;
@@ -32,7 +24,7 @@
     scrollbar-width: none;
     -ms-overflow-style: none;
     transition: opacity 0.4s ease;
-    opacity: 0.6; /* Default state: Ghosted */
+    opacity: 0.35; /* Default: nearly invisible until hovered */
   }
 
   .toc-sidebar::-webkit-scrollbar {
@@ -44,26 +36,19 @@
   }
 }
 
-@media (min-width: 1440px) {
-  .toc-sidebar {
-    left: calc(50% + 440px);
-  }
-}
-
 .toc {
   font-family: var(--font-sans);
   position: relative;
 }
 
 .toc-title {
-  font-family: var(--font-sans);
-  font-size: var(--font-size-xs);
-  font-weight: 600;
+  font-family: var(--font-mono-brand);
+  font-size: var(--font-size-xxs);
+  font-weight: 400;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--color-text-muted);
-  color: var(--color-text-muted);
-  margin: 0 0 var(--space-6) 0; /* Strict grid 1.5rem */
+  margin: 0 0 var(--space-6) 0;
   opacity: 0.7;
 }
 
@@ -133,6 +118,5 @@
 
 /* Scrolled Active State for H3s */
 .toc-item--h3 .toc-link.is-active {
-   color: var(--color-text); /* H3s don't need to be as loud as H2s even when active, or maybe keep primary? Let's use primary for consistency */
    color: var(--color-primary);
 }

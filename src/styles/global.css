@@ -218,8 +218,12 @@ body {
 
 @media (max-width: 600px) {
   body {
-    padding: 1.5rem 0.75rem;
+    padding: 1.5rem 1rem;
     overflow-x: hidden;
+  }
+
+  h1 {
+    font-size: clamp(1.4rem, 0.18vw + 1.35rem, 1.55rem);
   }
 }
 
@@ -337,7 +341,9 @@ a:hover {
 .back-link {
   display: inline-block;
   margin-bottom: 2rem;
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-xxs);
+  font-family: var(--font-mono-brand);
+  letter-spacing: 0.04em;
   color: var(--color-muted);
   text-decoration: none;
   border-bottom: none;

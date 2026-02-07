@@ -67,6 +67,10 @@ const canonicalURL = new URL(`/blog/${post.slug}/`, Astro.site);
       <div class="content">
         <Content />
       </div>
+      <footer class="post-endmatter">
+        <div class="end-mark">∎</div>
+        <a href="/" class="back-link">← all posts</a>
+      </footer>
     </article>
   </main>
 </Layout>
