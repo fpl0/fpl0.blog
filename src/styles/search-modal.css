@@ -144,18 +144,7 @@
   gap: var(--space-3);
 }
 
-.search-result-tags {
-  display: flex;
-  gap: 0.35rem;
-  flex-shrink: 0;
-}
 
-.search-result-tag {
-  font-family: var(--font-mono-brand);
-  font-size: var(--font-size-label);
-  color: var(--color-primary-dim);
-  opacity: 0.8;
-}
 
 /* Focus styles for keyboard navigation */
 .search-result:focus-visible {

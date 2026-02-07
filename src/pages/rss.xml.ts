@@ -25,7 +25,7 @@ export async function GET(context: APIContext) {
           allowedTags: sanitizeHtml.defaults.allowedTags.concat(["img"]),
         }),
         link: `/blog/${post.slug}/`,
-        categories: post.data.tags,
+
       };
     })
   );

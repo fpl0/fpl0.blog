@@ -59,7 +59,7 @@ import "../styles/search-modal.css";
   interface SearchItem {
     readonly title: string;
     readonly summary: string;
-    readonly tags: readonly string[];
+
     readonly slug: string;
     readonly date: string;
   }
@@ -76,7 +76,7 @@ import "../styles/search-modal.css";
   // Constants
   const SEARCH_WEIGHTS = {
     TITLE: 10,
-    TAG: 4,
+
     SUMMARY: 1,
   } as const;
 
@@ -126,15 +126,11 @@ import "../styles/search-modal.css";
     const scored = searchIndex.map((post) => {
       const titleScore =
         fuzzyMatch(trimmedQuery, post.title) * SEARCH_WEIGHTS.TITLE;
-      const tagScore = post.tags.reduce(
-        (max, tag) =>
-          Math.max(max, fuzzyMatch(trimmedQuery, tag) * SEARCH_WEIGHTS.TAG),
-        0,
-      );
+
       const summaryScore =
         fuzzyMatch(trimmedQuery, post.summary) * SEARCH_WEIGHTS.SUMMARY;
 
-      return { post, score: titleScore + tagScore + summaryScore };
+      return { post, score: titleScore + summaryScore };
     });
 
     return scored
@@ -177,13 +173,6 @@ import "../styles/search-modal.css";
 
     container.innerHTML = items
       .map((item, i) => {
-        const tagsHtml = item.tags
-          .slice(0, MAX_VISIBLE_TAGS)
-          .map(
-            (tag) =>
-              `<span class="search-result-tag">#${escapeHtml(tag)}</span>`,
-          )
-          .join("");
         const isSelected = i === selectedIndex;
 
         return `
@@ -195,7 +184,7 @@ import "../styles/search-modal.css";
             <div class="search-result-title">${escapeHtml(item.title)}</div>
             <div class="search-result-meta">
               <span class="search-result-summary">${escapeHtml(item.summary)}</span>
-              ${tagsHtml ? `<span class="search-result-tags">${tagsHtml}</span>` : ""}
+
             </div>
           </a>
         `;

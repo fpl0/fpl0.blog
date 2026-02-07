@@ -62,17 +62,6 @@ const canonicalURL = new URL(`/blog/${post.slug}/`, Astro.site);
           <span class="date-time"
             ><FormattedDate date={displayDate} /> · {readingTime}</span
           >
-          {
-            post.data.tags.length > 0 && (
-              <ul class="tags-list">
-                {post.data.tags.map((tag) => (
-                  <li class="tag-item">
-                    <a href={`/tags/${tag}`}>#{tag}</a>
-                  </li>
-                ))}
-              </ul>
-            )
-          }
         </div>
       </header>
       <div class="content">
