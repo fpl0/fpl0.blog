@@ -4,21 +4,17 @@
  *
  * Features:
  * - Deferred Google Analytics (loads on interaction or 3s timeout)
- * - Critical font preloading to prevent FOUT
+ * - Critical font preloading (font-display: optional — zero flicker)
  * - View Transitions with ClientRouter
  * - Skip-to-content link for accessibility
  */
 
-// Fonts - Latin subset only (Merriweather @font-face rules moved to global.css)
-import "@fontsource/space-mono/latin-400.css";
-import "@fontsource/jetbrains-mono/latin-400.css";
 import "../styles/global.css";
 import { ClientRouter } from "astro:transitions";
 import SearchModal from "../components/SearchModal.astro";
 import ScrollToTop from "../components/ScrollToTop.astro";
 import ThemeToggle from "../components/ThemeToggle.astro";
 import Analytics from "../components/Analytics.astro";
-import FontLoader from "../components/FontLoader.astro";
 import FontPreload from "../components/FontPreload.astro";
 
 interface Props {
@@ -108,13 +104,11 @@ const twitterCardType = image ? "summary_large_image" : "summary";
 
     <Analytics />
   </head>
-  <body class="fonts-loading">
+  <body>
     <a href="#main-content" class="skip-link">Skip to content</a>
     <SearchModal />
     <ScrollToTop />
     <ThemeToggle />
     <slot />
-
-    <FontLoader />
   </body>
 </html>

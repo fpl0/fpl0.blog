@@ -2,9 +2,10 @@
 
 /* ==========================================================================
    FONT FACE DECLARATIONS
-   font-display: optional eliminates CLS — fonts either arrive during the
-   ~100ms block period (helped by <link rel="preload">) or are skipped.
-   Metric-override fallbacks ensure the system font occupies the same space.
+   font-display: block — text stays invisible until the font loads (up to 3s),
+   then renders with the correct font. Combined with <link rel="preload">,
+   fonts arrive in <50ms from cache, so the invisible period is imperceptible.
+   Metric-override fallbacks prevent layout shift in all cases.
 
    Metrics computed from capsizecss/unpack against the actual font files:
      Inter      (UPM 2048, ascent 1984, descent 494, xWidthAvg 978)
@@ -15,7 +16,7 @@
 @font-face {
   font-family: "Inter Variable";
   font-style: normal;
-  font-display: optional;
+  font-display: block;
   font-weight: 100 900;
   src: url("@fontsource-variable/inter/files/inter-latin-wght-normal.woff2") format("woff2-variations");
   unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
@@ -37,7 +38,7 @@
 @font-face {
   font-family: "Merriweather";
   font-style: normal;
-  font-display: optional;
+  font-display: block;
   font-weight: 400;
   src: url("@fontsource/merriweather/files/merriweather-latin-400-normal.woff2") format("woff2");
 }
@@ -46,7 +47,7 @@
 @font-face {
   font-family: "Merriweather";
   font-style: normal;
-  font-display: optional;
+  font-display: block;
   font-weight: 700;
   src: url("@fontsource/merriweather/files/merriweather-latin-700-normal.woff2") format("woff2");
 }
@@ -61,6 +62,26 @@
   ascent-override: 86.45%;
   descent-override: 23.98%;
   line-gap-override: 0%;
+}
+
+/* Space Mono — Latin subset (custom @font-face to use optional, not @fontsource swap) */
+@font-face {
+  font-family: "Space Mono";
+  font-style: normal;
+  font-display: block;
+  font-weight: 400;
+  src: url("@fontsource/space-mono/files/space-mono-latin-400-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+
+/* JetBrains Mono — Latin subset (custom @font-face to use optional, not @fontsource swap) */
+@font-face {
+  font-family: "JetBrains Mono";
+  font-style: normal;
+  font-display: block;
+  font-weight: 400;
+  src: url("@fontsource/jetbrains-mono/files/jetbrains-mono-latin-400-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
 }
 
 :root {
@@ -136,12 +157,12 @@
   --color-secondary: var(--color-text-secondary);
   --color-muted: var(--color-text-muted);
 
-  /* Typography Stacks */
+  /* Typography Stacks — custom fonts with metric-adjusted system fallbacks */
   --font-sans: "Inter Variable", "Inter Fallback", system-ui, sans-serif;
   --font-serif: "Merriweather", "Merriweather Fallback", serif;
   --font-display: var(--font-serif);
-  --font-mono-brand: "Space Mono", monospace;
-  --font-mono: "JetBrains Mono", monospace;
+  --font-mono-brand: "Space Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 
   /* ==========================================================================
      SPACING SCALE
@@ -294,15 +315,6 @@ body {
 ::selection {
   background-color: var(--color-primary);
   color: var(--color-bg);
-}
-
-/* Font loading state - prevents FOUT on navigation */
-body.fonts-loading {
-  opacity: 0.99; /* Trigger repaint when fonts load */
-}
-
-body.fonts-loaded {
-  opacity: 1;
 }
 
 /* Smooth view transitions - fast to minimize style flash */
