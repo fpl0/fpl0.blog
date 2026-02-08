@@ -67,8 +67,10 @@
             .writeText(originalText)
             .then(function () {
               copyBtn.classList.add("copied");
+              copyBtn.setAttribute("aria-label", "Copied!");
               setTimeout(function () {
                 copyBtn.classList.remove("copied");
+                copyBtn.setAttribute("aria-label", "Copy code");
               }, FEEDBACK_MS);
             })
             .catch(function (e) {

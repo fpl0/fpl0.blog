@@ -98,15 +98,11 @@
 </style>
 
 <script>
-  let abortController: AbortController | null = null;
+  import { onPageReady } from "../utils/lifecycle";
+
   let previousActiveElement: HTMLElement | null = null;
 
-  function initLightbox(): void {
-    // Cleanup previous listeners
-    abortController?.abort();
-    abortController = new AbortController();
-    const { signal } = abortController;
-
+  onPageReady((signal) => {
     const lightbox = document.getElementById("lightbox");
     const lightboxImg = document.getElementById(
       "lightbox-img",
@@ -123,19 +119,16 @@
       lightboxImg.alt = alt;
       lightbox.classList.add("is-open");
       document.body.style.overflow = "hidden";
-      // Move focus to close button for accessibility
       requestAnimationFrame(() => closeBtn?.focus());
     };
 
     const closeLightbox = (): void => {
       lightbox.classList.remove("is-open");
       document.body.style.overflow = "";
-      // Restore focus to previously focused element
       previousActiveElement?.focus();
       previousActiveElement = null;
     };
 
-    // Attach to all content images
     document
       .querySelectorAll<HTMLImageElement>(".content img")
       .forEach((img) => {
@@ -144,7 +137,6 @@
         });
       });
 
-    // Close on backdrop click
     lightbox.addEventListener(
       "click",
       (e) => {
@@ -153,21 +145,40 @@
       { signal },
     );
 
-    // Close button
     closeBtn?.addEventListener("click", closeLightbox, { signal });
 
-    // Escape key
     document.addEventListener(
       "keydown",
       (e) => {
-        if (e.key === "Escape" && lightbox.classList.contains("is-open")) {
+        if (!lightbox.classList.contains("is-open")) return;
+
+        if (e.key === "Escape") {
           closeLightbox();
+          return;
+        }
+
+        if (e.key === "Tab") {
+          const focusable = Array.from(
+            lightbox.querySelectorAll<HTMLElement>(
+              'button, [href], [tabindex]:not([tabindex="-1"])',
+            ),
+          );
+          if (focusable.length === 0) {
+            e.preventDefault();
+            return;
+          }
+          const first = focusable[0];
+          const last = focusable[focusable.length - 1];
+          if (e.shiftKey && document.activeElement === first) {
+            e.preventDefault();
+            last.focus();
+          } else if (!e.shiftKey && document.activeElement === last) {
+            e.preventDefault();
+            first.focus();
+          }
         }
       },
       { signal },
     );
-  }
-
-  document.addEventListener("DOMContentLoaded", initLightbox);
-  document.addEventListener("astro:page-load", initLightbox);
+  });
 </script>

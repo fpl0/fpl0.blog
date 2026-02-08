@@ -10,13 +10,13 @@
 ---
 
 <script>
-  function initTables(): void {
+  import { onPageReady } from "../utils/lifecycle";
+
+  onPageReady(() => {
     document
       .querySelectorAll<HTMLTableElement>(".content table")
       .forEach((table) => {
-        // Skip if already wrapped
         if (table.parentElement?.classList.contains("table-wrapper")) return;
-        // Guard against null parentNode to prevent orphaning table
         if (!table.parentNode) return;
 
         const wrapper = document.createElement("div");
@@ -24,8 +24,5 @@
         table.parentNode.insertBefore(wrapper, table);
         wrapper.appendChild(table);
       });
-  }
-
-  document.addEventListener("DOMContentLoaded", initTables);
-  document.addEventListener("astro:page-load", initTables);
+  });
 </script>

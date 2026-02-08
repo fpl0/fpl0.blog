@@ -56,6 +56,8 @@ import "../styles/search-modal.css";
 </div>
 
 <script>
+  import { onPageReady } from "../utils/lifecycle";
+
   interface SearchItem {
     readonly title: string;
     readonly summary: string;
@@ -69,9 +71,9 @@ import "../styles/search-modal.css";
   let selectedIndex = 0;
   let results: SearchItem[] = [];
   let isInitialized = false;
-  let abortController: AbortController | null = null;
   let debounceTimer: ReturnType<typeof setTimeout> | null = null;
   let indexPromise: Promise<void> | null = null;
+  let fetchAbortController: AbortController | null = null;
 
   // Constants
   const SEARCH_WEIGHTS = {
@@ -83,6 +85,7 @@ import "../styles/search-modal.css";
   const MAX_RESULTS = 8;
   const MAX_VISIBLE_TAGS = 3;
   const LATEST_POSTS_COUNT = 3;
+  const FETCH_TIMEOUT_MS = 5000;
 
   /**
    * Lightweight fuzzy matching algorithm
@@ -146,6 +149,12 @@ import "../styles/search-modal.css";
       .slice(0, LATEST_POSTS_COUNT);
   }
 
+  function renderError(message: string): void {
+    const container = document.getElementById("search-results");
+    if (!container) return;
+    container.innerHTML = `<div class="search-empty">${message}</div>`;
+  }
+
   function escapeHtml(text: string): string {
     const div = document.createElement("div");
     div.textContent = text;
@@ -176,7 +185,7 @@ import "../styles/search-modal.css";
         const isSelected = i === selectedIndex;
 
         return `
-          <a href="/blog/${item.slug}" 
+          <a href="/blog/${item.slug}/"
              class="search-result ${isSelected ? "is-selected" : ""}" 
              data-index="${i}" 
              role="option" 
@@ -224,6 +233,18 @@ import "../styles/search-modal.css";
       "search-input",
     ) as HTMLInputElement | null;
 
+    // Clear pending debounce timer
+    if (debounceTimer) {
+      clearTimeout(debounceTimer);
+      debounceTimer = null;
+    }
+
+    // Abort any in-flight fetch
+    if (fetchAbortController) {
+      fetchAbortController.abort();
+      fetchAbortController = null;
+    }
+
     backdrop?.classList.remove("is-open");
     if (input) input.value = "";
     results = [];
@@ -235,7 +256,7 @@ import "../styles/search-modal.css";
   function navigateToSelected(): void {
     const selectedResult = results[selectedIndex];
     if (selectedResult) {
-      window.location.href = `/blog/${selectedResult.slug}`;
+      window.location.href = `/blog/${selectedResult.slug}/`;
       closeSearch();
     }
   }
@@ -282,29 +303,47 @@ import "../styles/search-modal.css";
 
     indexPromise = (async () => {
       try {
-        const response = await fetch("/search.json");
+        fetchAbortController = new AbortController();
+        const timeoutId = setTimeout(
+          () => fetchAbortController?.abort(),
+          FETCH_TIMEOUT_MS,
+        );
+
+        const response = await fetch("/search.json", {
+          signal: fetchAbortController.signal,
+        });
+        clearTimeout(timeoutId);
+        fetchAbortController = null;
+
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         searchIndex = await response.json();
-      } catch (error) {
-        console.error("[SearchModal] Failed to load search index:", error);
+      } catch {
+        fetchAbortController = null;
+        // Clear cached promise so next attempt retries
+        indexPromise = null;
+        renderError("Failed to load search index. Please try again.");
       }
     })();
 
     return indexPromise;
   }
 
-  function initSearch(): void {
-    // Cleanup previous listeners if reinitializing
-    if (abortController) {
-      // Clear debounce timer on cleanup
-      if (debounceTimer) {
-        clearTimeout(debounceTimer);
-        debounceTimer = null;
-      }
-      abortController.abort();
+  // Global keyboard handler - singleton pattern
+  if (!isInitialized) {
+    isInitialized = true;
+    document.addEventListener("keydown", handleKeydown);
+  }
+
+  onPageReady((signal) => {
+    // Clean up non-signal resources from previous run
+    if (debounceTimer) {
+      clearTimeout(debounceTimer);
+      debounceTimer = null;
     }
-    abortController = new AbortController();
-    const { signal } = abortController;
+    if (fetchAbortController) {
+      fetchAbortController.abort();
+      fetchAbortController = null;
+    }
 
     const input = document.getElementById(
       "search-input",
@@ -319,7 +358,6 @@ import "../styles/search-modal.css";
       setTimeout(loadSearchIndex, 200);
     }
 
-    // Click backdrop to close
     backdrop?.addEventListener(
       "click",
       (e) => {
@@ -328,7 +366,6 @@ import "../styles/search-modal.css";
       { signal },
     );
 
-    // Search input handler with debounce
     input?.addEventListener(
       "input",
       () => {
@@ -339,12 +376,11 @@ import "../styles/search-modal.css";
             ? searchPosts(input.value)
             : getLatestPosts();
           renderResults(results);
-        }, 16); // Single frame debounce
+        }, 16);
       },
       { signal },
     );
 
-    // Click to navigate
     resultsContainer?.addEventListener(
       "click",
       (e) => {
@@ -358,7 +394,6 @@ import "../styles/search-modal.css";
       { signal },
     );
 
-    // Hover to select
     resultsContainer?.addEventListener(
       "mousemove",
       (e) => {
@@ -373,15 +408,5 @@ import "../styles/search-modal.css";
       },
       { signal },
     );
-  }
-
-  // Global keyboard handler - singleton pattern
-  if (!isInitialized) {
-    isInitialized = true;
-    document.addEventListener("keydown", handleKeydown);
-  }
-
-  // Initialize on page load and after Astro View Transitions
-  document.addEventListener("DOMContentLoaded", initSearch);
-  document.addEventListener("astro:page-load", initSearch);
+  });
 </script>

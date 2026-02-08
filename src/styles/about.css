@@ -18,7 +18,6 @@
 
 .bio-text {
   font-family: var(--font-serif); /* Match blog content font */
-  font-family: var(--font-serif); /* Match blog content font */
   /* Use base variable to ensure it tracks the new Minor Third 16px/17px scale */
   font-size: var(--font-size-body);
   line-height: var(--line-height-relaxed); /* Match strict rhythm (1.6) */
@@ -33,9 +32,6 @@
 }
 
 .section-title {
-  font-family: var(--font-display); /* Match blog h2 */
-  font-weight: 700;
-  font-style: normal;
   font-family: var(--font-display); /* Match blog h2 */
   font-weight: 700;
   font-style: normal;

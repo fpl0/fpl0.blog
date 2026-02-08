@@ -20,17 +20,26 @@ import { ClientRouter } from "astro:transitions";
 import SearchModal from "../components/SearchModal.astro";
 import ScrollToTop from "../components/ScrollToTop.astro";
 import ThemeToggle from "../components/ThemeToggle.astro";
+import Analytics from "../components/Analytics.astro";
+import FontLoader from "../components/FontLoader.astro";
 
 interface Props {
   title: string;
   description?: string;
+  image?: string;
 }
 
 const {
   title,
   description = "True delight is in the finding out rather than in the knowing.",
+  image,
 } = Astro.props;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const siteURL = Astro.site?.toString().replace(/\/$/, "") ?? "https://fpl0.github.io";
+const ogImage = image
+  ? image.startsWith("http") ? image : `${siteURL}${image.startsWith("/") ? "" : "/"}${image}`
+  : `${siteURL}/favicon.svg`;
+const twitterCardType = image ? "summary_large_image" : "summary";
 ---
 
 <html lang="en">
@@ -38,23 +47,20 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <!-- Theme init - runs before paint to prevent flash -->
     <script is:inline>
       (function () {
-        function applyTheme() {
-          var theme = localStorage.getItem("theme");
-          if (!theme) {
-            theme = window.matchMedia("(prefers-color-scheme: light)").matches
-              ? "light"
-              : "dark";
-          }
-          document.documentElement.setAttribute("data-theme", theme);
+        function getTheme() {
+          var stored = localStorage.getItem("theme");
+          if (stored) return stored;
+          return window.matchMedia("(prefers-color-scheme: light)").matches
+            ? "light"
+            : "dark";
         }
 
         // Apply on initial load
-        applyTheme();
+        document.documentElement.setAttribute("data-theme", getTheme());
 
         // Re-apply before Astro swaps in new page (view transitions)
         document.addEventListener("astro:before-swap", function (e) {
-          var theme = localStorage.getItem("theme") || "dark";
-          e.newDocument.documentElement.setAttribute("data-theme", theme);
+          e.newDocument.documentElement.setAttribute("data-theme", getTheme());
         });
       })();
     </script>
@@ -73,11 +79,13 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:site_name" content="fpl0" />
+    <meta property="og:image" content={ogImage} />
 
     <!-- Twitter -->
-    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:card" content={twitterCardType} />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
 
     <!-- Icons -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -98,40 +106,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <!-- View Transitions -->
     <ClientRouter />
 
-    <!-- Deferred Google Analytics -->
-    <script is:inline>
-      (function () {
-        var loaded = false;
-        var GA_ID = "G-1QYZZMNKT7";
-
-        function loadGA() {
-          if (loaded) return;
-          loaded = true;
-
-          var s = document.createElement("script");
-          s.src = "https://www.googletagmanager.com/gtag/js?id=" + GA_ID;
-          s.async = true;
-          document.head.appendChild(s);
-
-          window.dataLayer = window.dataLayer || [];
-          function gtag() {
-            dataLayer.push(arguments);
-          }
-          window.gtag = gtag;
-          gtag("js", new Date());
-          gtag("config", GA_ID);
-        }
-
-        // Load on interaction or after 3s
-        ["scroll", "click", "touchstart", "keydown"].forEach(function (e) {
-          document.addEventListener(e, loadGA, { once: true, passive: true });
-        });
-        setTimeout(loadGA, 3000);
-
-        // Handle Astro page transitions
-        document.addEventListener("astro:page-load", loadGA);
-      })();
-    </script>
+    <Analytics />
   </head>
   <body class="fonts-loading">
     <a href="#main-content" class="skip-link">Skip to content</a>
@@ -140,24 +115,6 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <ThemeToggle />
     <slot />
 
-    <!-- Font loading state management -->
-    <script is:inline>
-      (function () {
-        function markFontsLoaded() {
-          document.body.classList.remove("fonts-loading");
-          document.body.classList.add("fonts-loaded");
-        }
-
-        if (document.fonts?.ready) {
-          document.fonts.ready.then(markFontsLoaded);
-        } else {
-          markFontsLoaded();
-        }
-
-        document.addEventListener("astro:page-load", function () {
-          document.fonts?.ready?.then(markFontsLoaded);
-        });
-      })();
-    </script>
+    <FontLoader />
   </body>
 </html>

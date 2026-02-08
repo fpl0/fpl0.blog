@@ -8,6 +8,7 @@
     "prebuild": "bun run optimize-images || true",
     "build": "astro build",
     "preview": "astro preview",
+    "validate": "astro check",
     "astro": "astro"
   },
   "dependencies": {

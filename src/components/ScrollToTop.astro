@@ -92,8 +92,7 @@
 
   .progress-ring__circle {
     transition: stroke-dashoffset 0.1s linear; /* Smooth fill */
-    stroke-dasharray: 125.6; /* 2 * PI * r(20) ≈ 125.66 */
-    stroke-dashoffset: 125.6; /* Start empty */
+    /* stroke-dasharray and stroke-dashoffset set dynamically by JS */
     stroke-linecap: round;
   }
 
@@ -132,8 +131,7 @@
       r: 18;
       cx: 20;
       cy: 20;
-      stroke-dasharray: 113.1; /* 2 * PI * 18 ≈ 113.1 */
-      stroke-dashoffset: 113.1;
+      /* stroke-dasharray and stroke-dashoffset set dynamically by JS */
     }
 
     .arrow-icon {
@@ -144,16 +142,11 @@
 </style>
 
 <script>
+  import { onPageReady } from "../utils/lifecycle";
+
   const SCROLL_THRESHOLD = 200;
 
-  let abortController: AbortController | null = null;
-
-  function initScrollToTop(): void {
-    // Cleanup previous listeners
-    abortController?.abort();
-    abortController = new AbortController();
-    const { signal } = abortController;
-
+  onPageReady((signal) => {
     const button = document.getElementById("scroll-to-top");
     if (!button) return;
 
@@ -161,36 +154,44 @@
       ".progress-ring__circle",
     ) as SVGCircleElement;
 
-    // Calculate circumference based on radius
-    // Mobile: r=18 -> 113.1, Desktop: r=20 -> 125.7
-    const radius = circle.r.baseVal.value;
-    const circumference = radius * 2 * Math.PI;
-
-    // Set initial state
-    circle.style.strokeDasharray = `${circumference} ${circumference}`;
-    circle.style.strokeDashoffset = `${circumference}`;
-
     let ticking = false;
+
+    function getCircumference(): number {
+      return circle.r.baseVal.value * 2 * Math.PI;
+    }
+
+    function applyCircumference(c: number): void {
+      circle.style.strokeDasharray = `${c} ${c}`;
+      circle.style.strokeDashoffset = `${c}`;
+    }
+
+    let circumference = getCircumference();
+    applyCircumference(circumference);
 
     const updateProgress = (): void => {
       const scrollTop = window.scrollY;
       const docHeight = document.documentElement.scrollHeight;
       const winHeight = window.innerHeight;
-
-      // Calculate scroll percentage (0 to 1)
       const scrollPercent = scrollTop / (docHeight - winHeight);
-
-      // Invert for dashoffset (1 -> 0)
-      // Math.max to prevent negative values on overscroll
       const offset = circumference - Math.min(scrollPercent, 1) * circumference;
 
       circle.style.strokeDashoffset = offset.toString();
-
-      // Toggle visibility
       button.classList.toggle("is-visible", scrollTop > SCROLL_THRESHOLD);
-
       ticking = false;
     };
+
+    window.addEventListener(
+      "resize",
+      () => {
+        const c = getCircumference();
+        if (c !== circumference) {
+          circumference = c;
+          applyCircumference(circumference);
+          updateProgress();
+        }
+      },
+      { signal, passive: true },
+    );
 
     window.addEventListener(
       "scroll",
@@ -211,10 +212,6 @@
       { signal },
     );
 
-    // Initial check
     updateProgress();
-  }
-
-  document.addEventListener("DOMContentLoaded", initScrollToTop);
-  document.addEventListener("astro:page-load", initScrollToTop);
+  });
 </script>

@@ -16,6 +16,9 @@ interface Props {
 const { title, description, datePublished, dateModified, url, image } =
   Astro.props;
 
+const fallbackImage = "https://fpl0.github.io/favicon.svg";
+const schemaImage = image || fallbackImage;
+
 const schema = {
   "@context": "https://schema.org",
   "@type": "BlogPosting",
@@ -24,7 +27,7 @@ const schema = {
   datePublished: datePublished.toISOString(),
   dateModified: (dateModified ?? datePublished).toISOString(),
   url: url,
-  ...(image && { image }),
+  image: schemaImage,
   author: {
     "@type": "Person",
     name: "Filipe",

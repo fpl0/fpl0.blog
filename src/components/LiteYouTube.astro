@@ -11,10 +11,18 @@
 ---
 
 <!-- This component only registers the custom element - renders nothing visible -->
-<lite-youtube
-  videoid={Astro.props.videoid}
-  title={Astro.props.title}
-  content-title={Astro.props.title}></lite-youtube>
+{/^[a-zA-Z0-9_-]{11}$/.test(Astro.props.videoid ?? "") ? (
+  <lite-youtube
+    videoid={Astro.props.videoid}
+    title={Astro.props.title}
+    content-title={Astro.props.title}
+    role="button"
+    tabindex="0"></lite-youtube>
+) : (
+  <div class="lite-youtube-error" role="alert">
+    <p>Invalid or missing YouTube video ID.</p>
+  </div>
+)}
 <style is:global>
   lite-youtube {
     display: block;
@@ -92,6 +100,21 @@
     height: 100%;
     border: none;
   }
+
+  .lite-youtube-error {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    margin: 2rem 0;
+    color: var(--color-muted);
+    font-family: var(--font-sans);
+    font-size: var(--font-size-sm);
+  }
 </style>
 
 <script>
@@ -138,6 +161,18 @@
 
       // Load on click
       this.addEventListener("click", this.activate, { signal });
+
+      // Keyboard activation: Enter or Space
+      this.addEventListener(
+        "keydown",
+        (e: KeyboardEvent) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            this.activate();
+          }
+        },
+        { signal },
+      );
     }
 
     disconnectedCallback(): void {
@@ -172,6 +207,8 @@
       iframe.loading = "lazy";
 
       this.classList.add("lyt-activated");
+      this.removeAttribute("role");
+      this.removeAttribute("tabindex");
       this.appendChild(iframe);
     };
   }
