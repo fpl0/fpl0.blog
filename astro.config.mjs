@@ -1,6 +1,7 @@
 // @ts-check
 import { defineConfig } from "astro/config";
 import remarkGfm from "remark-gfm";
+import rehypeTaskListLabels from "./src/plugins/rehype-task-list-labels.mjs";
 import sitemap from "@astrojs/sitemap";
 import mdx from "@astrojs/mdx";
 
@@ -27,9 +28,10 @@ export default defineConfig({
   },
   markdown: {
     remarkPlugins: [remarkGfm],
+    rehypePlugins: [rehypeTaskListLabels],
     shikiConfig: {
       themes: {
-        light: "github-light",
+        light: "github-light-high-contrast",
         dark: "vesper",
       },
       defaultColor: false, // Use CSS variables instead of inline colors

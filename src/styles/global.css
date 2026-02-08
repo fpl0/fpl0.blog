@@ -178,7 +178,7 @@
   /* Text Hierarchy - Rich sepia-brown tones */
   --color-text: hsl(25, 30%, 18%); /* Deep warm brown - 8.5:1 contrast */
   --color-text-secondary: hsl(25, 25%, 35%); /* Enriched brown */
-  --color-text-muted: hsl(25, 20%, 50%); /* Enriched muted brown */
+  --color-text-muted: hsl(25, 20%, 38%); /* Enriched muted brown — 5.8:1 on bg, 4.7:1 on surface-raised */
 
   /* Primary Accent - Rich amber/cognac */
   --color-primary: hsl(28, 80%, 38%); /* Deep amber - readable on both bg */
