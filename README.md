@@ -4,7 +4,7 @@ My personal blog.
 
 ## Writer's Style Guide
 
-All content is managed in `src/content/blog/`. Use `.md` for plain Markdown posts and `.mdx` when you need components (Figure, Table, LiteYouTube).
+All content is managed in `src/content/blog/` using `.mdx` files. MDX supports standard Markdown and lets you import components for figures, tables, videos, and more.
 
 ### Headings
 
