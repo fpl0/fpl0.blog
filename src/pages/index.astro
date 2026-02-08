@@ -44,11 +44,17 @@ const sortedPosts = posts.sort((a, b) => {
     </blockquote>
   </header>
   <main id="main-content" class="home-main">
-    <section class="archive">
-      <ul class="post-list">
-        {sortedPosts.map((post) => <PostCard post={post} />)}
-      </ul>
-    </section>
+    {sortedPosts.length > 0 ? (
+      <section class="archive">
+        <ul class="post-list">
+          {sortedPosts.map((post) => <PostCard post={post} />)}
+        </ul>
+      </section>
+    ) : (
+      <section class="empty-state">
+        <p class="empty-greeting">Hello, World!</p>
+      </section>
+    )}
   </main>
 </Layout>
 
