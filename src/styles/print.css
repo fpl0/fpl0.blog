@@ -14,6 +14,8 @@
   .skip-link,
   .code-copy,
   .code-lang,
+  .mermaid-toolbar,
+  .mermaid-source,
   .post-tags,
   .home-nav {
     display: none !important;

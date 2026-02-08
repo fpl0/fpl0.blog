@@ -4,48 +4,173 @@
  *
  * Detects ```mermaid code blocks in .content and renders them as SVG.
  * Dynamically imports mermaid so there's zero cost on pages without diagrams.
- * Respects current theme (dark/light).
+ * Respects current theme (dark/light) and re-renders on theme change.
+ * Includes a "source" toggle to view the raw mermaid definition.
  */
 ---
 
 <script>
   import { onPageReady } from "../utils/lifecycle";
 
+  function getMermaidTheme(): string {
+    return document.documentElement.getAttribute("data-theme") === "light"
+      ? "neutral"
+      : "dark";
+  }
+
   onPageReady(() => {
-    const blocks = document.querySelectorAll<HTMLElement>(
-      ".content pre code.language-mermaid",
+    const pres = document.querySelectorAll<HTMLPreElement>(
+      '.content pre[data-language="mermaid"]',
     );
-    if (blocks.length === 0) return;
+    if (pres.length === 0) return;
 
-    const theme =
-      document.documentElement.getAttribute("data-theme") === "light"
-        ? "neutral"
-        : "dark";
+    interface DiagramEntry {
+      rendered: HTMLDivElement;
+      source: string;
+      sourceBlock: HTMLPreElement;
+      toggleBtn: HTMLButtonElement;
+    }
 
-    import("mermaid").then(({ default: mermaid }) => {
-      mermaid.initialize({
-        startOnLoad: false,
-        theme,
-        fontFamily: "var(--font-sans)",
+    const diagrams: DiagramEntry[] = [];
+
+    pres.forEach((pre) => {
+      const code = pre.querySelector("code");
+      if (!code) return;
+
+      const source = code.textContent ?? "";
+
+      const container = document.createElement("div");
+      container.className = "mermaid-container";
+
+      const rendered = document.createElement("div");
+      rendered.className = "mermaid mermaid-rendered";
+      rendered.textContent = source;
+
+      const sourceBlock = document.createElement("pre");
+      sourceBlock.className = "mermaid-source";
+      sourceBlock.hidden = true;
+      const sourceCode = document.createElement("code");
+      sourceCode.textContent = source;
+      sourceBlock.appendChild(sourceCode);
+
+      const toolbar = document.createElement("div");
+      toolbar.className = "mermaid-toolbar";
+
+      const toggleBtn = document.createElement("button");
+      toggleBtn.className = "mermaid-toggle";
+      toggleBtn.setAttribute("aria-label", "View diagram source");
+      toggleBtn.innerHTML =
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+        '<polyline points="16 18 22 12 16 6"></polyline>' +
+        '<polyline points="8 6 2 12 8 18"></polyline>' +
+        "</svg>" +
+        "<span>source</span>";
+
+      toggleBtn.addEventListener("click", () => {
+        const showing = !sourceBlock.hidden;
+        sourceBlock.hidden = showing;
+        rendered.style.display = showing ? "" : "none";
+        toggleBtn.classList.toggle("is-active", !showing);
+        toggleBtn.setAttribute(
+          "aria-label",
+          showing ? "View diagram source" : "View rendered diagram",
+        );
       });
 
-      blocks.forEach(async (block, i) => {
-        const pre = block.parentElement;
-        if (!pre) return;
+      toolbar.appendChild(toggleBtn);
+      container.appendChild(rendered);
+      container.appendChild(sourceBlock);
+      container.appendChild(toolbar);
 
-        const source = block.textContent ?? "";
-        const id = `mermaid-diagram-${i}`;
+      const target = pre.closest(".code-wrapper") ?? pre;
+      target.replaceWith(container);
 
-        try {
-          const { svg } = await mermaid.render(id, source);
-          const wrapper = document.createElement("div");
-          wrapper.className = "mermaid-diagram";
-          wrapper.innerHTML = svg;
-          pre.replaceWith(wrapper);
-        } catch {
-          // Leave the code block as-is if rendering fails
+      diagrams.push({ rendered, source, sourceBlock, toggleBtn });
+    });
+
+    if (diagrams.length === 0) return;
+
+    let mermaidModule: typeof import("mermaid")["default"] | null = null;
+    let isRendering = false;
+
+    async function renderAll(isThemeSwitch = false): Promise<void> {
+      if (isRendering) return;
+      isRendering = true;
+
+      try {
+        if (!mermaidModule) {
+          const mod = await import("mermaid");
+          mermaidModule = mod.default;
         }
-      });
+
+        const theme = getMermaidTheme();
+        mermaidModule.initialize({
+          startOnLoad: false,
+          theme,
+          fontFamily: "var(--font-sans)",
+        });
+
+        // Render into offscreen temp elements so the visible diagram
+        // stays intact until the new SVG is ready
+        const offscreen = document.createElement("div");
+        offscreen.style.cssText =
+          "position:absolute;left:-9999px;top:-9999px;visibility:hidden";
+        document.body.appendChild(offscreen);
+
+        const tempNodes: HTMLDivElement[] = [];
+        for (const { source } of diagrams) {
+          const temp = document.createElement("div");
+          temp.className = "mermaid";
+          temp.textContent = source;
+          offscreen.appendChild(temp);
+          tempNodes.push(temp);
+        }
+
+        await mermaidModule.run({ nodes: tempNodes });
+
+        // Fade out, swap SVG, fade in
+        if (isThemeSwitch) {
+          diagrams.forEach((d) => d.rendered.classList.add("is-swapping"));
+
+          // Wait for fade-out transition
+          await new Promise((r) => setTimeout(r, 150));
+        }
+
+        for (let i = 0; i < diagrams.length; i++) {
+          diagrams[i].rendered.innerHTML = tempNodes[i].innerHTML;
+        }
+
+        if (isThemeSwitch) {
+          // Force reflow before removing class so the browser sees the change
+          void diagrams[0]?.rendered.offsetHeight;
+          diagrams.forEach((d) => d.rendered.classList.remove("is-swapping"));
+        }
+
+        offscreen.remove();
+      } finally {
+        isRendering = false;
+      }
+    }
+
+    // Initial render
+    renderAll();
+
+    // Re-render on theme change
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        if (
+          mutation.type === "attributes" &&
+          mutation.attributeName === "data-theme"
+        ) {
+          renderAll(true);
+          break;
+        }
+      }
+    });
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme"],
     });
   });
 </script>

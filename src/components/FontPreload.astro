@@ -1,0 +1,18 @@
+---
+/**
+ * FontPreload - Preload critical fonts to avoid the CSS discovery waterfall
+ *
+ * Without preload hints, browsers only discover font URLs after CSS is fully
+ * parsed. These <link rel="preload"> tags let the browser start fetching
+ * fonts during HTML parse, saving 100-300ms on first meaningful paint.
+ *
+ * Only the two most critical fonts are preloaded:
+ * - Merriweather 400: blog body text (highest visual impact)
+ * - Inter Variable: UI font
+ */
+import merriweatherUrl from "@fontsource/merriweather/files/merriweather-latin-400-normal.woff2?url";
+import interUrl from "@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url";
+---
+
+<link rel="preload" href={merriweatherUrl} as="font" type="font/woff2" crossorigin />
+<link rel="preload" href={interUrl} as="font" type="font/woff2" crossorigin />

@@ -347,12 +347,86 @@ a.anchor-link {
 }
 
 /* --- Mermaid Diagrams --- */
-.mermaid-diagram {
+.mermaid-container {
   margin: var(--space-10) 0;
-  text-align: center;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--color-surface);
 }
 
-.mermaid-diagram svg {
+.mermaid-rendered {
+  padding: var(--space-6);
+  text-align: center;
+  transition: opacity 0.15s ease;
+}
+
+.mermaid-rendered.is-swapping {
+  opacity: 0;
+}
+
+.mermaid-rendered svg {
   max-width: 100%;
   height: auto;
+}
+
+/* Source code view — override .content pre styles from code-block.css */
+.mermaid-source {
+  margin: 0 !important;
+  padding: var(--space-5) !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xxs);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-text);
+}
+
+.mermaid-source code {
+  font-family: inherit;
+  white-space: pre;
+}
+
+/* Toolbar */
+.mermaid-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  padding: var(--space-2) var(--space-3);
+  border-top: 1px solid var(--color-border);
+}
+
+.mermaid-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: transparent;
+  border: none;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-muted);
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.mermaid-toggle svg {
+  width: 14px;
+  height: 14px;
+}
+
+.mermaid-toggle:hover {
+  color: var(--color-primary);
+  background: var(--color-highlight);
+}
+
+.mermaid-toggle.is-active {
+  color: var(--color-primary);
 }

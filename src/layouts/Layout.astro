@@ -10,7 +10,6 @@
  */
 
 // Fonts - Latin subset only for ~85% smaller bundle
-import "@fontsource-variable/inter/wght.css";
 import "@fontsource/merriweather/latin-400.css";
 import "@fontsource/merriweather/latin-700.css";
 import "@fontsource/space-mono/latin-400.css";
@@ -22,6 +21,7 @@ import ScrollToTop from "../components/ScrollToTop.astro";
 import ThemeToggle from "../components/ThemeToggle.astro";
 import Analytics from "../components/Analytics.astro";
 import FontLoader from "../components/FontLoader.astro";
+import FontPreload from "../components/FontPreload.astro";
 
 interface Props {
   title: string;
@@ -64,6 +64,7 @@ const twitterCardType = image ? "summary_large_image" : "summary";
         });
       })();
     </script>
+    <FontPreload />
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="generator" content={Astro.generator} />
@@ -93,7 +94,6 @@ const twitterCardType = image ? "summary_large_image" : "summary";
 
     <!-- Resource hints for external domains -->
     <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
-    <link rel="preconnect" href="https://i.ytimg.com" crossorigin />
 
     <!-- RSS Feed -->
     <link
