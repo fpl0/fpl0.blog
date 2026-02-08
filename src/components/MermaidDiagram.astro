@@ -128,28 +128,19 @@
       container.className = "mermaid-container";
 
       const rendered = document.createElement("div");
-      rendered.className = "mermaid mermaid-rendered";
-      rendered.textContent = source;
+      rendered.className = "mermaid-rendered";
 
       const sourceBlock = document.createElement("pre");
-      sourceBlock.className = "mermaid-source";
+      sourceBlock.className = "mermaid-source code-processed";
       sourceBlock.hidden = true;
       const sourceCode = document.createElement("code");
       sourceCode.textContent = source;
       sourceBlock.appendChild(sourceCode);
 
-      const toolbar = document.createElement("div");
-      toolbar.className = "mermaid-toolbar";
-
       const toggleBtn = document.createElement("button");
       toggleBtn.className = "mermaid-toggle";
       toggleBtn.setAttribute("aria-label", "View diagram source");
-      toggleBtn.innerHTML =
-        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
-        '<polyline points="16 18 22 12 16 6"></polyline>' +
-        '<polyline points="8 6 2 12 8 18"></polyline>' +
-        "</svg>" +
-        "<span>source</span>";
+      toggleBtn.textContent = "source";
 
       toggleBtn.addEventListener("click", () => {
         const showing = !sourceBlock.hidden;
@@ -162,10 +153,9 @@
         );
       });
 
-      toolbar.appendChild(toggleBtn);
+      container.appendChild(toggleBtn);
       container.appendChild(rendered);
       container.appendChild(sourceBlock);
-      container.appendChild(toolbar);
 
       const target = pre.closest(".code-wrapper") ?? pre;
       target.replaceWith(container);
