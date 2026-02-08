@@ -370,6 +370,19 @@ a.anchor-link {
   height: auto;
 }
 
+/* Match the site's font rendering on SVG text */
+.mermaid-rendered svg text {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "rlig" 1, "calt" 1;
+}
+
+/* Edge/arrow labels — slightly smaller for visual hierarchy */
+.mermaid-rendered svg .edgeLabel text {
+  font-size: 12px;
+}
+
 /* Source code view — override .content pre styles from code-block.css */
 .mermaid-source {
   margin: 0 !important;
