@@ -460,7 +460,7 @@ blockquote cite {
   display: block;
   font-family: var(--font-mono-brand);
   font-size: var(--font-size-xs);
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   font-weight: 400;
   color: var(--color-primary);
   margin-top: 0.5rem;
