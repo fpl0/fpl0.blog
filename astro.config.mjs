@@ -12,6 +12,9 @@ export default defineConfig({
     prefetchAll: true,
     defaultStrategy: "viewport", // Prefetch links when they enter viewport
   },
+  build: {
+    inlineStylesheets: "always",
+  },
   integrations: [sitemap(), mdx()],
   image: {
     // Optimize images to WebP with good quality
