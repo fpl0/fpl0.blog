@@ -222,8 +222,14 @@
       }
     }
 
-    // Initial render
-    renderAll();
+    // Initial render — preserve scroll position so the SVG injection
+    // doesn't cause the browser to jump down to the diagram
+    const savedScroll = window.scrollY;
+    renderAll().then(() => {
+      if (Math.abs(window.scrollY - savedScroll) > 1) {
+        window.scrollTo({ top: savedScroll, behavior: "instant" });
+      }
+    });
 
     // Re-render on theme change
     const observer = new MutationObserver((mutations) => {

@@ -110,11 +110,18 @@ const videoPoster = tweet?.video?.poster;
       </div>
 
       {photos.length > 0 && (
-        <div class={`tweet-media grid-${Math.min(photos.length, 4)}`}>
-          {photos.map((photo: TweetPhoto) => (
-            <img src={photo.url} alt="Tweet media" loading="lazy" />
-          ))}
-        </div>
+        <a
+          href={`https://twitter.com/${user.screen_name}/status/${id}`}
+          class="tweet-media-link"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <div class={`tweet-media grid-${Math.min(photos.length, 4)}`}>
+            {photos.map((photo: TweetPhoto) => (
+              <img src={photo.url} alt="Tweet media" loading="lazy" />
+            ))}
+          </div>
+        </a>
       )}
 
       {videoPoster && (
@@ -229,6 +236,16 @@ const videoPoster = tweet?.video?.poster;
     white-space: pre-wrap; /* Preserve whitespace */
   }
 
+  .tweet-media-link {
+    display: block;
+    text-decoration: none;
+    border-bottom: none;
+  }
+
+  .tweet-media-link:hover {
+    background: transparent;
+  }
+
   /* Media Grid */
   .tweet-media {
     position: relative;
@@ -242,6 +259,7 @@ const videoPoster = tweet?.video?.poster;
     width: 100%;
     height: auto;
     display: block;
+    cursor: pointer;
   }
 
   .grid-2,

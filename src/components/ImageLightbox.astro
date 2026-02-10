@@ -130,7 +130,9 @@
     };
 
     document
-      .querySelectorAll<HTMLImageElement>(".content img")
+      .querySelectorAll<HTMLImageElement>(
+        ".content img:not(.tweet-card img):not(.tweet-avatar)",
+      )
       .forEach((img) => {
         img.addEventListener("click", () => openLightbox(img.src, img.alt), {
           signal,
