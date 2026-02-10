@@ -114,6 +114,14 @@
     transform: translateY(-2px);
   }
 
+  @media (prefers-reduced-motion: reduce) {
+    .scroll-to-top,
+    .progress-ring__circle,
+    .arrow-icon {
+      transition-duration: 0.01ms !important;
+    }
+  }
+
   @media (max-width: 768px) {
     .scroll-to-top {
       bottom: 1.5rem;

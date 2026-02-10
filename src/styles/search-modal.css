@@ -144,6 +144,23 @@
   gap: var(--space-3);
 }
 
+.search-result-tags {
+  display: flex;
+  gap: var(--space-1);
+  flex-shrink: 0;
+}
+
+.search-tag {
+  font-family: var(--font-mono-brand);
+  font-size: var(--font-size-micro);
+  color: var(--color-text-muted);
+  background: var(--color-bg);
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  border: 1px solid var(--color-border-subtle);
+  white-space: nowrap;
+}
+
 
 
 /* Focus styles for keyboard navigation */
@@ -183,6 +200,15 @@
   border-radius: 4px;
   font-family: var(--font-mono);
   font-size: var(--font-size-micro);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .search-backdrop,
+  .search-modal,
+  .search-result {
+    transition-duration: 0.01ms !important;
+  }
 }
 
 /* Responsive: smaller screens */

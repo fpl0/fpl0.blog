@@ -10,7 +10,7 @@ export const GET: APIRoute = async () => {
   const searchIndex = posts.map((post) => ({
     title: post.data.title,
     summary: post.data.summary,
-
+    tags: post.data.tags,
     slug: post.slug,
     date: post.data.date.toISOString(),
   }));

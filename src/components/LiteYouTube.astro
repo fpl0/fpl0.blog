@@ -59,7 +59,7 @@
     transform: translate(-50%, -50%);
     width: 68px;
     height: 48px;
-    background-color: #cc181e;
+    background-color: hsl(1, 72%, 45%);
     border: none;
     border-radius: 12px;
     cursor: pointer;
@@ -98,6 +98,12 @@
     width: 100%;
     height: 100%;
     border: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    lite-youtube .lyt-playbtn {
+      transition-duration: 0.01ms !important;
+    }
   }
 
   .lite-youtube-error {
@@ -220,7 +226,11 @@
   // Re-init after Astro page transitions
   document.addEventListener("astro:page-load", () => {
     document.querySelectorAll<LiteYouTube>("lite-youtube").forEach((el) => {
-      el.connectedCallback();
+      // Only re-init elements that aren't already set up
+      // connectedCallback may not fire on View Transition DOM swaps
+      if (!el.querySelector(".lyt-playbtn") && !el.classList.contains("lyt-activated")) {
+        el.connectedCallback();
+      }
     });
   });
 </script>

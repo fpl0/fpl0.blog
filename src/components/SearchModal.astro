@@ -57,11 +57,12 @@ import "../styles/search-modal.css";
 
 <script>
   import { onPageReady } from "../utils/lifecycle";
+  import { fuzzyMatch } from "../utils/search";
 
   interface SearchItem {
     readonly title: string;
     readonly summary: string;
-
+    readonly tags: readonly string[];
     readonly slug: string;
     readonly date: string;
   }
@@ -74,53 +75,20 @@ import "../styles/search-modal.css";
   let debounceTimer: ReturnType<typeof setTimeout> | null = null;
   let indexPromise: Promise<void> | null = null;
   let fetchAbortController: AbortController | null = null;
+  let previousActiveElement: Element | null = null;
 
   // Constants
   const SEARCH_WEIGHTS = {
     TITLE: 10,
-
+    TAG: 5,
     SUMMARY: 1,
   } as const;
 
   const MAX_RESULTS = 8;
   const MAX_VISIBLE_TAGS = 3;
   const LATEST_POSTS_COUNT = 3;
+  const DEBOUNCE_MS = 150;
   const FETCH_TIMEOUT_MS = 5000;
-
-  /**
-   * Lightweight fuzzy matching algorithm
-   * Returns score based on match quality; 0 if no match
-   */
-  function fuzzyMatch(query: string, text: string): number {
-    const lowerQuery = query.toLowerCase();
-    const lowerText = text.toLowerCase();
-
-    // Exact substring match gets highest score
-    if (lowerText.includes(lowerQuery)) {
-      return 100 + (lowerQuery.length / lowerText.length) * 50;
-    }
-
-    // Fuzzy matching - all query chars must appear in order
-    let queryIndex = 0;
-    let score = 0;
-    let consecutiveBonus = 0;
-
-    for (
-      let i = 0;
-      i < lowerText.length && queryIndex < lowerQuery.length;
-      i++
-    ) {
-      if (lowerText[i] === lowerQuery[queryIndex]) {
-        score += 10 + consecutiveBonus;
-        consecutiveBonus += 5;
-        queryIndex++;
-      } else {
-        consecutiveBonus = 0;
-      }
-    }
-
-    return queryIndex === lowerQuery.length ? score : 0;
-  }
 
   function searchPosts(query: string): SearchItem[] {
     const trimmedQuery = query.trim();
@@ -130,10 +98,15 @@ import "../styles/search-modal.css";
       const titleScore =
         fuzzyMatch(trimmedQuery, post.title) * SEARCH_WEIGHTS.TITLE;
 
+      const tagScore = post.tags.reduce(
+        (best, tag) => Math.max(best, fuzzyMatch(trimmedQuery, tag)),
+        0,
+      ) * SEARCH_WEIGHTS.TAG;
+
       const summaryScore =
         fuzzyMatch(trimmedQuery, post.summary) * SEARCH_WEIGHTS.SUMMARY;
 
-      return { post, score: titleScore + summaryScore };
+      return { post, score: titleScore + tagScore + summaryScore };
     });
 
     return scored
@@ -183,6 +156,10 @@ import "../styles/search-modal.css";
     container.innerHTML = items
       .map((item, i) => {
         const isSelected = i === selectedIndex;
+        const visibleTags = item.tags.slice(0, MAX_VISIBLE_TAGS);
+        const tagsHtml = visibleTags.length
+          ? `<span class="search-result-tags">${visibleTags.map((t) => `<span class="search-tag">${escapeHtml(t)}</span>`).join("")}</span>`
+          : "";
 
         return `
           <a href="/blog/${item.slug}/"
@@ -193,7 +170,7 @@ import "../styles/search-modal.css";
             <div class="search-result-title">${escapeHtml(item.title)}</div>
             <div class="search-result-meta">
               <span class="search-result-summary">${escapeHtml(item.summary)}</span>
-
+              ${tagsHtml}
             </div>
           </a>
         `;
@@ -207,6 +184,7 @@ import "../styles/search-modal.css";
       "search-input",
     ) as HTMLInputElement | null;
 
+    previousActiveElement = document.activeElement;
     backdrop?.classList.add("is-open");
     document.body.style.overflow = "hidden";
 
@@ -256,6 +234,12 @@ import "../styles/search-modal.css";
     selectedIndex = 0;
     renderResults([]);
     document.body.style.overflow = "";
+
+    // Restore focus to the element that opened the modal
+    if (previousActiveElement instanceof HTMLElement) {
+      previousActiveElement.focus();
+    }
+    previousActiveElement = null;
   }
 
   function navigateToSelected(): void {
@@ -297,6 +281,25 @@ import "../styles/search-modal.css";
         e.preventDefault();
         navigateToSelected();
         break;
+      case "Tab": {
+        // Focus trap — keep Tab cycling within the modal
+        const modal = backdrop.querySelector(".search-modal");
+        if (!modal) break;
+        const focusable = modal.querySelectorAll<HTMLElement>(
+          'input, button, a[href], [tabindex]:not([tabindex="-1"])',
+        );
+        if (focusable.length === 0) break;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+        break;
+      }
     }
   }
 
@@ -381,7 +384,7 @@ import "../styles/search-modal.css";
             ? searchPosts(input.value)
             : getLatestPosts();
           renderResults(results);
-        }, 16);
+        }, DEBOUNCE_MS);
       },
       { signal },
     );

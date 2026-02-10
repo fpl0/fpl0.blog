@@ -93,6 +93,13 @@
   border-color: var(--color-primary);
 }
 
+.code-copy:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  background: var(--color-highlight);
+  color: var(--color-primary);
+}
+
 /* Pre block styling updates */
 .content pre {
   margin: 0 !important;

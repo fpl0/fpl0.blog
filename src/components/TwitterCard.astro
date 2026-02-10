@@ -55,16 +55,17 @@ async function fetchTweet(id: string): Promise<TweetData | null> {
 
 const tweet = await fetchTweet(id);
 
-// Extract relevant data safely
-const user = tweet?.user;
-const text = tweet?.text;
+// Extract relevant data safely — guard once, narrow types in frontmatter
+const hasTweet = !!(tweet?.user && tweet?.text);
+const user = tweet?.user as TweetUser;
+const text = tweet?.text as string;
 const date = tweet?.created_at ? formatDate(tweet.created_at) : "";
 const photos: TweetPhoto[] = tweet?.photos || [];
 const videoPoster = tweet?.video?.poster;
 ---
 
 {
-  tweet ? (
+  hasTweet ? (
     <article class="tweet-card">
       <div class="tweet-header">
         <a
