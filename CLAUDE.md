@@ -44,7 +44,7 @@
 ## Code Quality
 
 - **Clean & Concise**: Write minimal, efficient code.
-- **DRY**: Extract common logic and styles into reusable components or global CSS variables. Use `getPublishedPosts()` from `src/utils/posts.ts` for all post fetching — never duplicate the filter/sort logic.
+- **DRY**: Extract common logic and styles into reusable components or global CSS variables. Use `getPublishedPosts()` from `src/utils/posts.ts` for post fetching and `getPublishedApps()` from `src/utils/apps.ts` for app fetching — never duplicate the filter/sort logic. Use `getFeedItems()` from `src/utils/feed.ts` for the mixed chronological feed.
 - **Linting**: Biome enforces consistent style. Run `bun run format` before committing.
 - **CSS**: Keep it clean, organized, and specifically targeted. Prefer standard CSS features over heavy abstractions. Use global CSS variables from `src/styles/global.css` for colors, fonts, and spacing. Responsive design must work flawlessly on all devices.
 
@@ -266,9 +266,12 @@ Every page uses `ClientRouter`. All client-side code must handle both initial lo
 
 **Never add a bare `DOMContentLoaded` listener without also handling `astro:page-load`.** It will break on client-side navigation.
 
-### Content Collection
+### Content Collections
 
-- Posts in `src/content/blog/[slug]/index.md` or `.mdx`
+Two collections share a common `publishableSchema` (title, summary, tags, dates, isDraft):
+
+- **Blog posts** in `src/content/blog/[slug]/index.md` or `.mdx` — extends the shared schema with `author` and `image` fields
+- **Apps** in `src/content/apps/[slug]/index.md` — metadata only (app code lives in `src/apps/[slug]/`, page in `src/pages/apps/[slug].astro`)
 - Schema in `src/content/config.ts` — Zod-validated with transforms
 - `isDraft: true` by default — set `isDraft: false` to publish
 - `summary` must be 50–360 characters
@@ -278,6 +281,8 @@ Every page uses `ClientRouter`. All client-side code must handle both initial lo
 ### Shared Utilities
 
 - **`getPublishedPosts()`** (`src/utils/posts.ts`) — Single source of truth for fetching published posts. Filters out drafts and sorts by date descending with slug tiebreaker for stable ordering. Use this in every page that needs blog posts — never duplicate the filter/sort logic.
+- **`getPublishedApps()`** (`src/utils/apps.ts`) — Same pattern as `getPublishedPosts()` but for the apps collection.
+- **`getFeedItems()`** (`src/utils/feed.ts`) — Returns a discriminated union `FeedItem = { type: "post" | "app", entry }` sorted by date descending. Used on the home page and tag pages to render a mixed chronological feed.
 - **`openSearch()`** (`src/utils/search-trigger.ts`) — Dispatches a synthetic Cmd+K event to trigger the search modal. Use in any button/element that should open search.
 - **`onPageReady()`** (`src/utils/lifecycle.ts`) — View Transition lifecycle manager with automatic AbortController cleanup.
 - **`getReadingTime()`** (`src/utils/readingTime.ts`) — Reading time calculator (200 WPM).
@@ -286,17 +291,21 @@ Every page uses `ClientRouter`. All client-side code must handle both initial lo
 ### Component Conventions
 
 - All components are `.astro` files in `src/components/`
-- Single layout: `src/layouts/Layout.astro`
+- Two layouts: `src/layouts/Layout.astro` (blog pages) and `src/components/AppShell.astro` (app pages)
 - Layout always includes: SearchModal, ScrollToTop, ThemeToggle, Analytics, FontPreload
-- Theme flash prevention: inline script in Layout `<head>` reads localStorage before paint
+- AppShell provides: theme flash prevention, FontPreload, ClientRouter, SearchModal, ThemeToggle, and a thin top bar with `fpl0 / apps` navigation
+- Theme flash prevention: inline script in `<head>` reads localStorage before paint (both layouts)
 - SearchModal uses singleton pattern — module-level state persists across navigations
-- **`<Logo>`** — Reusable brand mark with cursor animation. Use for home page and error pages.
+- **`<PageHeader>`** — Site-wide nav bar: `fpl0_` brand link + `about / apps / tags / search`. Used by every blog Layout page (no props needed).
+- **`<AppShell>`** — Standalone layout for full-viewport apps. Top bar: `fpl0 / apps` (desktop), `← [title]` (mobile). Props: `title`, `description`.
+- **`<AppCard>`** — App preview card for feed listings. Visually matches PostCard but with an "app" label below the date. Uses `app-date` class with `::after` pseudo-element.
+- **`<Logo>`** — Reusable brand mark with cursor animation. `as` prop controls HTML element: `"h1"` (default) or `"span"` (for nav bar context).
 - **`<Caption>`** — Shared figcaption for `<Figure>` and `<Table>` components.
 
 ### Styling
 
 - Design system in `src/styles/global.css` — CSS custom properties for everything
-- Component styles split into: `prose.css`, `code-block.css`, `search-modal.css`, `table-of-contents.css`, `tables.css`, `footnotes.css`, `home.css`, `about.css`, `blog-post.css`, `print.css`, `tags.css`
+- Component styles split into: `prose.css`, `code-block.css`, `search-modal.css`, `table-of-contents.css`, `tables.css`, `footnotes.css`, `home.css`, `about.css`, `blog-post.css`, `print.css`, `tags.css`, `app-shell.css`, `apps.css`
 
 ### Performance
 
@@ -319,10 +328,12 @@ Every page uses `ClientRouter`. All client-side code must handle both initial lo
 
 ```
 src/
-├── components/     23 Astro components (includes Logo, Caption)
+├── apps/           App source code (one directory per app)
+├── components/     25 Astro components (includes Logo, Caption, AppCard, AppShell)
 ├── content/
-│   ├── config.ts   Zod schema
-│   └── blog/       Post directories (slug/index.md|mdx)
+│   ├── config.ts   Zod schema (shared publishableSchema for blog + apps)
+│   ├── blog/       Post directories (slug/index.md|mdx)
+│   └── apps/       App metadata directories (slug/index.md)
 ├── layouts/
 │   └── Layout.astro
 ├── pages/
@@ -330,13 +341,17 @@ src/
 │   ├── about.astro
 │   ├── 404.astro
 │   ├── blog/[slug].astro
+│   ├── apps/index.astro
+│   ├── apps/[name].astro   (one static page per app)
 │   ├── tags/index.astro
 │   ├── tags/[tag].astro
 │   ├── rss.xml.ts
 │   └── search.json.ts
 ├── plugins/        Custom rehype plugin
-├── styles/         CSS design system + component styles
+├── styles/         CSS design system + component styles (14 files)
 └── utils/
+    ├── apps.ts            getPublishedApps() — Published app fetching
+    ├── feed.ts            getFeedItems() — Mixed chronological feed
     ├── lifecycle.ts       onPageReady() — View Transition lifecycle
     ├── posts.ts           getPublishedPosts() — Published post fetching
     ├── readingTime.ts     Reading time calculator (200 WPM)
@@ -356,3 +371,5 @@ src/
 - **Need published posts?** Use `getPublishedPosts()` from `src/utils/posts.ts` — never duplicate the filter/sort
 - **Need to open search from a button?** Use `openSearch()` from `src/utils/search-trigger.ts`
 - **Need a figcaption?** Use the `<Caption>` component — never duplicate the label/caption pattern
+- **Need published apps?** Use `getPublishedApps()` from `src/utils/apps.ts`
+- **Need a mixed feed?** Use `getFeedItems()` from `src/utils/feed.ts`

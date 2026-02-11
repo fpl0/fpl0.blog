@@ -4,7 +4,7 @@ My personal blog.
 
 ## Writer's Style Guide
 
-All content is managed in `src/content/blog/` using `.md` or `.mdx` files. MDX supports standard Markdown and lets you import components for figures, tables, videos, and more.
+Content lives in two collections: **blog posts** in `src/content/blog/` and **apps** in `src/content/apps/`. Blog posts use `.md` or `.mdx` files. MDX supports standard Markdown and lets you import components for figures, tables, videos, and more.
 
 ### Headings
 
@@ -110,6 +110,20 @@ This is a claim[^1].
 [^1]: Source of the claim.
 ```
 
+### Twitter Embeds
+
+Use the `<TwitterCard>` component in `.mdx` files. Tweet data is fetched at build time via the syndication API.
+
+```mdx
+import TwitterCard from "../../../components/TwitterCard.astro";
+
+<TwitterCard id="20" />
+```
+
+| Prop | Required | Description |
+| :--- | :---: | :--- |
+| `id` | Yes | Tweet ID (numeric string) |
+
 ### Collapsible Sections
 
 ```markdown
@@ -120,6 +134,48 @@ Hidden content here...
 
 </details>
 ```
+
+## Apps
+
+Apps are standalone interactive pages hosted alongside the blog. Each app has:
+
+- **Metadata** in `src/content/apps/[slug]/index.md` — title, summary, tags, dates, isDraft
+- **Source code** in `src/apps/[slug]/` — TypeScript modules (simulation logic, rendering, controls)
+- **Page** in `src/pages/apps/[slug].astro` — uses the `<AppShell>` layout for a full-viewport experience
+
+Apps appear in the mixed chronological feed on the home page alongside blog posts, distinguished by an "app" label below the date. The `/apps/` listing page shows all published apps.
+
+### Creating a New App
+
+1. Create metadata: `src/content/apps/my-app/index.md`
+
+```yaml
+---
+title: "My App"
+summary: "A short description (50-360 characters)."
+createdDate: 2026-01-15
+isDraft: true
+tags: ["canvas", "interactive"]
+---
+```
+
+2. Write app code in `src/apps/my-app/`
+3. Create the page at `src/pages/apps/my-app.astro` using `<AppShell>`
+
+```astro
+---
+import AppShell from "../../components/AppShell.astro";
+---
+
+<AppShell
+  title="My App"
+  description="A short description."
+>
+  <!-- App markup here -->
+</AppShell>
+```
+
+4. Set `isDraft: false` when ready to publish.
 
 ## Visual Identity
 
