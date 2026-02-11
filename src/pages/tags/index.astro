@@ -4,6 +4,7 @@
  */
 
 import PageHeader from "../../components/PageHeader.astro";
+import Repl from "../../components/Repl.astro";
 import Layout from "../../layouts/Layout.astro";
 import { getPublishedApps } from "../../utils/apps";
 import { getPublishedPosts } from "../../utils/posts";
@@ -31,14 +32,18 @@ const sortedTags = [...tagCounts.entries()].sort((a, b) => a[0].localeCompare(b[
 
   <main id="main-content" class="tags-main">
     <h1 class="tags-title">Tags</h1>
-    <div class="tags-grid">
-      {sortedTags.map(([tag, count]) => (
-        <a href={`/tags/${tag}/`} class="tag-card">
-          <span class="tag-card-name">{tag}</span>
-          <span class="tag-card-count">{count}</span>
-        </a>
-      ))}
-    </div>
+    {sortedTags.length > 0 ? (
+      <div class="tags-grid">
+        {sortedTags.map(([tag, count]) => (
+          <a href={`/tags/${tag}/`} class="tag-card">
+            <span class="tag-card-name">{tag}</span>
+            <span class="tag-card-count">{count}</span>
+          </a>
+        ))}
+      </div>
+    ) : (
+      <Repl message="No tags yet." />
+    )}
   </main>
 </Layout>
 

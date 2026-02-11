@@ -5,6 +5,7 @@
 
 import AppCard from "../../components/AppCard.astro";
 import PageHeader from "../../components/PageHeader.astro";
+import Repl from "../../components/Repl.astro";
 import Layout from "../../layouts/Layout.astro";
 import { getPublishedApps } from "../../utils/apps";
 import "../../styles/home.css";
@@ -25,9 +26,7 @@ const apps = await getPublishedApps();
         </ul>
       </section>
     ) : (
-      <section class="empty-state">
-        <p class="empty-greeting">No apps yet.</p>
-      </section>
+      <Repl message="No apps yet." />
     )}
   </main>
 </Layout>

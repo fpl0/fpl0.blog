@@ -159,6 +159,10 @@
   /* Cool Accent (Teal for harmony) */
   --color-accent-cool: hsl(180, 30%, 35%);
 
+  /* Semantic Status Colors */
+  --color-warn: hsl(40, 80%, 42%);
+  --color-error: hsl(0, 60%, 45%);
+
   /* Borders & Dividers */
   --color-border: hsl(35, 25%, 82%);
   --color-border-subtle: hsl(35, 20%, 88%);
@@ -232,6 +236,10 @@
 
   /* Cool Accent (Teal for harmony) */
   --color-accent-cool: hsl(180, 20%, 72%);
+
+  /* Semantic Status Colors */
+  --color-warn: hsl(40, 70%, 60%);
+  --color-error: hsl(0, 55%, 62%);
 
   /* Borders & Dividers */
   --color-border: hsl(20, 10%, 18%);
