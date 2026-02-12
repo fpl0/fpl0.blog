@@ -419,25 +419,19 @@ body {
   color: var(--color-bg);
 }
 
-/* Smooth view transitions - fast to minimize style flash */
-::view-transition-old(root),
+/* View transitions — near-instant crossfade for snappy navigation */
+::view-transition-old(root) {
+  animation: none;
+}
+
 ::view-transition-new(root) {
-  animation-duration: 0.2s;
-  animation-timing-function: ease-out;
+  animation: snap-in 0.08s ease-out;
   mix-blend-mode: normal;
 }
 
-/* Hide content briefly during transition to prevent unstyled flash */
-::view-transition-new(root) {
-  animation: fade-in 0.2s ease-out;
-}
-
-@keyframes fade-in {
+@keyframes snap-in {
   from {
     opacity: 0;
-  }
-  to {
-    opacity: 1;
   }
 }
 
