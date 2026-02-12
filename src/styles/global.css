@@ -419,20 +419,10 @@ body {
   color: var(--color-bg);
 }
 
-/* View transitions — near-instant crossfade for snappy navigation */
-::view-transition-old(root) {
-  animation: none;
-}
-
+/* View transitions — instant swap, zero flicker */
+::view-transition-old(root),
 ::view-transition-new(root) {
-  animation: snap-in 0.08s ease-out;
-  mix-blend-mode: normal;
-}
-
-@keyframes snap-in {
-  from {
-    opacity: 0;
-  }
+  animation: none;
 }
 
 /* Skip link for keyboard/screen reader users */
