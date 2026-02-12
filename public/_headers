@@ -24,6 +24,10 @@
 /*.woff2
   Cache-Control: public, max-age=31536000, immutable
 
+# JSON data (search index) - cache but revalidate on deploy
+/search.json
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
 # HTML pages - allow revalidation
 /*.html
   Cache-Control: public, max-age=0, must-revalidate
