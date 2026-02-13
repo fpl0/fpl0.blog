@@ -207,7 +207,11 @@
         }
 
         for (let i = 0; i < diagrams.length; i++) {
-          diagrams[i].rendered.innerHTML = tempNodes[i].innerHTML;
+          const diagram = diagrams[i];
+          const node = tempNodes[i];
+          if (diagram && node) {
+            diagram.rendered.innerHTML = node.innerHTML;
+          }
         }
 
         if (isThemeSwitch) {

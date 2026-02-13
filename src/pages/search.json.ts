@@ -1,4 +1,5 @@
 import type { APIRoute } from "astro";
+
 import { getPublishedApps } from "../utils/apps";
 import { getPublishedPosts } from "../utils/posts";
 

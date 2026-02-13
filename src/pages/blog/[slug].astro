@@ -36,17 +36,18 @@ interface Props {
 
 export async function getStaticPaths() {
   const sorted = await getPublishedPosts();
-  return sorted.map((post, i) => ({
-    params: { slug: post.slug },
-    props: {
-      post,
-      prevPost: i > 0 ? { slug: sorted[i - 1].slug, title: sorted[i - 1].data.title } : null,
-      nextPost:
-        i < sorted.length - 1
-          ? { slug: sorted[i + 1].slug, title: sorted[i + 1].data.title }
-          : null,
-    },
-  }));
+  return sorted.map((post, i) => {
+    const prev = sorted[i - 1];
+    const next = sorted[i + 1];
+    return {
+      params: { slug: post.slug },
+      props: {
+        post,
+        prevPost: prev ? { slug: prev.slug, title: prev.data.title } : null,
+        nextPost: next ? { slug: next.slug, title: next.data.title } : null,
+      },
+    };
+  });
 }
 
 const { post, prevPost, nextPost } = Astro.props;

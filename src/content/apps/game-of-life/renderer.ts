@@ -36,7 +36,9 @@ function getCSSColor(property: string): string {
  */
 export function createRenderer(options: RendererOptions): Renderer {
   const { canvas, grid } = options;
-  const ctx = canvas.getContext("2d")!;
+  const maybeCtx = canvas.getContext("2d");
+  if (!maybeCtx) throw new Error("Canvas 2D context not available");
+  const ctx: CanvasRenderingContext2D = maybeCtx;
   let cellSize = 0;
   let offsetX = 0;
   let offsetY = 0;

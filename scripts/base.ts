@@ -87,7 +87,9 @@ export function listSlugs(): string[] {
           slugs.push(name);
         }
       }
-    } catch {}
+    } catch {
+      // Directory doesn't exist — skip silently
+    }
   }
   return slugs;
 }
@@ -125,13 +127,13 @@ export function parseFrontmatter(filepath: string): Frontmatter | null {
   }
 
   const match = raw.match(/^---\r?\n([\s\S]*?)\r?\n---/);
-  if (!match) return null;
+  if (!match?.[1]) return null;
 
   const yaml = match[1];
   const get = (key: string): string | undefined => {
     const re = new RegExp(`^${key}:\\s*(.+)$`, "m");
     const m = yaml.match(re);
-    return m ? m[1].replace(/^["']|["']$/g, "").trim() : undefined;
+    return m?.[1]?.replace(/^["']|["']$/g, "").trim();
   };
 
   const isDraftRaw = get("isDraft");

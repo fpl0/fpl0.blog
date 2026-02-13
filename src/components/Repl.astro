@@ -382,7 +382,7 @@ const { message = "Nothing here yet." } = Astro.props;
               tempInput = input.value;
             }
             historyIndex--;
-            input.value = history[historyIndex];
+            input.value = history[historyIndex] ?? "";
           }
         } else if (e.key === "ArrowDown") {
           e.preventDefault();
@@ -391,7 +391,7 @@ const { message = "Nothing here yet." } = Astro.props;
             input.value =
               historyIndex === history.length
                 ? tempInput
-                : history[historyIndex];
+                : (history[historyIndex] ?? "");
           }
         } else if (e.key === "l" && e.ctrlKey) {
           e.preventDefault();

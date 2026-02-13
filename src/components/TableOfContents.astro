@@ -64,7 +64,8 @@ const tocHeadings = headings.filter((h) => h.depth === 2 || h.depth === 3);
       let activeId: string | null = null;
 
       for (let i = headings.length - 1; i >= 0; i--) {
-        const heading = headings[i];
+        const heading = headings[i] as HTMLElement | undefined;
+        if (!heading) continue;
         const rect = heading.getBoundingClientRect();
 
         if (rect.top <= READING_ZONE_OFFSET) {

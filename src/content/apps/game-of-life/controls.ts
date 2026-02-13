@@ -123,6 +123,7 @@ export function attachDrawControls(options: ControlsOptions): void {
     (e: TouchEvent) => {
       e.preventDefault();
       const touch = e.touches[0];
+      if (!touch) return;
       isDrawing = true;
       handleCellInteraction(touch.clientX, touch.clientY, true);
     },
@@ -135,6 +136,7 @@ export function attachDrawControls(options: ControlsOptions): void {
       e.preventDefault();
       if (!isDrawing) return;
       const touch = e.touches[0];
+      if (!touch) return;
       handleCellInteraction(touch.clientX, touch.clientY, false);
     },
     { signal, passive: false },

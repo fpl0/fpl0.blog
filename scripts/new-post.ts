@@ -10,6 +10,7 @@
 
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+
 import { ask, BLOG_DIR, todayISO, toSlug } from "./base";
 
 // ---------------------------------------------------------------------------

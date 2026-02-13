@@ -2,6 +2,7 @@ import rss from "@astrojs/rss";
 import type { APIContext } from "astro";
 import { marked } from "marked";
 import sanitizeHtml from "sanitize-html";
+
 import { getPublishedApps } from "../utils/apps";
 import { getPublishedPosts } from "../utils/posts";
 

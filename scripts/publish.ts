@@ -9,6 +9,7 @@
  */
 
 import { readFileSync, writeFileSync } from "node:fs";
+
 import { findContentFile, git, printAvailableSlugs, relativePath, todayISO } from "./base";
 
 // ---------------------------------------------------------------------------
@@ -26,14 +27,16 @@ function publish(filePath: string): {
     process.exit(1);
   }
 
-  const [, open, yaml, close] = match;
+  const open = match[1] ?? "";
+  const yaml = match[2] ?? "";
+  const close = match[3] ?? "";
   const rest = raw.slice(match[0].length);
 
   const titleMatch = yaml.match(/^title:\s*["']?(.+?)["']?\s*$/m);
-  const title = titleMatch ? titleMatch[1] : "unknown";
+  const title = titleMatch?.[1] ?? "unknown";
 
   const draftMatch = yaml.match(/^isDraft:\s*(true|false)\s*$/m);
-  if (draftMatch && draftMatch[1] === "false") {
+  if (draftMatch?.[1] === "false") {
     return { title, alreadyPublished: true };
   }
 

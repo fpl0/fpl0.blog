@@ -36,7 +36,7 @@ function index(grid: Grid, x: number, y: number): number {
 export function getCell(grid: Grid, x: number, y: number): number {
   const wx = ((x % grid.width) + grid.width) % grid.width;
   const wy = ((y % grid.height) + grid.height) % grid.height;
-  return grid.cells[index(grid, wx, wy)];
+  return grid.cells[index(grid, wx, wy)] ?? 0;
 }
 
 /**
@@ -81,20 +81,19 @@ export function step(grid: Grid): Grid {
 
   for (let y = 0; y < grid.height; y++) {
     for (let x = 0; x < grid.width; x++) {
-      const neighbors = countNeighbors(grid, x, y);
-      const alive = grid.cells[index(grid, x, y)];
-
-      if (alive) {
-        // Survive with 2 or 3 neighbors
-        next.cells[index(next, x, y)] = neighbors === 2 || neighbors === 3 ? 1 : 0;
-      } else {
-        // Born with exactly 3 neighbors
-        next.cells[index(next, x, y)] = neighbors === 3 ? 1 : 0;
-      }
+      next.cells[index(next, x, y)] = nextCellState(grid, x, y);
     }
   }
 
   return next;
+}
+
+/** Determine the next state of a single cell (B3/S23 rules). */
+function nextCellState(grid: Grid, x: number, y: number): number {
+  const neighbors = countNeighbors(grid, x, y);
+  const alive = grid.cells[index(grid, x, y)];
+  // Survive with 2–3 neighbors, or born with exactly 3
+  return alive ? (neighbors === 2 || neighbors === 3 ? 1 : 0) : neighbors === 3 ? 1 : 0;
 }
 
 /**

@@ -8,14 +8,20 @@
  * - Preconnects to YouTube on hover for faster iframe load
  * - Uses youtube-nocookie.com for privacy
  */
+interface Props {
+  videoid: string;
+  title: string;
+}
+
+const { videoid, title } = Astro.props;
 ---
 
 <!-- This component only registers the custom element - renders nothing visible -->
-{/^[a-zA-Z0-9_-]{11}$/.test(Astro.props.videoid ?? "") ? (
+{/^[a-zA-Z0-9_-]{11}$/.test(videoid ?? "") ? (
   <lite-youtube
-    videoid={Astro.props.videoid}
-    title={Astro.props.title}
-    content-title={Astro.props.title}
+    videoid={videoid}
+    title={title}
+    content-title={title}
     role="button"
     tabindex="0"></lite-youtube>
 ) : (

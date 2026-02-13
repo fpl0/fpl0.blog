@@ -79,6 +79,24 @@ function collectFiles(dir: string, exts: string[]): string[] {
 // Block-level exclusion helpers
 // ---------------------------------------------------------------------------
 
+const EXCLUDED_BLOCK_RE = /^\s*@keyframes\b|^\s*@font-face\b|prefers-reduced-motion/;
+
+/** Check whether a line starts an excluded block (at top-level depth). */
+function isExcludedBlockStart(line: string): boolean {
+  return EXCLUDED_BLOCK_RE.test(line);
+}
+
+/** Count brace balance in a line, returning the net depth change. */
+function braceBalance(line: string): { opens: number; closes: number } {
+  let opens = 0;
+  let closes = 0;
+  for (const ch of line) {
+    if (ch === "{") opens++;
+    if (ch === "}") closes++;
+  }
+  return { opens, closes };
+}
+
 /** Returns line indices that fall inside @keyframes, @font-face, or @media (prefers-reduced-motion) blocks. */
 function getExcludedLines(lines: string[]): Set<number> {
   const excluded = new Set<number>();
@@ -86,33 +104,21 @@ function getExcludedLines(lines: string[]): Set<number> {
   let excluding = false;
 
   for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
+    const line = lines[i] as string;
 
-    if (
-      !excluding &&
-      depth === 0 &&
-      (/^\s*@keyframes\b/.test(line) ||
-        /^\s*@font-face\b/.test(line) ||
-        /prefers-reduced-motion/.test(line))
-    ) {
+    if (!excluding && depth === 0 && isExcludedBlockStart(line)) {
       excluding = true;
     }
 
-    if (excluding) {
-      excluded.add(i);
-    }
+    if (excluding) excluded.add(i);
 
-    // Track brace depth within excluded blocks
-    for (const ch of line) {
-      if (ch === "{") depth++;
-      if (ch === "}") {
-        depth--;
-        if (excluding && depth <= 0) {
-          excluded.add(i);
-          excluding = false;
-          depth = 0;
-        }
-      }
+    const { opens, closes } = braceBalance(line);
+    depth += opens - closes;
+
+    if (excluding && depth <= 0) {
+      excluded.add(i);
+      excluding = false;
+      depth = 0;
     }
   }
   return excluded;
@@ -166,22 +172,22 @@ const COLOR_PROPS = new Set([
 const SPACING_PROPS =
   /^\s*(?:margin|padding|gap|top|right|bottom|left|margin-top|margin-right|margin-bottom|margin-left|padding-top|padding-right|padding-bottom|padding-left|row-gap|column-gap)\s*:/;
 
+/** Check if a spacing part should be skipped (relative units, percentages, negatives). */
+function isSkippableSpacingPart(part: string): boolean {
+  if (part === "0" || part.startsWith("-")) return true;
+  if (/%$/.test(part) || /v[hw]$/.test(part)) return true;
+  // em (not rem) is intentionally relative
+  return /em$/.test(part) && !/rem$/.test(part);
+}
+
 function checkSpacing(prop: string, value: string): { raw: string; suggestion: string } | null {
-  // Skip values that already use var(), or are 0/auto/none/negative/calc/clamp
   if (/var\(/.test(value)) return null;
   if (/^[\s]*(0|auto|none|inherit|initial|unset)[\s;]*$/.test(value)) return null;
   if (/calc\(|clamp\(/.test(value)) return null;
 
-  // Extract individual values from shorthand (e.g. "1rem 2rem")
   const parts = value.replace(/;$/, "").trim().split(/\s+/);
   for (const part of parts) {
-    // Skip em values (intentionally relative), percentages, vh/vw, negative values
-    if (/em$/.test(part) && !/rem$/.test(part)) continue;
-    if (/%$/.test(part)) continue;
-    if (/v[hw]$/.test(part)) continue;
-    if (part.startsWith("-")) continue;
-    if (part === "0") continue;
-
+    if (isSkippableSpacingPart(part)) continue;
     if (SPACE_MAP[part]) {
       return {
         raw: `${prop}: ${value.trim().replace(/;$/, "")}`,
@@ -340,101 +346,101 @@ function checkFontSize(value: string): { raw: string; suggestion: string } | nul
 // Main scan
 // ---------------------------------------------------------------------------
 
+/** Track CSS variable definition blocks (:root, [data-theme]) and mark lines inside them. */
+function getVarBlockLines(lines: string[]): Set<number> {
+  const varLines = new Set<number>();
+  let inBlock = false;
+  let depth = 0;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i] as string;
+
+    if (/^\s*:root\b/.test(line) || /^\s*\[data-theme/.test(line)) {
+      inBlock = true;
+      depth = 0;
+    }
+
+    if (inBlock) {
+      varLines.add(i);
+      const { opens, closes } = braceBalance(line);
+      depth += opens - closes;
+      if (depth <= 0) {
+        inBlock = false;
+        depth = 0;
+      }
+    }
+  }
+  return varLines;
+}
+
+/** Check if a line should be skipped entirely (comments, empty, exempt, var declarations). */
+function isSkippableLine(line: string): boolean {
+  if (/\/\*\s*token-exempt\s*\*\//.test(line)) return true;
+  if (/^\s*\/[/*]/.test(line)) return true;
+  if (/^\s*\*/.test(line)) return true;
+  if (/^\s*$/.test(line)) return true;
+  if (/^\s*--[\w-]+\s*:/.test(line)) return true;
+  return false;
+}
+
+const TIMING_PROPS = new Set([
+  "transition",
+  "transition-duration",
+  "animation",
+  "animation-duration",
+]);
+
+type CheckResult = { raw: string; suggestion: string } | null;
+type TokenChecker = (prop: string, value: string, line: string) => CheckResult[];
+
+/** Build a list of token checkers to run against each declaration. */
+const TOKEN_CHECKERS: TokenChecker[] = [
+  (prop, value, line) => (SPACING_PROPS.test(line) ? [checkSpacing(prop, value)] : []),
+  (prop, value) => (prop === "z-index" ? [checkZIndex(value)] : []),
+  (prop, value) => (prop === "border-radius" ? [checkBorderRadius(value)] : []),
+  (_prop, _value, line) =>
+    TIMING_PROPS.has(_prop) ? [checkTransitionDuration(line), checkEasing(line)] : [],
+  (prop, value) => [checkColor(prop, value)],
+  (prop, value) => (prop === "font-family" ? [checkFontFamily(value)] : []),
+  (prop, value) => (prop === "font-size" ? [checkFontSize(value)] : []),
+];
+
+/** Run all token checks against a single property declaration. */
+function checkDeclaration(
+  prop: string,
+  value: string,
+  line: string,
+): Array<{ raw: string; suggestion: string }> {
+  const results: Array<{ raw: string; suggestion: string }> = [];
+  for (const checker of TOKEN_CHECKERS) {
+    for (const result of checker(prop, value, line)) {
+      if (result) results.push(result);
+    }
+  }
+  return results;
+}
+
 function scanFile(filepath: string): Violation[] {
-  const violations: Violation[] = [];
+  const rel = relative(join(ROOT, ".."), filepath);
+  if (rel.endsWith("print.css")) return [];
+
   const content = readFileSync(filepath, "utf-8");
   const lines = content.split("\n");
   const excludedLines = getExcludedLines(lines);
-  const rel = relative(join(ROOT, ".."), filepath);
-
-  // Skip print.css entirely
-  if (rel.endsWith("print.css")) return [];
-
-  // Track if we're inside a CSS variable definition block (:root or [data-theme])
-  let inVarBlock = false;
-  let varBlockDepth = 0;
+  const varBlockLines = getVarBlockLines(lines);
+  const violations: Violation[] = [];
 
   for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
+    const line = lines[i] as string;
+    if (excludedLines.has(i) || varBlockLines.has(i) || isSkippableLine(line)) continue;
 
-    // Track variable definition blocks
-    if (/^\s*:root\b/.test(line) || /^\s*\[data-theme/.test(line)) {
-      inVarBlock = true;
-      varBlockDepth = 0;
-    }
-    if (inVarBlock) {
-      for (const ch of line) {
-        if (ch === "{") varBlockDepth++;
-        if (ch === "}") {
-          varBlockDepth--;
-          if (varBlockDepth <= 0) {
-            inVarBlock = false;
-            varBlockDepth = 0;
-          }
-        }
-      }
-    }
-
-    // Skip: excluded blocks, variable definitions, comments, empty, token-exempt
-    if (excludedLines.has(i)) continue;
-    if (inVarBlock) continue;
-    if (/\/\*\s*token-exempt\s*\*\//.test(line)) continue;
-    if (/^\s*\/[/*]/.test(line)) continue;
-    if (/^\s*\*/.test(line)) continue;
-    if (/^\s*$/.test(line)) continue;
-    // Skip lines that are CSS variable declarations (--foo: value)
-    if (/^\s*--[\w-]+\s*:/.test(line)) continue;
-
-    // Extract property: value from the line
     const propMatch = line.match(/^\s*([\w-]+)\s*:\s*(.+)/);
-    if (!propMatch) continue;
-    const [, prop, value] = propMatch;
+    if (!(propMatch?.[1] && propMatch[2])) continue;
+    const prop = propMatch[1];
+    const value = propMatch[2];
 
-    // Spacing check
-    if (SPACING_PROPS.test(line)) {
-      const v = checkSpacing(prop, value);
-      if (v) violations.push({ file: rel, line: i + 1, ...v });
-    }
-
-    // Z-index check
-    if (prop === "z-index") {
-      const v = checkZIndex(value);
-      if (v) violations.push({ file: rel, line: i + 1, ...v });
-    }
-
-    // Border-radius check
-    if (prop === "border-radius") {
-      const v = checkBorderRadius(value);
-      if (v) violations.push({ file: rel, line: i + 1, ...v });
-    }
-
-    // Transition duration/easing check
-    if (
-      prop === "transition" ||
-      prop === "transition-duration" ||
-      prop === "animation" ||
-      prop === "animation-duration"
-    ) {
-      const vd = checkTransitionDuration(line);
-      if (vd) violations.push({ file: rel, line: i + 1, ...vd });
-      const ve = checkEasing(line);
-      if (ve) violations.push({ file: rel, line: i + 1, ...ve });
-    }
-
-    // Color check
-    const vc = checkColor(prop, value);
-    if (vc) violations.push({ file: rel, line: i + 1, ...vc });
-
-    // Font-family check
-    if (prop === "font-family") {
-      const vf = checkFontFamily(value);
-      if (vf) violations.push({ file: rel, line: i + 1, ...vf });
-    }
-
-    // Font-size check
-    if (prop === "font-size") {
-      const vs = checkFontSize(value);
-      if (vs) violations.push({ file: rel, line: i + 1, ...vs });
+    for (const result of checkDeclaration(prop, value, line)) {
+      violations.push({ file: rel, line: i + 1, ...result });
     }
   }
 

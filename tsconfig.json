@@ -1,5 +1,9 @@
 {
   "extends": "astro/tsconfigs/strict",
-  "include": ["src/**/*", ".astro/types.d.ts"],
+  "compilerOptions": {
+    "noUncheckedIndexedAccess": true,
+    "noFallthroughCasesInSwitch": true
+  },
+  "include": ["src/**/*", "scripts/**/*", ".astro/types.d.ts"],
   "exclude": ["dist"]
 }
