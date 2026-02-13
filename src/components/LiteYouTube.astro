@@ -129,6 +129,11 @@ const { videoid, title } = Astro.props;
     private abortController: AbortController | null = null;
 
     connectedCallback(): void {
+      this.init();
+    }
+
+    /** Full (re-)initialization — safe to call multiple times. */
+    init(): void {
       // Clean up any previous listeners (handles View Transitions)
       this.abortController?.abort();
       this.abortController = new AbortController();
@@ -137,26 +142,22 @@ const { videoid, title } = Astro.props;
       this.videoId = this.getAttribute("videoid") ?? "";
       if (!this.videoId) return;
 
-      // Reset activated state on re-init (for View Transitions)
-      if (this.classList.contains("lyt-activated")) {
-        // Already activated, keep the iframe
-        return;
-      }
+      // Already activated with an iframe, nothing to do
+      if (this.classList.contains("lyt-activated")) return;
 
       // Set high-quality thumbnail
       this.style.backgroundImage = `url("https://i.ytimg.com/vi/${this.videoId}/hqdefault.jpg")`;
 
-      // Add play button if not present
-      if (!this.querySelector(".lyt-playbtn")) {
-        const btn = document.createElement("button");
-        btn.className = "lyt-playbtn";
-        btn.type = "button";
-        btn.setAttribute(
-          "aria-label",
-          `Play: ${this.getAttribute("title") ?? "Video"}`,
-        );
-        this.appendChild(btn);
-      }
+      // Add play button (remove stale one first to avoid duplicates)
+      this.querySelector(".lyt-playbtn")?.remove();
+      const btn = document.createElement("button");
+      btn.className = "lyt-playbtn";
+      btn.type = "button";
+      btn.setAttribute(
+        "aria-label",
+        `Play: ${this.getAttribute("title") ?? "Video"}`,
+      );
+      this.appendChild(btn);
 
       // Warm connections on hover
       this.addEventListener("pointerover", LiteYouTube.warmConnections, {
@@ -223,14 +224,12 @@ const { videoid, title } = Astro.props;
     customElements.define("lite-youtube", LiteYouTube);
   }
 
-  // Re-init after Astro page transitions
+  // Re-init after Astro View Transition page swaps.
+  // connectedCallback may or may not fire reliably during DOM swaps,
+  // so we unconditionally call init() which is idempotent.
   document.addEventListener("astro:page-load", () => {
-    document.querySelectorAll<LiteYouTube>("lite-youtube").forEach((el) => {
-      // Only re-init elements that aren't already set up
-      // connectedCallback may not fire on View Transition DOM swaps
-      if (!el.querySelector(".lyt-playbtn") && !el.classList.contains("lyt-activated")) {
-        el.connectedCallback();
-      }
-    });
+    document
+      .querySelectorAll<LiteYouTube>("lite-youtube")
+      .forEach((el) => el.init());
   });
 </script>
