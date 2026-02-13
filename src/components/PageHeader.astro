@@ -4,7 +4,7 @@
  *
  * Provides consistent navigation across all pages:
  * - Brand mark (fpl0_) linking home
- * - Section links: about / apps / tags
+ * - Section links: about / tags
  * - Search trigger (Cmd+K)
  *
  * Used by every page in the blog Layout. Replaces the old
@@ -12,6 +12,10 @@
  */
 
 import Logo from "./Logo.astro";
+
+const pathname = Astro.url.pathname;
+const isAbout = pathname === "/about" || pathname === "/about/";
+const isTags = pathname.startsWith("/tags");
 ---
 
 <header class="site-header">
@@ -20,11 +24,9 @@ import Logo from "./Logo.astro";
       <Logo text="fpl0" as="span" />
     </a>
     <nav class="site-nav" aria-label="Main navigation">
-      <a href="/about">about</a>
+      <a href="/about" aria-current={isAbout ? "page" : undefined}>about</a>
       <span class="site-nav-sep">/</span>
-      <a href="/apps/">apps</a>
-      <span class="site-nav-sep">/</span>
-      <a href="/tags/">tags</a>
+      <a href="/tags/" aria-current={isTags ? "page" : undefined}>tags</a>
       <span class="site-nav-sep">/</span>
       <button
         class="site-nav-search"
@@ -96,6 +98,14 @@ import Logo from "./Logo.astro";
     color: var(--color-primary);
     text-decoration: underline;
     text-underline-offset: 3px;
+  }
+
+  .site-nav a[aria-current="page"] {
+    color: var(--color-text);
+    text-decoration: underline;
+    text-decoration-color: var(--color-primary);
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1.5px;
   }
 
   .site-nav-sep {

@@ -60,7 +60,10 @@ const blog = defineCollection({
 
 const apps = defineCollection({
   type: "content",
-  schema: publishableSchema,
+  schema: publishableSchema.transform((data) => ({
+    ...data,
+    tags: data.tags.includes("app") ? data.tags : ["app", ...data.tags],
+  })),
 });
 
 export const collections = { blog, apps } as const;

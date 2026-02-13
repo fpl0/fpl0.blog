@@ -14,6 +14,7 @@ const description = "The page you are looking for isn't here.";
     <p class="not-found-message">
       Nothing here. The page you requested does not exist.
     </p>
+    <a href="/" class="not-found-home">&larr; Back to home</a>
   </main>
 </Layout>
 
@@ -43,5 +44,20 @@ const description = "The page you are looking for isn't here.";
     line-height: var(--line-height-relaxed);
     margin: 0;
     max-width: 40ch;
+  }
+
+  .not-found-home {
+    display: inline-block;
+    margin-top: var(--space-8);
+    font-family: var(--font-mono-brand);
+    font-size: var(--font-size-sm);
+    letter-spacing: 0.02em;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    transition: color var(--duration-normal) var(--ease-out);
+  }
+
+  .not-found-home:hover {
+    color: var(--color-primary);
   }
 </style>

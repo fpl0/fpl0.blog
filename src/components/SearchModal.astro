@@ -53,8 +53,6 @@ const searchCacheBuster = Date.now().toString(36);
       <nav class="search-footer-nav" aria-label="Quick links">
         <a href="/">home</a>
         <span class="search-footer-sep">/</span>
-        <a href="/apps/">apps</a>
-        <span class="search-footer-sep">/</span>
         <a href="/tags/">tags</a>
       </nav>
       <div class="search-footer-hint">
@@ -66,6 +64,7 @@ const searchCacheBuster = Date.now().toString(36);
 </div>
 
 <script>
+  import { navigate } from "astro:transitions/client";
   import { onPageReady } from "../utils/lifecycle";
   import { fuzzyMatch } from "../utils/search";
 
@@ -261,8 +260,8 @@ const searchCacheBuster = Date.now().toString(36);
       const url = selectedResult.type === "app"
         ? `/apps/${selectedResult.slug}/`
         : `/blog/${selectedResult.slug}/`;
-      window.location.href = url;
       closeSearch();
+      navigate(url);
     }
   }
 

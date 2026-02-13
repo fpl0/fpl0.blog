@@ -45,10 +45,6 @@
   background: none;
 }
 
-.app-shell-sep {
-  color: var(--color-border);
-}
-
 .app-shell-title {
   position: absolute;
   left: 50%;

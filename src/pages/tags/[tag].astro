@@ -53,6 +53,7 @@ const { tag, items } = Astro.props;
   <PageHeader />
 
   <main id="main-content" class="home-main">
+    <a href="/tags/" class="tag-back-link">&larr; all tags</a>
     <h1 class="tag-page-title">#{tag}</h1>
     <section class="archive">
       <ul class="post-list">
@@ -69,6 +70,21 @@ const { tag, items } = Astro.props;
 </Layout>
 
 <style>
+  .tag-back-link {
+    display: inline-block;
+    font-family: var(--font-mono-brand);
+    font-size: var(--font-size-xxs);
+    letter-spacing: 0.04em;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    margin-bottom: var(--space-4);
+    transition: color var(--duration-normal) var(--ease-out);
+  }
+
+  .tag-back-link:hover {
+    color: var(--color-primary);
+  }
+
   .tag-page-title {
     font-family: var(--font-mono-brand);
     font-size: var(--font-size-h2);

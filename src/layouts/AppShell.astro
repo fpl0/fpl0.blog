@@ -6,7 +6,7 @@
  * - Theme flash prevention
  * - Font preloading
  * - View Transitions (ClientRouter)
- * - A thin top bar with back link to /apps/ + search hint
+ * - A thin top bar with back link to home + search hint
  * - Theme toggle + SearchModal (Cmd+K)
  * - Full-viewport content area via <slot />
  *
@@ -81,11 +81,9 @@ const siteURL = Astro.site?.toString().replace(/\/$/, "") ?? "https://fpl0.githu
 	<body class="app-shell-body">
 		<header class="app-shell-bar">
 			<nav class="app-shell-nav" aria-label="App navigation">
-				<a href="/" class="app-shell-link" data-astro-prefetch="hover">fpl0</a>
-				<span class="app-shell-sep">/</span>
-				<a href="/apps/" class="app-shell-link" data-astro-prefetch="hover">apps</a>
+				<a href="/" class="app-shell-link" data-astro-prefetch="hover"><span class="app-shell-back" aria-hidden="true">&larr;</span> fpl0</a>
 			</nav>
-			<a href="/apps/" class="app-shell-title" data-astro-prefetch="hover">
+			<a href="/" class="app-shell-title" data-astro-prefetch="hover">
 				<span class="app-shell-title-back" aria-hidden="true">&larr;</span>
 				{title}
 			</a>
@@ -139,12 +137,11 @@ const siteURL = Astro.site?.toString().replace(/\/$/, "") ?? "https://fpl0.githu
 </style>
 
 <script>
+	import { onPageReady } from "../utils/lifecycle";
 	import { openSearch } from "../utils/search-trigger";
 
-	function initAppShellSearch(): void {
+	onPageReady((signal) => {
 		const btn = document.getElementById("app-shell-search");
-		btn?.addEventListener("click", () => openSearch());
-	}
-
-	document.addEventListener("astro:page-load", initAppShellSearch);
+		btn?.addEventListener("click", () => openSearch(), { signal });
+	});
 </script>
