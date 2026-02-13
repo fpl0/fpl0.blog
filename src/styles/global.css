@@ -524,21 +524,25 @@ blockquote {
   padding-left: var(--space-6);
   border-left: 2px solid var(--color-primary);
   font-family: var(--font-serif);
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-sm);
   font-style: italic;
-  color: var(--color-muted);
+  color: var(--color-text-secondary);
   line-height: var(--line-height-relaxed);
 }
 
 blockquote cite {
   display: block;
   font-family: var(--font-mono-brand);
-  font-size: var(--font-size-xs);
+  font-size: var(--font-size-label);
   letter-spacing: 0.04em;
   font-weight: 400;
-  color: var(--color-primary);
-  margin-top: 0.5rem;
+  color: var(--color-muted);
+  margin-top: var(--space-1);
   font-style: normal;
+}
+
+blockquote cite::before {
+  content: "— ";
 }
 
 /* ==========================================================================

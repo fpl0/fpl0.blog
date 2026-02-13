@@ -114,6 +114,10 @@
   margin: var(--space-8) 0;
 }
 
+.content blockquote p:last-of-type {
+  margin-bottom: 0;
+}
+
 /* Image caption styling - Explicit figure/figcaption */
 .content figure {
   margin: var(--space-10) 0;
