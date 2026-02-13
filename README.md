@@ -143,11 +143,11 @@ Apps are standalone interactive pages hosted alongside the blog. Everything for 
 - `App.astro` — self-contained component (markup, scoped styles, client-side script)
 - `*.ts` — source modules (simulation logic, rendering, controls)
 
-A thin routing stub in `src/pages/apps/[slug].astro` wraps the app in `<AppShell>`. Apps appear in the mixed chronological feed on the home page alongside blog posts, distinguished by an "app" label below the date. The `/apps/` listing page shows all published apps.
+A dynamic route at `src/pages/apps/[slug].astro` automatically discovers all published apps and wraps each in the `<AppShell>` layout. Apps appear in the mixed chronological feed on the home page alongside blog posts, distinguished by an "app" label below the date. The `/apps/` listing page shows all published apps.
 
 ### Creating a New App
 
-The fastest way is `bun run 0:new:app`, which prompts for title, slug, summary, and tags, then generates all three files below. To do it manually:
+The fastest way is `bun run 0:new:app`, which prompts for title, slug, summary, and tags, then generates the files below. To do it manually:
 
 1. Create the app directory with metadata: `src/content/apps/my-app/index.md`
 
@@ -180,20 +180,9 @@ tags: ["canvas", "interactive"]
 </script>
 ```
 
-3. Create the thin page stub: `src/pages/apps/my-app.astro`
+No page stub is needed -- the dynamic `[slug].astro` route handles routing automatically.
 
-```astro
----
-import AppShell from "../../components/AppShell.astro";
-import App from "../../content/apps/my-app/App.astro";
----
-
-<AppShell title="My App" description="A short description.">
-  <App />
-</AppShell>
-```
-
-4. Set `isDraft: false` in `index.md` when ready to publish.
+3. Set `isDraft: false` in `index.md` when ready to publish.
 
 ## Visual Identity
 
@@ -209,10 +198,12 @@ The design uses a warm palette of walnut and cream to support long-form technica
 | `bun run validate` | Type-check with astro check |
 | `bun run lint` | Lint and format check (Biome) |
 | `bun run format` | Auto-format code (Biome) |
-| `bun run check` | Full quality gate (validate + lint) |
+| `bun run lint:design` | Check for hardcoded design tokens |
+| `bun run check` | Full quality gate (validate + lint + lint:design) |
 | `bun run preview` | Preview production build locally |
 | `bun run 0:new:post` | Scaffold a new blog post |
 | `bun run 0:new:app` | Scaffold a new app |
 | `bun run 0:list` | List all content (`--drafts` / `--published`) |
 | `bun run 0:publish <slug>` | Publish a post or app (sets isDraft: false, commits, pushes) |
+| `bun run 0:unpublish <slug>` | Unpublish a post or app (sets isDraft: true) |
 | `bun run 0:delete <slug>` | Delete a post or app (with confirmation, commits, pushes) |

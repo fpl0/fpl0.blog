@@ -7,13 +7,12 @@
  * Creates:
  *   - src/content/apps/<slug>/index.md
  *   - src/content/apps/<slug>/App.astro
- *   - src/pages/apps/<slug>.astro
  */
 
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { APPS_DIR, APPS_PAGES, ask, todayISO, toSlug } from "./base";
+import { APPS_DIR, ask, todayISO, toSlug } from "./base";
 
 // ---------------------------------------------------------------------------
 // Templates
@@ -37,7 +36,7 @@ function appAstro(slug: string): string {
  * ${slug} -- App Component
  *
  * Self-contained UI and all client-side logic.
- * Imported by the thin page stub at src/pages/apps/${slug}.astro.
+ * Auto-discovered by the dynamic route at src/pages/apps/[slug].astro.
  */
 ---
 
@@ -83,21 +82,6 @@ ${"</"}script>
 `;
 }
 
-function pageStub(slug: string, title: string, description: string): string {
-  return `---
-import App from "../../content/apps/${slug}/App.astro";
-import AppShell from "../../layouts/AppShell.astro";
----
-
-<AppShell
-  title="${title}"
-  description="${description}"
->
-  <App />
-</AppShell>
-`;
-}
-
 // ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
@@ -115,8 +99,7 @@ const slugInput = ask(`Slug [${defaultSlug}]:`);
 const slug = slugInput || defaultSlug;
 
 const appDir = join(APPS_DIR, slug);
-const pageFile = join(APPS_PAGES, `${slug}.astro`);
-if (existsSync(appDir) || existsSync(pageFile)) {
+if (existsSync(appDir)) {
   console.error(`App "${slug}" already exists.`);
   process.exit(1);
 }
@@ -140,10 +123,8 @@ const date = todayISO();
 mkdirSync(appDir, { recursive: true });
 writeFileSync(join(appDir, "index.md"), indexMd(title, summary, tags, date));
 writeFileSync(join(appDir, "App.astro"), appAstro(slug));
-writeFileSync(pageFile, pageStub(slug, title, summary));
 
 console.log("\nCreated:");
 console.log(`  src/content/apps/${slug}/index.md`);
 console.log(`  src/content/apps/${slug}/App.astro`);
-console.log(`  src/pages/apps/${slug}.astro`);
 console.log(`\nThe app is unpublished (isDraft: true). Edit App.astro to build it out.\n`);
