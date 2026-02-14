@@ -157,13 +157,14 @@
   --font-size-label: 0.75rem;
   --font-size-micro: 0.7rem;
 
-  /* Line Heights */
-  --line-height-tight: 1.1;
-  --line-height-snug: 1.25;
-  --line-height-subhead: 1.4;
-  --line-height-normal: 1.5;
-  --line-height-relaxed: 1.6;
-  --line-height-loose: 1.7;
+  /* Line Heights (Tschichold Harmonic Inverse Scale) */
+  --lh-ratio: 1.1;
+  --line-height-tight: var(--lh-ratio);
+  --line-height-snug: calc(var(--lh-ratio) + 0.15);
+  --line-height-subhead: calc(var(--lh-ratio) + 0.3);
+  --line-height-normal: calc(var(--lh-ratio) + 0.4);
+  --line-height-relaxed: calc(var(--lh-ratio) + 0.5);
+  --line-height-loose: calc(var(--lh-ratio) + 0.6);
 
   /* --- Color Synthesis (Hue: 45 Gold/Cream) --- */
   --hue: 45;
@@ -172,10 +173,11 @@
   --color-surface-raised: hsl(var(--hue), 25%, 88%);
   --color-highlight: hsl(var(--hue), 45%, 90%);
 
-  /* Text Hierarchy (Sepia) */
-  --color-text: hsl(25, 30%, 18%);
-  --color-text-secondary: hsl(25, 25%, 28%);
-  --color-text-muted: hsl(25, 20%, 38%);
+  /* Text Hierarchy (Derived from master hue or harmonious offsets) */
+  --text-hue: 25;
+  --color-text: hsl(var(--text-hue), 30%, 18%);
+  --color-text-secondary: hsl(var(--text-hue), 25%, 28%);
+  --color-text-muted: hsl(var(--text-hue), 20%, 38%);
 
   /* Primary Accent */
   --color-primary: hsl(28, 80%, 38%);
@@ -260,14 +262,15 @@
 
 [data-theme="dark"] {
   --hue: 20;
+  --text-hue: 35;
   --color-bg: hsl(var(--hue), 15%, 8%);
   --color-surface: hsl(var(--hue), 12%, 12%);
   --color-surface-raised: hsl(var(--hue), 10%, 16%);
   --color-highlight: hsl(35, 20%, 14%);
 
-  --color-text: hsl(35, 12%, 87%);
-  --color-text-secondary: hsl(30, 10%, 60%);
-  --color-text-muted: hsl(25, 6%, 52%);
+  --color-text: hsl(var(--text-hue), 12%, 87%);
+  --color-text-secondary: hsl(var(--text-hue), 10%, 60%);
+  --color-text-muted: hsl(var(--text-hue), 6%, 52%);
 
   --color-primary: hsl(42, 52%, 76%);
   --color-primary-dim: hsl(42, 35%, 58%);

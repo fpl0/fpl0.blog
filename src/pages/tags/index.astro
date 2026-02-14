@@ -5,8 +5,8 @@
 
 import PageHeader from "../../components/PageHeader.astro";
 import Layout from "../../layouts/Layout.astro";
-import { getPublishedApps } from "../../utils/apps";
-import { getPublishedPosts } from "../../utils/posts";
+import { getPublishedApps } from "../../utils/content";
+import { getPublishedPosts } from "../../utils/content";
 import "../../styles/tags.css";
 
 const [posts, apps] = await Promise.all([getPublishedPosts(), getPublishedApps()]);

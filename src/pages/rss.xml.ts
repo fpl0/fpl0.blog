@@ -3,8 +3,7 @@ import type { APIContext } from "astro";
 import { marked } from "marked";
 import sanitizeHtml from "sanitize-html";
 
-import { getPublishedApps } from "../utils/apps";
-import { getPublishedPosts } from "../utils/posts";
+import { getPublishedApps, getPublishedPosts } from "../utils/content";
 
 export async function GET(context: APIContext) {
   const [sortedPosts, sortedApps] = await Promise.all([getPublishedPosts(), getPublishedApps()]);

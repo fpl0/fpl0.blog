@@ -1,7 +1,6 @@
 import type { APIRoute } from "astro";
 
-import { getPublishedApps } from "../utils/apps";
-import { getPublishedPosts } from "../utils/posts";
+import { getPublishedApps, getPublishedPosts } from "../utils/content";
 
 // Ensure this is always pre-rendered at build time
 export const prerender = true;
