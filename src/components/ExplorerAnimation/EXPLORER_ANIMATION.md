@@ -9,7 +9,7 @@ A decorative Canvas 2D animation at the bottom of the home page. A stickman walk
 Two files, strict separation of concerns:
 
 ```
-src/components/
+src/components/ExplorerAnimation/
   explorer-engine.ts      Pure logic — no DOM dependencies beyond CanvasRenderingContext2D
   ExplorerAnimation.astro  DOM wiring — canvas lifecycle, observers, animation loop
 ```
