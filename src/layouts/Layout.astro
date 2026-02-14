@@ -1,19 +1,21 @@
 ---
 /**
- * Layout - Base layout template for all pages
+ * Layout - Primary layout for blog posts and general pages
  *
- * Features:
- * - Deferred Google Analytics (loads on interaction or 3s timeout)
- * - Critical font preloading (font-display: block — zero flicker)
- * - View Transitions with ClientRouter
- * - Skip-to-content link for accessibility
+ * Design: "The Digital Antiquarian"
+ * Features: View Transitions, Theme Toggle, Scroll to Top, Analytics
  */
 
 import "../styles/global.css";
+import "../styles/prose.css";
+import "../styles/blog-post.css";
+import "../styles/code-block.css";
+import "../styles/footnotes.css";
+import "../styles/table-of-contents.css";
+import "../styles/tables.css";
 
-import { ClientRouter } from "astro:transitions";
 import Analytics from "../components/Analytics.astro";
-import FontPreload from "../components/FontPreload.astro";
+import BaseHead from "../components/BaseHead.astro";
 import ScrollToTop from "../components/ScrollToTop.astro";
 import SearchModal from "../components/SearchModal.astro";
 import ThemeToggle from "../components/ThemeToggle.astro";
@@ -29,92 +31,19 @@ const {
   description = "True delight is in the finding out rather than in the knowing.",
   image,
 } = Astro.props;
-const canonicalURL = new URL(Astro.url.pathname, Astro.site);
-const siteURL = Astro.site?.toString().replace(/\/$/, "") ?? "https://fpl0.github.io";
-const ogImage = image
-  ? image.startsWith("http")
-    ? image
-    : `${siteURL}${image.startsWith("/") ? "" : "/"}${image}`
-  : `${siteURL}/favicon.svg`;
-const twitterCardType = image ? "summary_large_image" : "summary";
 ---
 
-<html lang="en" data-theme="light">
+<!doctype html>
+<html lang="en">
   <head>
-    <!-- Theme init - runs before paint to prevent flash -->
-    <script is:inline>
-      (function () {
-        function getTheme() {
-          var stored = localStorage.getItem("theme");
-          if (stored) return stored;
-          return window.matchMedia("(prefers-color-scheme: dark)").matches
-            ? "dark"
-            : "light";
-        }
-
-        // Apply on initial load
-        document.documentElement.setAttribute("data-theme", getTheme());
-
-        // Re-apply before Astro swaps in new page (view transitions)
-        document.addEventListener("astro:before-swap", function (e) {
-          e.newDocument.documentElement.setAttribute("data-theme", getTheme());
-        });
-
-      })();
-    </script>
-    <FontPreload />
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <!-- CSP must match AppShell.astro — browsers enforce the first-loaded CSP
-         meta tag for all subsequent View Transition navigations -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://images.unsplash.com https://i.ytimg.com https://pbs.twimg.com https://abs.twimg.com; font-src 'self'; connect-src 'self' https://www.google-analytics.com https://www.googletagmanager.com; frame-src https://www.youtube.com https://www.youtube-nocookie.com; object-src 'none'; base-uri 'self'; form-action 'self'" />
-    <meta name="generator" content={Astro.generator} />
-
-    <!-- SEO -->
-    <title>{title}</title>
-    <meta name="description" content={description} />
-    <link rel="canonical" href={canonicalURL} />
-    <meta name="author" content="Filipe Lima" />
-
-    <!-- Open Graph -->
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content={canonicalURL} />
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
-    <meta property="og:site_name" content="fpl0" />
-    <meta property="og:image" content={ogImage} />
-
-    <!-- Twitter -->
-    <meta name="twitter:card" content={twitterCardType} />
-    <meta name="twitter:title" content={title} />
-    <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content={ogImage} />
-
-    <!-- Icons -->
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" href="/favicon.ico" />
-
-    <!-- Resource hints for external domains -->
-    <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
-
-    <!-- RSS Feed -->
-    <link
-      rel="alternate"
-      type="application/rss+xml"
-      title="fpl0 RSS Feed"
-      href="/rss.xml"
-    />
-
-    <!-- View Transitions -->
-    <ClientRouter />
-
-    <Analytics />
+    <BaseHead {title} {description} {image} />
   </head>
   <body>
     <a href="#main-content" class="skip-link">Skip to content</a>
+    <slot />
     <SearchModal />
     <ScrollToTop />
     <ThemeToggle />
-    <slot />
+    <Analytics />
   </body>
 </html>

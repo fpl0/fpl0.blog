@@ -48,7 +48,7 @@
 .post-list {
   display: flex;
   flex-direction: column;
-  gap: var(--space-10);
+  gap: var(--space-y-lg);
   list-style: none;
   padding: 0;
   margin: 0;
@@ -68,7 +68,7 @@
   font-size: var(--font-size-xxs);
   color: var(--color-muted);
   white-space: nowrap;
-  padding-top: 0.35em; /* Optical baseline alignment with serif title */
+  padding-top: 0.4em; /* Standardized rhythmic baseline alignment */
 }
 
 .post-content {

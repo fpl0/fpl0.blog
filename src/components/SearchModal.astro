@@ -104,6 +104,10 @@ const searchCacheBuster = Date.now().toString(36);
     const trimmedQuery = query.trim();
     if (!trimmedQuery) return [];
 
+    const now = Date.now();
+    const MS_PER_DAY = 86400000;
+    const DECAY_LAMBDA = 0.005; // Tuning parameter for recency decay
+
     const scored = searchIndex.map((post) => {
       const titleScore =
         fuzzyMatch(trimmedQuery, post.title) * SEARCH_WEIGHTS.TITLE;
@@ -116,7 +120,15 @@ const searchCacheBuster = Date.now().toString(36);
       const summaryScore =
         fuzzyMatch(trimmedQuery, post.summary) * SEARCH_WEIGHTS.SUMMARY;
 
-      return { post, score: titleScore + tagScore + summaryScore };
+      const baseScore = titleScore + tagScore + summaryScore;
+      if (baseScore <= 0) return { post, score: 0 };
+
+      // Probabilistic Recency Weighting
+      // score = baseScore * (1 + e^(-lambda * daysOld))
+      const daysOld = (now - new Date(post.date).getTime()) / MS_PER_DAY;
+      const recencyBoost = Math.exp(-DECAY_LAMBDA * Math.max(0, daysOld));
+      
+      return { post, score: baseScore * (1 + recencyBoost) };
     });
 
     return scored

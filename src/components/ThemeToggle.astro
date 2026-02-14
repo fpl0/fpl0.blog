@@ -61,7 +61,7 @@
     align-items: center;
     justify-content: center;
     background: var(--color-surface);
-    border: var(--space-px) solid var(--color-border);
+    border: var(--ui-border);
     border-radius: var(--radius-round);
     color: var(--color-muted);
     cursor: pointer;
@@ -77,6 +77,11 @@
     color: var(--color-primary);
     border-color: var(--color-primary);
     opacity: 1;
+  }
+
+  .theme-toggle:focus-visible {
+    outline: var(--ui-focus-ring);
+    outline-offset: var(--space-0-5);
   }
 
   .icon {

@@ -5,11 +5,11 @@
 /* The Wrapper handles positioning */
 .code-wrapper {
   position: relative;
-  margin: var(--space-8) 0;
-  border-radius: var(--radius-lg);
+  margin: var(--space-y-lg) 0;
+  border-radius: var(--ui-radius);
   background: var(--color-surface);
   /* Ensure border is on the wrapper, not pre, for clean edges */
-  border: var(--space-px) solid var(--color-border);
+  border: var(--ui-border);
   overflow: hidden; /* For border-radius */
 }
 
@@ -41,8 +41,8 @@
   align-items: center;
   justify-content: center;
   background: var(--color-surface); /* solid bg to hide code behind */
-  border: var(--space-px) solid var(--color-border);
-  border-radius: var(--radius-md);
+  border: var(--ui-border);
+  border-radius: var(--ui-radius-md);
   color: var(--color-muted);
   cursor: pointer;
   transition: all var(--duration-normal) var(--ease-out);
@@ -54,7 +54,7 @@
   background: var(--color-highlight);
   color: var(--color-primary);
   border-color: var(--color-primary);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--ui-shadow);
 }
 
 /* Icon Management */
@@ -94,7 +94,7 @@
 }
 
 .code-copy:focus-visible {
-  outline: var(--space-0-5) solid var(--color-primary);
+  outline: var(--ui-focus-ring);
   outline-offset: var(--space-0-5);
   background: var(--color-highlight);
   color: var(--color-primary);

@@ -139,6 +139,13 @@
   --space-125: calc(var(--grid) * 125);
   --space-140: calc(var(--grid) * 140);
 
+  /* --- Vertical Rhythm Engine (Typographic Baseline) --- */
+  --baseline: 1.6rem; /* derived from line-height-relaxed */
+  --space-y-sm: calc(var(--baseline) * 0.5);
+  --space-y-md: var(--baseline);
+  --space-y-lg: calc(var(--baseline) * 1.5);
+  --space-y-xl: calc(var(--baseline) * 2);
+
   /* --- Fluid Type Engine (Minor Third - 1.2) --- */
   --font-ratio: 1.2;
   /* Base: 16px -> 17px (0.11vw slope) */
@@ -258,6 +265,19 @@
 
   --content-width: 72ch;
   --content-width-narrow: 60ch;
+
+  /* ==========================================================================
+     SEMANTIC ABSTRACTION LAYER
+     High-level tokens for unified UI behavior.
+     ========================================================================== */
+  --ui-border: var(--space-px) solid var(--color-border);
+  --ui-border-subtle: var(--space-px) solid var(--color-border-subtle);
+  --ui-radius: var(--radius-lg);
+  --ui-radius-sm: var(--radius-sm);
+  --ui-radius-md: var(--radius-md);
+  --ui-focus-ring: var(--space-0-5) solid var(--color-primary);
+  --ui-shadow: var(--shadow-md);
+  --ui-shadow-hover: var(--shadow-lg);
 }
 
 [data-theme="dark"] {
@@ -448,7 +468,7 @@ body {
 
 /* Global focus styles for keyboard navigation */
 :focus-visible {
-  outline: var(--space-0-5) solid var(--color-primary);
+  outline: var(--ui-focus-ring);
   outline-offset: var(--space-0-5);
 }
 
@@ -523,7 +543,7 @@ a:hover {
 }
 
 blockquote {
-  margin: var(--space-10) 0;
+  margin: var(--space-y-md) 0;
   padding-left: var(--space-6);
   border-left: var(--space-0-5) solid var(--color-primary);
   font-family: var(--font-serif);

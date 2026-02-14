@@ -6,17 +6,20 @@ A decorative Canvas 2D animation at the bottom of the home page. A stickman walk
 
 ## Architecture
 
-Two files, strict separation of concerns:
+Three files, strict separation of concerns:
 
 ```
 src/components/ExplorerAnimation/
-  explorer-engine.ts      Pure logic — no DOM dependencies beyond CanvasRenderingContext2D
+  explorer-engine.js       Pure logic — no DOM dependencies beyond CanvasRenderingContext2D
+  explorer-engine.d.ts     TypeScript declarations for the import boundary
   ExplorerAnimation.astro  DOM wiring — canvas lifecycle, observers, animation loop
 ```
 
-### `explorer-engine.ts`
+### `explorer-engine.js` + `explorer-engine.d.ts`
 
 Factory function `createExplorerEngine(options) => ExplorerEngine`. Receives a 2D context, dimensions, a `getColor` callback, and boolean flags for mobile/reduced-motion. Returns five methods: `update(dt)`, `draw()`, `resize(w, h)`, `onThemeChange()`, `setReducedMotion(enabled)`.
+
+Written as pure JavaScript for compactness (~500 lines vs ~1374 in the previous TypeScript version). A `.d.ts` sidecar preserves type safety at the import boundary — the Astro consumer sees full types via `ExplorerEngineOptions` and `ExplorerEngine` interfaces.
 
 No awareness of DOM events, requestAnimationFrame, observers, or View Transitions. All state is internal. Colors are cached and refreshed only on explicit `onThemeChange()` calls.
 

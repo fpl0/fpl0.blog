@@ -71,8 +71,13 @@
       color var(--duration-normal) var(--ease-out),
       box-shadow var(--duration-normal) var(--ease-out);
     z-index: var(--z-fixed);
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--ui-shadow);
     padding: 0;
+  }
+
+  .scroll-to-top:focus-visible {
+    outline: var(--ui-focus-ring);
+    outline-offset: var(--space-0-5);
   }
 
   .scroll-to-top.is-visible {
