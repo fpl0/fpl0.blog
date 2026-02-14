@@ -15,84 +15,80 @@
   const FONT_FAMILY = "'Inter Variable', 'Inter Fallback', system-ui, sans-serif";
 
   function getMermaidConfig() {
-    const isDark =
-      document.documentElement.getAttribute("data-theme") !== "light";
+    const isDark = document.documentElement.getAttribute("data-theme") !== "light";
 
     // Use mermaid "base" theme with custom themeVariables that map
-    // to the site's warm color palette (HSL values from global.css)
-    // Dark: surface is hsl(20,12%,12%), so nodes at 19% give ~7% lift —
-    // enough to read as distinct shapes without harsh contrast.
-    // Lines at 50% sit midway between text (87%) and muted (52%).
+    // to the site's warm color palette (HSL literals for compatibility)
     const themeVariables = isDark
       ? {
           fontFamily: FONT_FAMILY,
-          fontSize: "var(--space-3-5)",
-          primaryColor: "hsl(20, 10%, 19%)",
-          primaryTextColor: "hsl(35, 12%, 87%)",
-          primaryBorderColor: "hsl(20, 10%, 28%)",
-          secondaryColor: "hsl(35, 15%, 17%)",
-          secondaryTextColor: "hsl(35, 12%, 87%)",
-          secondaryBorderColor: "hsl(20, 10%, 26%)",
-          tertiaryColor: "hsl(20, 10%, 15%)",
-          tertiaryTextColor: "hsl(30, 8%, 68%)",
-          tertiaryBorderColor: "hsl(20, 10%, 22%)",
-          lineColor: "hsl(30, 10%, 50%)",
-          textColor: "hsl(35, 12%, 87%)",
-          mainBkg: "hsl(20, 10%, 19%)",
-          nodeBorder: "hsl(20, 10%, 28%)",
-          clusterBkg: "hsl(20, 10%, 14%)",
-          clusterBorder: "hsl(20, 10%, 24%)",
-          titleColor: "hsl(42, 52%, 76%)",
-          edgeLabelBackground: "hsl(20, 12%, 12%)",
-          nodeTextColor: "hsl(35, 12%, 87%)",
-          actorTextColor: "hsl(35, 12%, 87%)",
-          actorBorder: "hsl(20, 10%, 28%)",
-          actorBkg: "hsl(20, 10%, 19%)",
-          activationBorderColor: "hsl(42, 35%, 58%)",
-          activationBkgColor: "hsl(35, 15%, 17%)",
-          signalColor: "hsl(35, 12%, 87%)",
-          labelBoxBkgColor: "hsl(20, 10%, 19%)",
-          labelBoxBorderColor: "hsl(20, 10%, 28%)",
-          labelTextColor: "hsl(35, 12%, 87%)",
-          loopTextColor: "hsl(30, 8%, 68%)",
-          noteBkgColor: "hsl(35, 15%, 17%)",
-          noteBorderColor: "hsl(42, 35%, 58%)",
-          noteTextColor: "hsl(35, 12%, 87%)",
+          fontSize: "14px",
+          primaryColor: "hsl(30, 10%, 19%)",
+          primaryTextColor: "hsl(45, 10%, 95%)",
+          primaryBorderColor: "hsl(30, 10%, 28%)",
+          secondaryColor: "hsl(30, 10%, 17%)",
+          secondaryTextColor: "hsl(45, 10%, 95%)",
+          secondaryBorderColor: "hsl(30, 10%, 26%)",
+          tertiaryColor: "hsl(30, 10%, 15%)",
+          tertiaryTextColor: "hsl(45, 10%, 75%)",
+          tertiaryBorderColor: "hsl(30, 10%, 22%)",
+          lineColor: "hsl(45, 10%, 60%)",
+          textColor: "hsl(45, 10%, 95%)",
+          mainBkg: "hsl(30, 10%, 19%)",
+          nodeBorder: "hsl(30, 10%, 28%)",
+          clusterBkg: "hsl(30, 10%, 15%)",
+          clusterBorder: "hsl(30, 10%, 24%)",
+          titleColor: "hsl(85, 60%, 88%)",
+          edgeLabelBackground: "hsl(30, 12%, 18%)",
+          nodeTextColor: "hsl(45, 10%, 95%)",
+          actorTextColor: "hsl(45, 10%, 95%)",
+          actorBorder: "hsl(30, 10%, 28%)",
+          actorBkg: "hsl(30, 10%, 19%)",
+          activationBorderColor: "hsl(85, 50%, 75%)",
+          activationBkgColor: "hsl(30, 10%, 17%)",
+          signalColor: "hsl(45, 10%, 95%)",
+          labelBoxBkgColor: "hsl(30, 10%, 19%)",
+          labelBoxBorderColor: "hsl(30, 10%, 28%)",
+          labelTextColor: "hsl(45, 10%, 95%)",
+          loopTextColor: "hsl(45, 10%, 75%)",
+          noteBkgColor: "hsl(30, 10%, 17%)",
+          noteBorderColor: "hsl(85, 50%, 75%)",
+          noteTextColor: "hsl(45, 10%, 95%)",
         }
       : {
           fontFamily: FONT_FAMILY,
-          fontSize: "var(--space-3-5)",
-          primaryColor: "hsl(45, 35%, 90%)",
-          primaryTextColor: "hsl(25, 30%, 18%)",
-          primaryBorderColor: "hsl(35, 25%, 72%)",
-          secondaryColor: "hsl(45, 40%, 92%)",
-          secondaryTextColor: "hsl(25, 30%, 18%)",
-          secondaryBorderColor: "hsl(35, 25%, 75%)",
-          tertiaryColor: "hsl(45, 30%, 94%)",
-          tertiaryTextColor: "hsl(25, 25%, 35%)",
-          tertiaryBorderColor: "hsl(35, 25%, 80%)",
-          lineColor: "hsl(25, 18%, 50%)",
-          textColor: "hsl(25, 30%, 18%)",
-          mainBkg: "hsl(45, 35%, 90%)",
-          nodeBorder: "hsl(35, 25%, 72%)",
-          clusterBkg: "hsl(45, 35%, 95%)",
-          clusterBorder: "hsl(35, 25%, 80%)",
-          titleColor: "hsl(28, 80%, 38%)",
-          edgeLabelBackground: "hsl(45, 30%, 93%)",
-          nodeTextColor: "hsl(25, 30%, 18%)",
-          actorTextColor: "hsl(25, 30%, 18%)",
-          actorBorder: "hsl(35, 25%, 72%)",
-          actorBkg: "hsl(45, 35%, 90%)",
-          activationBorderColor: "hsl(28, 60%, 48%)",
-          activationBkgColor: "hsl(45, 40%, 92%)",
-          signalColor: "hsl(25, 30%, 18%)",
-          labelBoxBkgColor: "hsl(45, 35%, 90%)",
-          labelBoxBorderColor: "hsl(35, 25%, 72%)",
-          labelTextColor: "hsl(25, 30%, 18%)",
-          loopTextColor: "hsl(25, 25%, 35%)",
-          noteBkgColor: "hsl(45, 40%, 92%)",
-          noteBorderColor: "hsl(28, 60%, 48%)",
-          noteTextColor: "hsl(25, 30%, 18%)",
+          fontSize: "14px",
+          primaryColor: "hsl(85, 20%, 92%)",
+          primaryTextColor: "hsl(45, 30%, 22%)",
+          primaryBorderColor: "hsl(85, 20%, 80%)",
+          secondaryColor: "hsl(85, 20%, 94%)",
+          secondaryTextColor: "hsl(45, 30%, 22%)",
+          secondaryBorderColor: "hsl(85, 20%, 85%)",
+          tertiaryColor: "hsl(85, 15%, 96%)",
+          tertiaryTextColor: "hsl(45, 20%, 42%)",
+          tertiaryBorderColor: "hsl(85, 20%, 88%)",
+          lineColor: "hsl(45, 15%, 55%)",
+          textColor: "hsl(45, 30%, 22%)",
+          mainBkg: "hsl(85, 20%, 92%)",
+          nodeBorder: "hsl(85, 20%, 80%)",
+          clusterBkg: "hsl(85, 15%, 96%)",
+          clusterBorder: "hsl(85, 20%, 88%)",
+          titleColor: "hsl(55, 12%, 55%)",
+          edgeLabelBackground: "hsl(85, 20%, 94%)",
+          nodeTextColor: "hsl(45, 30%, 22%)",
+          actorTextColor: "hsl(45, 30%, 22%)",
+          actorBorder: "hsl(85, 20%, 80%)",
+          actorBkg: "hsl(85, 20%, 92%)",
+          activationBorderColor: "hsl(55, 10%, 65%)",
+          activationBkgColor: "hsl(85, 20%, 94%)",
+          signalColor: "hsl(45, 30%, 22%)",
+          labelBoxBkgColor: "hsl(85, 20%, 92%)",
+          labelBoxBorderColor: "hsl(85, 20%, 80%)",
+          labelTextColor: "hsl(45, 30%, 22%)",
+          loopTextColor: "hsl(45, 20%, 42%)",
+          noteBkgColor: "hsl(85, 20%, 94%)",
+          noteBorderColor: "hsl(55, 10%, 65%)",
+          noteTextColor: "hsl(45, 30%, 22%)",
         };
 
     return {
@@ -178,10 +174,9 @@
           mermaidModule = mod.default;
         }
 
+        // Re-initialize with fresh config for the current theme
         mermaidModule.initialize(getMermaidConfig());
 
-        // Render into offscreen temp elements so the visible diagram
-        // stays intact until the new SVG is ready
         const offscreen = document.createElement("div");
         offscreen.style.cssText =
           "position:absolute;left:-9999px;top:-9999px;visibility:hidden"; /* token-exempt */
@@ -196,13 +191,11 @@
           tempNodes.push(temp);
         }
 
+        // Mermaid processes the temp nodes
         await mermaidModule.run({ nodes: tempNodes });
 
-        // Fade out, swap SVG, fade in
         if (isThemeSwitch) {
           diagrams.forEach((d) => d.rendered.classList.add("is-swapping"));
-
-          // Wait for fade-out transition
           await new Promise((r) => setTimeout(r, 150));
         }
 
@@ -215,7 +208,6 @@
         }
 
         if (isThemeSwitch) {
-          // Force reflow before removing class so the browser sees the change
           void diagrams[0]?.rendered.offsetHeight;
           diagrams.forEach((d) => d.rendered.classList.remove("is-swapping"));
         }
@@ -226,8 +218,6 @@
       }
     }
 
-    // Initial render — preserve scroll position so the SVG injection
-    // doesn't cause the browser to jump down to the diagram
     const savedScroll = window.scrollY;
     renderAll().then(() => {
       if (Math.abs(window.scrollY - savedScroll) > 1) {

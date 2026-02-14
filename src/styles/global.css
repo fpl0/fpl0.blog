@@ -192,9 +192,9 @@
 
   /* Text Hierarchy (Perceptually Uniform Sepia) */
   --text-hue: 45; /* Slightly warmer for text */
-  --color-text: oklch(0.25 0.03 var(--text-hue));
-  --color-text-secondary: oklch(0.45 0.02 var(--text-hue));
-  --color-text-muted: oklch(0.55 0.015 var(--text-hue));
+  --color-text: oklch(0.22 0.03 var(--text-hue)); /* Increased contrast */
+  --color-text-secondary: oklch(0.42 0.02 var(--text-hue));
+  --color-text-muted: oklch(0.52 0.015 var(--text-hue));
 
   /* Primary Accent (Cognac) */
   --color-primary: oklch(0.55 0.12 55);
@@ -301,6 +301,8 @@
   --ui-focus-ring: var(--space-0-5) solid var(--color-primary);
   --ui-shadow: var(--shadow-md);
   --ui-shadow-hover: var(--shadow-lg);
+  --ui-inset: inset 0 2px 4px 0 var(--shadow-color);
+  --ui-inset-border: var(--space-px) solid var(--color-border-subtle);
 }
 
 [data-theme="dark"] {
@@ -311,9 +313,9 @@
   --color-surface-raised: oklch(0.26 0.018 var(--hue));
   --color-highlight: oklch(0.24 0.03 var(--hue));
 
-  --color-text: oklch(0.92 0.015 var(--text-hue));
-  --color-text-secondary: oklch(0.75 0.01 var(--text-hue));
-  --color-text-muted: oklch(0.6 0.008 var(--text-hue));
+  --color-text: oklch(0.95 0.01 var(--text-hue)); /* Increased contrast */
+  --color-text-secondary: oklch(0.8 0.008 var(--text-hue));
+  --color-text-muted: oklch(0.65 0.005 var(--text-hue));
 
   --color-primary: oklch(0.88 0.06 85);
   --color-primary-dim: oklch(0.75 0.05 85);
