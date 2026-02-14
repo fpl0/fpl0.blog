@@ -427,13 +427,14 @@ scripts/
 ├── publish.ts       Publish by slug (bun run 0:publish <slug>)
 └── delete.ts        Delete by slug (bun run 0:delete <slug>)
 src/
-├── components/     25 Astro components (includes Logo, Caption, AppCard, AppShell)
+├── components/     25 Astro components (includes Logo, Caption, AppCard, MermaidDiagram)
 ├── content/
 │   ├── config.ts   Zod schema (shared publishableSchema for blog + apps)
 │   ├── blog/       Post directories (slug/index.md|mdx)
 │   └── apps/       App directories (slug/index.md + App.astro + .ts modules)
 ├── layouts/
-│   └── Layout.astro
+│   ├── Layout.astro
+│   └── AppShell.astro
 ├── pages/
 │   ├── index.astro
 │   ├── about.astro
