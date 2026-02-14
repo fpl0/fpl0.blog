@@ -502,4 +502,4 @@ src/
 - **Need a figcaption?** Use the `<Caption>` component — never duplicate the label/caption pattern
 - **Need published apps?** Use `getPublishedApps()` from `src/utils/apps.ts`
 - **Need a mixed feed?** Use `getFeedItems()` from `src/utils/feed.ts`
-- **Hardcoded color/font/spacing/z-index/radius/duration?** Use design tokens — `bun run lint:design` will catch it. Exempt with `/* token-exempt */`
+- **Hardcoded color/font/spacing/z-index/radius/duration/opacity/letter-spacing/shadow?** Use design tokens — `bun run lint:design` will catch it. Exempt with `/* token-exempt */`
