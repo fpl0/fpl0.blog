@@ -107,6 +107,17 @@ interface GrassTuftEntity {
   bladeAngles: number[];
 }
 
+interface JellyfishEntity {
+  worldX: number;
+  y: number;
+  parallax: number;
+  size: number;
+  pulsePhase: number;
+  driftSpeed: number;
+  tentacleCount: number;
+  tentaclePhases: number[];
+}
+
 interface PebbleEntity {
   worldX: number;
   y: number;
@@ -123,6 +134,7 @@ type SpawnType =
   | "meteor"
   | "balloon"
   | "whale"
+  | "jellyfish"
   | "grassTuft"
   | "pebble";
 
@@ -184,6 +196,7 @@ const SPAWN_TYPES: SpawnType[] = [
   "meteor",
   "balloon",
   "whale",
+  "jellyfish",
   "grassTuft",
   "pebble",
 ];
@@ -197,7 +210,7 @@ interface EntityCaps {
   meteor: number;
   balloon: number;
   whale: number;
-
+  jellyfish: number;
   grassTuft: number;
   pebble: number;
 }
@@ -211,7 +224,7 @@ const ENTITY_CAPS: EntityCaps = {
   meteor: 2,
   balloon: 2,
   whale: 1,
-
+  jellyfish: 2,
   grassTuft: 20,
   pebble: 10,
 };
@@ -225,7 +238,7 @@ const MOBILE_ENTITY_CAPS: EntityCaps = {
   meteor: 1,
   balloon: 1,
   whale: 1,
-
+  jellyfish: 1,
   grassTuft: 12,
   pebble: 6,
 };
@@ -324,6 +337,7 @@ export function createExplorerEngine(options: ExplorerEngineOptions): ExplorerEn
   const meteors = createPool<MeteorEntity>(caps.meteor);
   const balloons = createPool<BalloonEntity>(caps.balloon);
   const whales = createPool<WhaleEntity>(caps.whale);
+  const jellyfish = createPool<JellyfishEntity>(caps.jellyfish);
   const grassTufts = createPool<GrassTuftEntity>(caps.grassTuft);
   const pebbles = createPool<PebbleEntity>(caps.pebble);
 
@@ -369,6 +383,11 @@ export function createExplorerEngine(options: ExplorerEngineOptions): ExplorerEn
       nextSpawnAt: width * 3.8,
       minInterval: 1400 * sm,
       maxInterval: 2500 * sm,
+    },
+    jellyfish: {
+      nextSpawnAt: width * 2.5,
+      minInterval: 800 * sm,
+      maxInterval: 1400 * sm,
     },
     grassTuft: {
       nextSpawnAt: 0,
@@ -445,7 +464,8 @@ export function createExplorerEngine(options: ExplorerEngineOptions): ExplorerEn
     for (let i = 0; i < count; i++) {
       if (mountains.count + tempPeaks.length >= caps.mountain) break;
       const c = 1 - Math.abs(i - (count - 1) / 2) / ((count - 1) / 2 + 0.5);
-      const h = rand(55, 115) + c * rand(20, 50);
+      const maxH = baseGroundY * 0.85;
+      const h = Math.min(rand(55, 115) + c * rand(20, 50), maxH);
       const spread = (i - (count - 1) / 2) * rand(30, 55);
       tempPeaks.push(createMountain(centerWorldX + spread, h, rand(25, 65), rand(25, 65)));
     }
@@ -539,6 +559,24 @@ export function createExplorerEngine(options: ExplorerEngineOptions): ExplorerEn
     };
   }
 
+  function createJellyfish(worldX: number): JellyfishEntity {
+    const tc = randInt(3, 5);
+    const phases: number[] = [];
+    for (let i = 0; i < tc; i++) {
+      phases.push(rand(0, Math.PI * 2));
+    }
+    return {
+      worldX,
+      y: rand(height * 0.1, height * 0.4),
+      parallax: 0.4,
+      size: rand(6, 16),
+      pulsePhase: rand(0, Math.PI * 2),
+      driftSpeed: rand(2, 6),
+      tentacleCount: tc,
+      tentaclePhases: phases,
+    };
+  }
+
   function createGrassTuft(worldX: number): GrassTuftEntity {
     const bc = randInt(2, 3);
     const angles: number[] = [];
@@ -588,6 +626,8 @@ export function createExplorerEngine(options: ExplorerEngineOptions): ExplorerEn
         return balloons.count;
       case "whale":
         return whales.count;
+      case "jellyfish":
+        return jellyfish.count;
       case "grassTuft":
         return grassTufts.count;
       case "pebble":
@@ -645,6 +685,12 @@ export function createExplorerEngine(options: ExplorerEngineOptions): ExplorerEn
         const w = createWhale(0);
         w.worldX = toWorldX(screenX, w.parallax);
         poolPush(whales, w);
+        break;
+      }
+      case "jellyfish": {
+        const jf = createJellyfish(0);
+        jf.worldX = toWorldX(screenX, jf.parallax);
+        poolPush(jellyfish, jf);
         break;
       }
       case "grassTuft": {
@@ -711,6 +757,7 @@ export function createExplorerEngine(options: ExplorerEngineOptions): ExplorerEn
     cullPool(meteors, (m) => m.life > 0);
     cullPool(balloons);
     cullPool(whales);
+    cullPool(jellyfish);
     cullPool(grassTufts);
     cullPool(pebbles);
   }
@@ -801,8 +848,9 @@ export function createExplorerEngine(options: ExplorerEngineOptions): ExplorerEn
     ctx.globalAlpha = 1;
   }
 
-  function drawWhaleBody(x: number, cy: number, s: number): void {
+  function drawWhaleBody(x: number, cy: number, s: number, tw: number): void {
     // Full silhouette — continuous closed path
+    // tw = tail wag offset (vertical displacement at fluke tips)
     ctx.beginPath();
 
     // Snout — broad, blunt rostrum
@@ -838,63 +886,70 @@ export function createExplorerEngine(options: ExplorerEngineOptions): ExplorerEn
       cy - s * 0.24,
     );
 
-    // Rear back tapering into the peduncle
+    // Rear back tapering into the peduncle — wag starts here (25% influence)
     ctx.bezierCurveTo(
       x + s * 0.72,
-      cy - s * 0.16,
+      cy - s * 0.16 + tw * 0.25,
       x + s * 0.88,
-      cy - s * 0.06,
+      cy - s * 0.06 + tw * 0.5,
       x + s * 0.98,
-      cy - s * 0.02,
+      cy - s * 0.02 + tw * 0.7,
     );
 
-    // Upper tail fluke — sweeps up and out
+    // Upper tail fluke — full wag influence
     ctx.bezierCurveTo(
       x + s * 1.06,
-      cy - s * 0.04,
+      cy - s * 0.04 + tw * 0.85,
       x + s * 1.18,
-      cy - s * 0.18,
+      cy - s * 0.18 + tw,
       x + s * 1.28,
-      cy - s * 0.26,
+      cy - s * 0.26 + tw,
     );
 
     // Fluke tip curves back
     ctx.bezierCurveTo(
       x + s * 1.3,
-      cy - s * 0.22,
+      cy - s * 0.22 + tw,
       x + s * 1.26,
-      cy - s * 0.14,
+      cy - s * 0.14 + tw * 0.9,
       x + s * 1.12,
-      cy - s * 0.04,
+      cy - s * 0.04 + tw * 0.75,
     );
 
     // Notch between flukes
-    ctx.bezierCurveTo(x + s * 1.06, cy, x + s * 1.06, cy + s * 0.02, x + s * 1.12, cy + s * 0.06);
+    ctx.bezierCurveTo(
+      x + s * 1.06,
+      cy + tw * 0.7,
+      x + s * 1.06,
+      cy + s * 0.02 + tw * 0.7,
+      x + s * 1.12,
+      cy + s * 0.06 + tw * 0.75,
+    );
 
-    // Lower tail fluke — sweeps down and out
+    // Lower tail fluke — full wag influence
     ctx.bezierCurveTo(
       x + s * 1.26,
-      cy + s * 0.16,
+      cy + s * 0.16 + tw * 0.9,
       x + s * 1.3,
-      cy + s * 0.24,
+      cy + s * 0.24 + tw,
       x + s * 1.28,
-      cy + s * 0.28,
+      cy + s * 0.28 + tw,
     );
 
     // Lower fluke tip curves back
     ctx.bezierCurveTo(
       x + s * 1.18,
-      cy + s * 0.2,
+      cy + s * 0.2 + tw,
       x + s * 1.06,
-      cy + s * 0.08,
+      cy + s * 0.08 + tw * 0.85,
       x + s * 0.98,
-      cy + s * 0.04,
+      cy + s * 0.04 + tw * 0.7,
     );
 
-    // Peduncle underside back along belly
+    // Peduncle underside back along belly — wag fades out
     ctx.bezierCurveTo(
       x + s * 0.85,
-      cy + s * 0.1,
+      cy + s * 0.1 + tw * 0.25,
       x + s * 0.65,
       cy + s * 0.2,
       x + s * 0.4,
@@ -956,6 +1011,8 @@ export function createExplorerEngine(options: ExplorerEngineOptions): ExplorerEn
       const bob = Math.sin(e.bobPhase) * 4;
       const cy = e.y + bob;
       const s = e.size;
+      // Gentle tail wag — sinusoidal, slightly faster than bob
+      const tailWag = Math.sin(e.bobPhase * 1.6) * s * 0.08;
 
       const alpha = entityAlpha(x, e.parallax, width, 1);
       ctx.lineCap = "round";
@@ -964,7 +1021,7 @@ export function createExplorerEngine(options: ExplorerEngineOptions): ExplorerEn
       // Solid filled body
       ctx.fillStyle = colors.textMuted;
       ctx.globalAlpha = alpha * 0.7;
-      drawWhaleBody(x, cy, s);
+      drawWhaleBody(x, cy, s, tailWag);
       ctx.fill();
 
       // Pectoral fin — solid fill
@@ -985,6 +1042,54 @@ export function createExplorerEngine(options: ExplorerEngineOptions): ExplorerEn
         ctx.quadraticCurveTo((gxStart + gxEnd) * 0.5, gy + s * 0.03, gxEnd, gy);
       }
       ctx.stroke();
+    }
+    ctx.globalAlpha = 1;
+  }
+
+  function drawJellyfish(): void {
+    for (let i = 0; i < jellyfish.count; i++) {
+      const e = jellyfish.items[i];
+      if (!e) continue;
+      const x = sx(e.worldX, e.parallax);
+      if (x < -30 || x > width + 30) continue;
+
+      const s = e.size;
+      const pulse = Math.sin(e.pulsePhase) * 0.15;
+      const bellW = s * (0.7 + pulse);
+      const bellH = s * (0.55 - pulse * 0.3);
+      const alpha = entityAlpha(x, e.parallax, width, 0.55);
+
+      // Bell dome
+      ctx.fillStyle = colors.primary;
+      ctx.globalAlpha = alpha * 0.5;
+      ctx.beginPath();
+      ctx.ellipse(x, e.y, bellW, bellH, 0, Math.PI, 0);
+      ctx.fill();
+
+      // Bell rim — slightly wider, thin stroke
+      ctx.strokeStyle = colors.primary;
+      ctx.lineWidth = 0.8;
+      ctx.globalAlpha = alpha * 0.7;
+      ctx.beginPath();
+      ctx.ellipse(x, e.y, bellW * 1.02, bellH * 0.3, 0, 0, Math.PI);
+      ctx.stroke();
+
+      // Tentacles — wavy quadratic curves
+      ctx.strokeStyle = colors.textMuted;
+      ctx.lineWidth = 0.6;
+      ctx.lineCap = "round";
+      ctx.globalAlpha = alpha * 0.45;
+      const tentSpacing = (bellW * 2) / (e.tentacleCount + 1);
+      for (let t = 0; t < e.tentacleCount; t++) {
+        const tPhase = e.tentaclePhases[t] ?? 0;
+        const tx = x - bellW + tentSpacing * (t + 1);
+        const tentLen = s * rand(0.8, 1.4);
+        const sway = Math.sin(tPhase + time * 1.5) * s * 0.15 + wind * 1.5;
+        ctx.beginPath();
+        ctx.moveTo(tx, e.y);
+        ctx.quadraticCurveTo(tx + sway, e.y + tentLen * 0.5, tx + sway * 0.6, e.y + tentLen);
+        ctx.stroke();
+      }
     }
     ctx.globalAlpha = 1;
   }
@@ -1391,6 +1496,7 @@ export function createExplorerEngine(options: ExplorerEngineOptions): ExplorerEn
     meteors.count = 0;
     balloons.count = 0;
     whales.count = 0;
+    jellyfish.count = 0;
     grassTufts.count = 0;
     pebbles.count = 0;
   }
@@ -1505,6 +1611,15 @@ export function createExplorerEngine(options: ExplorerEngineOptions): ExplorerEn
     }
   }
 
+  function updateJellyfish(d: number): void {
+    for (let i = 0; i < jellyfish.count; i++) {
+      const e = jellyfish.items[i];
+      if (!e) continue;
+      e.worldX += (e.driftSpeed + wind * 2) * d;
+      e.pulsePhase += d * 2.5;
+    }
+  }
+
   function updateClouds(d: number): void {
     for (let i = 0; i < clouds.count; i++) {
       const e = clouds.items[i];
@@ -1530,6 +1645,7 @@ export function createExplorerEngine(options: ExplorerEngineOptions): ExplorerEn
     updateUfos(d);
     updateMeteors(d);
     updateBalloonsAndWhales(d);
+    updateJellyfish(d);
     updateClouds(d);
     for (const t of SPAWN_TYPES) {
       trySpawn(t);
@@ -1546,6 +1662,7 @@ export function createExplorerEngine(options: ExplorerEngineOptions): ExplorerEn
     drawMeteors();
     drawClouds();
     drawWhales();
+    drawJellyfish();
     drawBalloons();
 
     // Terrain
