@@ -282,7 +282,7 @@ a {
   color: var(--color-text);
   text-decoration: underline;
   text-decoration-color: var(--color-muted);
-  text-decoration-thickness: 1px;
+  text-decoration-thickness: var(--space-px);
   text-underline-offset: 0.2em;
   transition: all var(--duration-normal) var(--ease-out);
 }
@@ -296,17 +296,23 @@ a:hover {
 
 ```css
 blockquote {
-  border-left: 2px solid var(--color-primary);
-  padding-left: 1.5rem;
+  margin: var(--space-10) 0;
+  padding-left: var(--space-6);
+  border-left: var(--space-0-5) solid var(--color-primary);
   font-family: var(--font-serif);
+  font-size: var(--font-size-sm);
   font-style: italic;
-  color: var(--color-muted);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-relaxed);
 }
 blockquote cite {
+  display: block;
   font-family: var(--font-mono-brand);
-  font-size: var(--font-size-xs);
-  letter-spacing: 0.04em;
-  color: var(--color-primary);
+  font-size: var(--font-size-label);
+  letter-spacing: var(--letter-spacing-loose);
+  font-weight: 400;
+  color: var(--color-muted);
+  margin-top: var(--space-1);
   font-style: normal;
 }
 ```
@@ -314,14 +320,14 @@ blockquote cite {
 #### Code Blocks
 
 - **Background**: `var(--color-code-bg)` in both themes (distinct from page background)
-- **Border**: `1px solid var(--color-code-border)`
+- **Border**: `var(--space-px) solid var(--color-code-border)`
 - **Font**: `var(--font-mono)`, `font-size: var(--font-size-xxs)`
 - **Border-radius**: `var(--radius-lg)` on wrapper, `var(--radius-md)` on buttons
-- **Inline code**: `background: var(--color-code-inline-bg)`, `color: var(--color-code-inline-text)`, `border: 1px solid var(--color-code-inline-border)`
+- **Inline code**: `background: var(--color-code-inline-bg)`, `color: var(--color-code-inline-text)`, `border: var(--space-px) solid var(--color-code-inline-border)`
 
 #### Buttons / Interactive Elements
 
-- **Border**: `1px solid var(--color-border)`
+- **Border**: `var(--space-px) solid var(--color-border)`
 - **Hover**: `background: var(--color-highlight)`, `color: var(--color-primary)`
 - **Transition**: Use token variables — `transition: all var(--duration-normal) var(--ease-out)`
 - **Border-radius**: Use scale tokens (`var(--radius-sm)` through `var(--radius-xl)`)

@@ -20,7 +20,7 @@
 
 /* Spacing and Elements */
 .content p {
-  margin-bottom: 1.5em; /* Reduced from 1.75em */
+  margin-bottom: var(--space-6); /* Reduced from 1.75em */
   max-width: var(--content-width);
   text-wrap: pretty;
   hyphens: auto;
@@ -40,33 +40,33 @@
 
 .content ul,
 .content ol {
-  margin-bottom: 1.5em;
+  margin-bottom: var(--space-6);
 }
 
 .content li {
-  margin-bottom: 0.5em;
-  padding-left: 0.25em;
+  margin-bottom: var(--space-2);
+  padding-left: var(--space-1);
   position: relative;
 }
 
 /* Unordered lists - custom dash marker */
 .content ul:not(.contains-task-list) {
   list-style: none;
-  padding-left: 1.5em;
+  padding-left: var(--space-6);
 }
 
 .content ul:not(.contains-task-list) > li::before {
   content: "—";
   color: var(--color-primary);
   position: absolute;
-  left: -1em;
+  left: calc(var(--space-4) * -1);
   font-weight: bold;
 }
 
 /* Ordered lists - counter-based for reliable font styling */
 .content ol {
   list-style: none;
-  padding-left: 1.5em;
+  padding-left: var(--space-6);
   counter-reset: ol-counter;
 }
 
@@ -81,7 +81,7 @@
   font-size: 0.9em;
   font-variant-numeric: tabular-nums;
   position: absolute;
-  left: -1.25em;
+  left: calc(var(--space-5) * -1);
 }
 
 /* Links inside content */
@@ -199,7 +199,7 @@
   outline: none;
   list-style: none;
   line-height: var(--line-height-normal);
-  letter-spacing: -0.01em;
+  letter-spacing: var(--letter-spacing-tighter);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -253,7 +253,7 @@
   font-size: var(--font-size-sm);
   line-height: var(--line-height-loose);
   color: var(--color-muted);
-  padding-left: 1.25em;
+  padding-left: var(--space-5);
   margin: 0 0 var(--space-4) 0;
   max-width: none;
 }
@@ -268,7 +268,7 @@
 }
 
 .content details li {
-  margin-bottom: 0.5em;
+  margin-bottom: var(--space-2);
   padding-left: 0;
   position: static;
 }
@@ -282,7 +282,7 @@
 .content details ol > li {
   counter-increment: details-ol-counter;
   position: relative;
-  padding-left: 1.25em;
+  padding-left: var(--space-5);
 }
 
 .content details ol > li::before {

@@ -237,6 +237,7 @@
   --space-80: 20rem; /* 320px */
   --space-100: 25rem; /* 400px */
   --space-125: 31.25rem; /* 500px */
+  --space-140: 35rem; /* 560px */
 
   /* ==========================================================================
      BORDER RADIUS SCALE
@@ -284,6 +285,7 @@
   --letter-spacing-extra-tight: -0.04em;
   --letter-spacing-tight: -0.03em;
   --letter-spacing-snug: -0.02em;
+  --letter-spacing-tighter: -0.01em;
   --letter-spacing-normal: 0;
   --letter-spacing-slight: 0.02em;
   --letter-spacing-loose: 0.04em;

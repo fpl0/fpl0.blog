@@ -24,7 +24,7 @@
   left: 50%;
   transform: translateX(-50%) translateY(calc(var(--space-2-5) * -1));
   width: 90%;
-  max-width: 560px;
+  max-width: var(--space-140);
   background: var(--color-surface);
   border: var(--space-px) solid var(--color-border);
   border-radius: var(--radius-xl);

@@ -74,6 +74,8 @@ const SPACE_MAP: Record<string, string> = {
   "400px": "var(--space-100)",
   "31.25rem": "var(--space-125)",
   "500px": "var(--space-125)",
+  "35rem": "var(--space-140)",
+  "560px": "var(--space-140)",
 };
 
 const SHADOW_MAP: Record<string, string> = {
@@ -134,6 +136,7 @@ const LETTER_SPACING_MAP: Record<string, string> = {
   "-0.04em": "var(--letter-spacing-extra-tight)",
   "-0.03em": "var(--letter-spacing-tight)",
   "-0.02em": "var(--letter-spacing-snug)",
+  "-0.01em": "var(--letter-spacing-tighter)",
   "0": "var(--letter-spacing-normal)",
   "0.02em": "var(--letter-spacing-slight)",
   "0.04em": "var(--letter-spacing-loose)",
