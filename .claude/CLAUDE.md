@@ -66,7 +66,7 @@ This is the **single source of truth** for visual identity. Every UI element, co
 
 The design system underwent a comprehensive token-based refinement to ensure consistency and maintainability:
 
-1. **Token Scales**: Added border-radius (6 tokens), z-index (8 tokens), transition easing/duration (5 tokens), and content-width (2 tokens) to eliminate hardcoded values
+1. **Token Scales**: Added border-radius (6 tokens), shadows (4 tokens), z-index (8 tokens), transition easing/duration (5 tokens), and content-width (2 tokens) to eliminate hardcoded values
 2. **Color Hierarchy**: Improved perceptual distinction between `--color-text-secondary` and `--color-text-muted` in both themes
 3. **Dark Mode Code Blocks**: Added 6 dedicated code tokens to create visual distinction from page background
 4. **Typography**: Standardized Merriweather to `font-weight: 400` in both themes; fixed ordered list alignment with `list-style-position: outside`
@@ -138,6 +138,7 @@ Ordered lists use `list-style-position: outside` with `padding-left: 1.5em` to a
 --color-border: hsl(35, 25%, 82%);
 --color-border-subtle: hsl(35, 20%, 88%);
 --shadow-color: rgba(60, 40, 20, 0.12);
+/* Shadows tokens: --shadow-sm, --shadow-md, --shadow-lg, --shadow-xl */
 /* Code Blocks (light mode) */
 --color-code-bg: hsl(40, 30%, 95%);
 --color-code-border: hsl(35, 25%, 85%);
@@ -167,6 +168,7 @@ Ordered lists use `list-style-position: outside` with `padding-left: 1.5em` to a
 --color-border: hsl(20, 10%, 18%);
 --color-border-subtle: hsl(20, 8%, 14%);
 --shadow-color: rgba(10, 5, 0, 0.6);
+/* Shadows tokens: --shadow-sm, --shadow-md, --shadow-lg, --shadow-xl */
 /* Code Blocks (dark mode — distinct from page bg) */
 --color-code-bg: hsl(20, 10%, 11%);
 --color-code-border: hsl(20, 8%, 16%);
@@ -181,7 +183,7 @@ Ordered lists use `list-style-position: outside` with `padding-left: 1.5em` to a
 - **Content max-width**: `var(--content-width)` (72ch), narrow variant: `var(--content-width-narrow)` (60ch)
 - **Padding**: `4rem 1.5rem` (desktop), `1.5rem 1rem` (mobile < 600px)
 - **Mobile breakpoint**: `600px`, TOC sidebar: `1440px+`
-- **Spacing**: strict 4px/8px grid — all spacing MUST be integer multiples of `0.25rem` (4px). Use `--space-1` through `--space-12` variables.
+- **Spacing**: strict 4px/8px grid — all spacing MUST be integer multiples of `0.25rem` (4px). Use `--space-1` through `--space-16` variables.
 
 #### Border Radius Scale
 
@@ -193,6 +195,15 @@ Use token variables for all border-radius values:
 - `--radius-xl: 12px` — Extra large elements (major containers, tweet cards)
 - `--radius-full: 999px` — Pill-shaped elements (tags)
 - `--radius-round: 50%` — Circular elements (avatars, toggle buttons)
+
+#### Shadow Scale
+
+Use token variables for all elevation:
+
+- `--shadow-sm`: subtle
+- `--shadow-md`: medium
+- `--shadow-lg`: large (cards, floating bars)
+- `--shadow-xl`: extra large (modals, lightboxes)
 
 #### Z-Index Scale
 

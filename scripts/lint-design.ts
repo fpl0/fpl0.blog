@@ -18,15 +18,39 @@ const ROOT = join(import.meta.dirname, "..", "src");
 
 const SPACE_MAP: Record<string, string> = {
   "0.25rem": "var(--space-1)",
+  "4px": "var(--space-1)",
   "0.5rem": "var(--space-2)",
+  "8px": "var(--space-2)",
   "0.75rem": "var(--space-3)",
+  "12px": "var(--space-3)",
   "1rem": "var(--space-4)",
+  "16px": "var(--space-4)",
   "1.25rem": "var(--space-5)",
+  "20px": "var(--space-5)",
   "1.5rem": "var(--space-6)",
+  "24px": "var(--space-6)",
+  "1.75rem": "var(--space-7)",
+  "28px": "var(--space-7)",
   "2rem": "var(--space-8)",
+  "32px": "var(--space-8)",
+  "2.25rem": "var(--space-9)",
+  "36px": "var(--space-9)",
   "2.5rem": "var(--space-10)",
+  "40px": "var(--space-10)",
+  "2.75rem": "var(--space-11)",
+  "44px": "var(--space-11)",
   "3rem": "var(--space-12)",
+  "48px": "var(--space-12)",
   "4rem": "var(--space-16)",
+  "64px": "var(--space-16)",
+};
+
+const SHADOW_MAP: Record<string, string> = {
+  "0 1px 2px 0 var(--shadow-color)": "var(--shadow-sm)",
+  "0 4px 6px -1px var(--shadow-color)": "var(--shadow-md)",
+  "0 10px 15px -3px var(--shadow-color)": "var(--shadow-lg)",
+  "0 25px 50px -12px var(--shadow-color)": "var(--shadow-xl)",
+  "0 2px 8px var(--shadow-color)": "var(--shadow-md) (closest match)",
 };
 
 const Z_INDEX_MAP: Record<string, string> = {
@@ -56,6 +80,15 @@ const DURATION_MAP: Record<string, string> = {
   "150ms": "var(--duration-fast)",
   "200ms": "var(--duration-normal)",
   "300ms": "var(--duration-slow)",
+};
+
+const LINE_HEIGHT_MAP: Record<string, string> = {
+  "1.1": "var(--line-height-tight)",
+  "1.25": "var(--line-height-snug)",
+  "1.4": "var(--line-height-subhead)",
+  "1.5": "var(--line-height-normal)",
+  "1.6": "var(--line-height-relaxed)",
+  "1.7": "var(--line-height-loose)",
 };
 
 // ---------------------------------------------------------------------------
@@ -156,7 +189,6 @@ const COLOR_PROPS = new Set([
   "border-left-color",
   "outline",
   "outline-color",
-  "box-shadow",
   "text-decoration-color",
   "fill",
   "stroke",
@@ -170,28 +202,21 @@ const COLOR_PROPS = new Set([
 // ---------------------------------------------------------------------------
 
 const SPACING_PROPS =
-  /^\s*(?:margin|padding|gap|top|right|bottom|left|margin-top|margin-right|margin-bottom|margin-left|padding-top|padding-right|padding-bottom|padding-left|row-gap|column-gap)\s*:/;
-
-/** Check if a spacing part should be skipped (relative units, percentages, negatives). */
-function isSkippableSpacingPart(part: string): boolean {
-  if (part === "0" || part.startsWith("-")) return true;
-  if (/%$/.test(part) || /v[hw]$/.test(part)) return true;
-  // em (not rem) is intentionally relative
-  return /em$/.test(part) && !/rem$/.test(part);
-}
+  /^\s*(?:margin|padding|gap|top|right|bottom|left|margin-top|margin-right|margin-bottom|margin-left|padding-top|padding-right|padding-bottom|padding-left|row-gap|column-gap|width|height|max-width|max-height|min-width|min-height|backdrop-filter)\s*:/;
 
 function checkSpacing(prop: string, value: string): { raw: string; suggestion: string } | null {
   if (/var\(/.test(value)) return null;
   if (/^[\s]*(0|auto|none|inherit|initial|unset)[\s;]*$/.test(value)) return null;
-  if (/calc\(|clamp\(/.test(value)) return null;
 
-  const parts = value.replace(/;$/, "").trim().split(/\s+/);
-  for (const part of parts) {
-    if (isSkippableSpacingPart(part)) continue;
-    if (SPACE_MAP[part]) {
+  // Search for standalone token-matching values (rem or px)
+  for (const [lit, token] of Object.entries(SPACE_MAP)) {
+    const escaped = lit.replace(".", "\\.");
+    // Match the value as a standalone word, not inside a var() and not part of another number
+    const re = new RegExp(`(?<!var\\([^)]*?|\\.|[0-9])\\b${escaped}\\b`);
+    if (re.test(value)) {
       return {
         raw: `${prop}: ${value.trim().replace(/;$/, "")}`,
-        suggestion: SPACE_MAP[part],
+        suggestion: token,
       };
     }
   }
@@ -342,6 +367,43 @@ function checkFontSize(value: string): { raw: string; suggestion: string } | nul
   };
 }
 
+function checkShadow(value: string): { raw: string; suggestion: string } | null {
+  if (/var\(--shadow-/.test(value)) return null;
+  const v = value.replace(/;$/, "").trim();
+  if (v === "none" || v === "inherit" || v === "initial" || v === "unset") return null;
+
+  // Exact match from map
+  if (SHADOW_MAP[v]) {
+    return {
+      raw: `box-shadow: ${v}`,
+      suggestion: SHADOW_MAP[v],
+    };
+  }
+
+  // If it's a raw value not in the map, flag it
+  if (!/var\(/.test(v)) {
+    return {
+      raw: `box-shadow: ${v}`,
+      suggestion: "var(--shadow-*)",
+    };
+  }
+  return null;
+}
+
+function checkLineHeight(value: string): { raw: string; suggestion: string } | null {
+  if (/var\(--line-height/.test(value)) return null;
+  const v = value.replace(/;$/, "").trim();
+  if (v === "normal" || v === "inherit" || v === "initial" || v === "unset" || v === "1")
+    return null;
+  if (LINE_HEIGHT_MAP[v]) {
+    return {
+      raw: `line-height: ${v}`,
+      suggestion: LINE_HEIGHT_MAP[v],
+    };
+  }
+  return null;
+}
+
 // ---------------------------------------------------------------------------
 // Main scan
 // ---------------------------------------------------------------------------
@@ -403,6 +465,8 @@ const TOKEN_CHECKERS: TokenChecker[] = [
   (prop, value) => [checkColor(prop, value)],
   (prop, value) => (prop === "font-family" ? [checkFontFamily(value)] : []),
   (prop, value) => (prop === "font-size" ? [checkFontSize(value)] : []),
+  (prop, value) => (prop === "box-shadow" ? [checkShadow(value)] : []),
+  (prop, value) => (prop === "line-height" ? [checkLineHeight(value)] : []),
 ];
 
 /** Run all token checks against a single property declaration. */

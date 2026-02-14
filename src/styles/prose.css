@@ -28,25 +28,14 @@
 }
 
 .content h2 {
-  font-weight: 700;
-  font-style: normal;
-  margin-top: 4.5rem;
+  margin-top: var(--space-16);
   margin-bottom: var(--space-4);
-  font-size: var(--font-size-h2);
-  color: var(--color-text);
-  line-height: var(--line-height-snug);
-  letter-spacing: -0.02em;
 }
 
 .content h3 {
   font-weight: 600;
-  font-style: normal;
   margin-top: var(--space-8);
   margin-bottom: var(--space-2);
-  font-size: var(--font-size-h3);
-  letter-spacing: 0;
-  color: var(--color-text);
-  line-height: var(--line-height-subhead);
 }
 
 .content ul,
@@ -112,11 +101,7 @@
   background-color: transparent;
 }
 
-/* Blockquotes - only override margin; other styles inherited from global blockquote */
-.content blockquote {
-  margin: var(--space-8) 0;
-}
-
+/* Blockquotes */
 .content blockquote p:last-of-type {
   margin-bottom: 0;
 }

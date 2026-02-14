@@ -128,13 +128,13 @@ const siteURL = Astro.site?.toString().replace(/\/$/, "") ?? "https://fpl0.githu
 	/* Place theme toggle inline within the bar instead of floating */
 	.app-shell-right :global(.theme-toggle) {
 		position: static;
-		width: 32px;
-		height: 32px;
+		width: var(--space-8);
+		height: var(--space-8);
 	}
 
 	.app-shell-right :global(.theme-toggle .icon) {
-		width: 16px;
-		height: 16px;
+		width: var(--space-4);
+		height: var(--space-4);
 	}
 
 </style>

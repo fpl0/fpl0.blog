@@ -13,11 +13,11 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 3rem;
+  height: var(--space-12);
   padding: 0 var(--space-5);
   background: color-mix(in srgb, var(--color-bg) 80%, transparent);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(var(--space-3));
+  -webkit-backdrop-filter: blur(var(--space-3));
   border-bottom: 1px solid var(--color-border-subtle);
   transition:
     background var(--duration-normal) var(--ease-out),
@@ -97,8 +97,8 @@
 
 .app-shell-search-icon {
   display: none;
-  width: 16px;
-  height: 16px;
+  width: var(--space-4);
+  height: var(--space-4);
 }
 
 .app-shell-search-kbd {

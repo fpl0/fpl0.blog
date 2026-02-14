@@ -51,8 +51,8 @@
     position: fixed;
     bottom: var(--space-8);
     right: var(--space-8);
-    width: 44px;
-    height: 44px;
+    width: var(--space-11);
+    height: var(--space-11);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -71,7 +71,7 @@
       color var(--duration-normal) var(--ease-out),
       box-shadow var(--duration-normal) var(--ease-out);
     z-index: var(--z-fixed);
-    box-shadow: 0 2px 12px var(--shadow-color);
+    box-shadow: var(--shadow-md);
     padding: 0;
   }
 
@@ -98,8 +98,8 @@
 
   /* Arrow Styling */
   .arrow-icon {
-    width: 20px;
-    height: 20px;
+    width: var(--space-5);
+    height: var(--space-5);
     position: relative;
     z-index: var(--z-base);
     transition: transform var(--duration-normal) var(--ease-out);
@@ -107,7 +107,7 @@
 
   .scroll-to-top:hover {
     color: var(--color-primary);
-    box-shadow: 0 4px 16px var(--shadow-color);
+    box-shadow: var(--shadow-lg);
   }
 
   .scroll-to-top:hover .arrow-icon {
@@ -118,13 +118,13 @@
     .scroll-to-top {
       bottom: var(--space-6);
       right: var(--space-6);
-      width: 40px;
-      height: 40px;
+      width: var(--space-10);
+      height: var(--space-10);
     }
 
     .progress-ring {
-      width: 40px;
-      height: 40px;
+      width: var(--space-10);
+      height: var(--space-10);
     }
 
     .progress-ring__circle {

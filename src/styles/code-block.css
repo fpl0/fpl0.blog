@@ -35,8 +35,8 @@
   position: absolute;
   top: var(--space-2);
   right: var(--space-2);
-  width: 2rem;
-  height: 2rem;
+  width: var(--space-8);
+  height: var(--space-8);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -54,13 +54,13 @@
   background: var(--color-highlight);
   color: var(--color-primary);
   border-color: var(--color-primary);
-  box-shadow: 0 2px 8px var(--shadow-color);
+  box-shadow: var(--shadow-md);
 }
 
 /* Icon Management */
 .code-copy svg {
-  width: 16px;
-  height: 16px;
+  width: var(--space-4);
+  height: var(--space-4);
   position: absolute;
   transition:
     transform var(--duration-slow) var(--ease-spring),

@@ -24,7 +24,7 @@
     position: fixed;
     inset: 0;
     background: var(--color-overlay-heavy);
-    backdrop-filter: blur(8px);
+    backdrop-filter: blur(var(--space-2));
     z-index: var(--z-overlay);
     display: flex;
     align-items: center;
@@ -48,7 +48,7 @@
     max-height: 90vh;
     object-fit: contain;
     border-radius: var(--radius-sm);
-    box-shadow: 0 25px 50px -12px var(--shadow-color);
+    box-shadow: var(--shadow-xl);
     transform: scale(0.95);
     transition: transform var(--duration-slow) var(--ease-out);
   }
@@ -61,8 +61,8 @@
     position: absolute;
     top: var(--space-6);
     right: var(--space-6);
-    width: 44px;
-    height: 44px;
+    width: var(--space-11);
+    height: var(--space-11);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -82,8 +82,8 @@
   }
 
   .lightbox-close svg {
-    width: 20px;
-    height: 20px;
+    width: var(--space-5);
+    height: var(--space-5);
   }
 
   /* Make content images zoomable */
