@@ -388,7 +388,7 @@ body {
   color: var(--color-text);
   max-width: var(--content-width);
   margin: 0 auto;
-  padding: var(--space-16) var(--space-6);
+  padding: clamp(var(--space-6), 8vh, var(--space-16)) clamp(var(--space-4), 5vw, var(--space-6));
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -400,7 +400,6 @@ body {
 @media (max-width: 600px) {
   /* @breakpoint-mobile */
   body {
-    padding: var(--space-6) var(--space-4);
     overflow-x: hidden;
   }
 
