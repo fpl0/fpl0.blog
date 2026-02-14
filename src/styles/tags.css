@@ -13,13 +13,14 @@
 .tag-card,
 .app-tag {
   font-family: var(--font-mono-brand);
-  font-size: var(--font-size-label);
+  font-size: var(--font-size-micro);
+  text-transform: uppercase;
   letter-spacing: var(--letter-spacing-loose);
   color: var(--color-muted);
   text-decoration: none;
   border: var(--space-px) solid var(--color-border);
   border-radius: var(--radius-full);
-  padding: var(--space-1) var(--space-2);
+  padding: var(--space-px) var(--space-2);
   transition:
     color var(--duration-normal) var(--ease-out),
     border-color var(--duration-normal) var(--ease-out),
@@ -27,7 +28,7 @@
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
-  line-height: 1; /* Fix vertical alignment */
+  line-height: 1.2;
 }
 
 .tag-link:hover,

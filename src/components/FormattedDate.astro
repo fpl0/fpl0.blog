@@ -2,12 +2,14 @@
 interface Props {
   date: Date;
   className?: string; // Optional class for styling
+  variant?: "default" | "system";
 }
 
-const { date, className } = Astro.props;
+const { date, className, variant = "default" } = Astro.props;
+const classes = [variant === "system" ? "system-label" : "", className].filter(Boolean).join(" ");
 ---
 
-<time datetime={date.toISOString()} class={className}>
+<time datetime={date.toISOString()} class={classes}>
   {
     date.toLocaleDateString("en-US", {
       month: "long",

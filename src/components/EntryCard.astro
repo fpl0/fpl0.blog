@@ -20,7 +20,7 @@ const url = `/${collection}/${entry.slug}/`;
 ---
 
 <li class="post-item">
-  <FormattedDate date={entry.data.date} className="post-date" />
+  <FormattedDate date={entry.data.date} className="post-date" variant="system" />
   <div class="post-content">
     <Link href={url} class="post-title">
       {entry.data.title}

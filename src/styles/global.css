@@ -207,7 +207,8 @@
   --color-border: oklch(0.88 0.02 var(--hue));
   --color-border-subtle: oklch(0.92 0.01 var(--hue));
 
-  --shadow-color: oklch(0.1 0.05 45 / 0.08);
+  /* --- Chromatic Elevation (Ecological Light Physics) --- */
+  --shadow-color: oklch(0.1 0.02 var(--hue) / 0.08);
   --shadow-sm: 0 1px 2px 0 var(--shadow-color);
   --shadow-md: 0 4px 6px -1px var(--shadow-color);
   --shadow-lg: 0 10px 15px -3px var(--shadow-color);
@@ -324,7 +325,7 @@
   --color-border: oklch(0.28 0.02 var(--hue));
   --color-border-subtle: oklch(0.24 0.015 var(--hue));
 
-  --shadow-color: oklch(0.05 0.01 30 / 0.6);
+  --shadow-color: oklch(0.02 0.01 var(--hue) / 0.6);
 
   --color-code-bg: oklch(0.2 0.012 var(--hue));
   --color-code-border: oklch(0.25 0.015 var(--hue));
@@ -456,6 +457,13 @@ body {
   text-rendering: optimizeLegibility;
   font-variant-ligatures: common-ligatures contextual;
   font-variant-numeric: tabular-nums;
+  /* Typographic Balance Engine */
+  text-wrap: pretty;
+}
+
+p {
+  orphans: 3;
+  widows: 3;
 }
 
 @media (max-width: 600px) {
@@ -516,6 +524,14 @@ body {
 /* Remove focus outline for mouse users */
 :focus:not(:focus-visible) {
   outline: none;
+}
+
+.system-label {
+  font-family: var(--font-mono-brand);
+  font-size: var(--font-size-micro);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-loose);
+  color: var(--color-text-muted);
 }
 
 h1,

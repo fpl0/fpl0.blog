@@ -60,13 +60,11 @@
   grid-template-columns: var(--space-36) 1fr;
   gap: var(--space-4);
   align-items: baseline;
+  container-type: inline-size;
 }
 
 .post-date {
-  font-family: var(--font-mono-brand);
   font-variant-numeric: tabular-nums;
-  font-size: var(--font-size-xxs);
-  color: var(--color-muted);
   white-space: nowrap;
   padding-top: 0.4em; /* Standardized rhythmic baseline alignment */
 }
@@ -80,7 +78,8 @@
 .post-title {
   font-family: var(--font-serif);
   font-weight: 400;
-  font-size: var(--font-size-h3);
+  /* Topological scaling based on container width */
+  font-size: clamp(var(--font-size-base), 4cqi + 0.5rem, var(--font-size-h3));
   line-height: var(--line-height-snug);
   color: var(--color-text);
   text-decoration: none;
@@ -103,10 +102,9 @@
   max-width: var(--content-width-narrow);
 }
 
-/* --- Mobile: stack vertically --- */
+/* --- Container Query for Layout Stacking --- */
 
-@media (max-width: 600px) {
-  /* @breakpoint-mobile */
+@container (max-width: 400px) {
   .post-item {
     grid-template-columns: 1fr;
     gap: var(--space-1);
@@ -116,4 +114,11 @@
     padding-top: 0;
     order: -1;
   }
+}
+
+/* --- Mobile: stack vertically (fallback/global) --- */
+
+@media (max-width: 600px) {
+  /* @breakpoint-mobile */
+  /* Kept for outer padding/margins, but logic moves to @container above */
 }
