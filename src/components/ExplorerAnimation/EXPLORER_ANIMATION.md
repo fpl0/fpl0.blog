@@ -6,20 +6,17 @@ A decorative Canvas 2D animation at the bottom of the home page. A stickman walk
 
 ## Architecture
 
-Three files, strict separation of concerns:
+Two files, strict separation of concerns:
 
 ```
 src/components/ExplorerAnimation/
-  explorer-engine.js       Pure logic — no DOM dependencies beyond CanvasRenderingContext2D
-  explorer-engine.d.ts     TypeScript declarations for the import boundary
+  explorer-engine.ts      Pure logic — no DOM dependencies beyond CanvasRenderingContext2D
   ExplorerAnimation.astro  DOM wiring — canvas lifecycle, observers, animation loop
 ```
 
-### `explorer-engine.js` + `explorer-engine.d.ts`
+### `explorer-engine.ts`
 
 Factory function `createExplorerEngine(options) => ExplorerEngine`. Receives a 2D context, dimensions, a `getColor` callback, and boolean flags for mobile/reduced-motion. Returns five methods: `update(dt)`, `draw()`, `resize(w, h)`, `onThemeChange()`, `setReducedMotion(enabled)`.
-
-Written as pure JavaScript for compactness (~500 lines vs ~1374 in the previous TypeScript version). A `.d.ts` sidecar preserves type safety at the import boundary — the Astro consumer sees full types via `ExplorerEngineOptions` and `ExplorerEngine` interfaces.
 
 No awareness of DOM events, requestAnimationFrame, observers, or View Transitions. All state is internal. Colors are cached and refreshed only on explicit `onThemeChange()` calls.
 
@@ -348,7 +345,7 @@ Toggling reduced motion at runtime resets the scene and re-populates.
 
 | Breakpoint | Canvas height | Margins |
 |------------|--------------|---------|
-| Desktop (>var(--breakpoint-mobile)) | 220px | `margin-top: var(--space-12)` |
+| Desktop (>var(--breakpoint-mobile)) | 220px | `margin-top: var(--space-y-xl)` |
 | Mobile (<=var(--breakpoint-mobile)) | 150px | `margin-top: var(--space-8)` |
 
 The canvas fills 100% container width. DPR-aware sizing ensures crisp rendering on Retina displays. On resize, the engine receives updated dimensions and recalculates `baseGroundY`.
