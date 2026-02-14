@@ -88,4 +88,12 @@ const { tag, items } = Astro.props;
     margin-bottom: var(--space-10);
     color: var(--color-primary);
   }
+
+  @media (max-width: 600px) {
+    /* @breakpoint-mobile */
+    .tag-page-title {
+      font-size: var(--font-size-h3);
+      margin-bottom: var(--space-6);
+    }
+  }
 </style>

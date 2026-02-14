@@ -3,21 +3,19 @@
 ## Strict Rules (Always Follow)
 
 1. **NEVER use emojis.** Use SVGs or CSS shapes instead.
-2. **NEVER use pure white or pure black.** No `#FFFFFF`, `#000000`, `white`, or `black` — always use the warm palette CSS variables.
-3. **NEVER add arbitrary font sizes.** Use the type scale variables from `global.css`.
-4. **NEVER add borders without `var(--color-border)`.** No hardcoded border colors.
-5. **NEVER add shadows without `var(--shadow-color)`.** No hardcoded shadow values.
-6. **NEVER add external npm dependencies** unless explicitly asked. Use native Web APIs and Bun built-ins first.
+2. **NEVER use pure white or pure black.** No `#FFFFFF`, `#000000`, `white`, or `black` — always use the warm palette OKLCH tokens.
+3. **NEVER add arbitrary font sizes.** Use the mathematically derived type scale from `global.css`.
+4. **NEVER add borders without `--ui-border` or `--ui-inset-border`.** No hardcoded border properties.
+5. **NEVER add shadows without `var(--shadow-*)`.** Use `--ui-shadow` or `--ui-inset` for material depth.
+6. **NEVER use `hsl()`, `rgb()`, or hex colors in CSS.** Use `oklch()` via design tokens or directly for unique cases (e.g. gradients).
 7. **ALWAYS use `var(--font-serif)` for headings and prose.**
 8. **ALWAYS use `var(--font-mono-brand)` for metadata, dates, and system labels.**
-9. **ALWAYS ensure hover states use `var(--color-primary)`.**
-10. **ALWAYS use smooth transitions (0.2s minimum).**
-11. **ALWAYS support both light and dark themes via CSS variables.**
-12. **ALWAYS include `prefers-reduced-motion: reduce`** when adding animations/transitions.
-13. **Consistency**: All styles (colors, links, animations) must be uniform across the entire site.
-14. **Strict Aesthetics**: Every new UI/UX implementation must follow the overall aesthetics (colors, typography, measurements).
-15. **Modularity**: Break down complex UI into smaller, focused Astro components.
-16. **NEVER hardcode design token values.** Use `var(--color-*)` for colors, `var(--font-*)` for font families, `var(--font-size-*)` for font sizes, `var(--space-*)` for spacing, `var(--z-*)` for z-index, `var(--radius-*)` for border-radius, `var(--duration-*)` / `var(--ease-*)` for transitions. No raw `hsl()`, `rgb()`, hex colors, font names, `rem`/`px` sizes, or `cubic-bezier()`. Run `bun run lint:design` to catch violations. Add `/* token-exempt */` only for third-party brand colors or truly unique values.
+9. **ALWAYS use the `<Link>` component.** Never use bare `<a>` tags for internal or external links.
+10. **ALWAYS use smooth transitions (0.2s minimum) with physical easing.** Use `--spring-stiff`, `--spring-bouncy`, or `--ease-out`.
+11. **ALWAYS include `prefers-reduced-motion: reduce`** (handled globally in `global.css`).
+12. **Consistency**: All styles (colors, links, animations) must be derived from the Geometric Engine in `global.css`.
+13. **Modularity**: Break down complex UI into focused Astro components (e.g. `EntryCard`, `BaseHead`).
+14. **Token Compliance**: Run `bun run lint:design` to catch violations. Add `/* token-exempt */` only for truly unique values.
 
 ## Stack
 
@@ -25,9 +23,8 @@
 - **TypeScript** / JavaScript (ESNext), strict mode
 - **Bun** runtime and package manager (strictly enforced)
 - **Biome** for linting and formatting (`bun run lint` / `bun run format`)
-- **Fonts**: `@fontsource` packages with `font-display: block` and metric-override fallbacks — no external font requests
-- **Integrations**: sitemap, MDX, remark-gfm, custom rehype-task-list-labels
-- **Syntax highlighting**: Shiki with CSS variables (`defaultColor: false`), dual themes (github-light-high-contrast / vesper)
+- **Fonts**: `@fontsource` packages with `font-display: block` and metric-override fallbacks
+- **Syntax highlighting**: Shiki with CSS variables, dual themes (OKLCH-compatible)
 
 ## Commands
 
@@ -41,469 +38,96 @@
 | Auto-format | `bun run format` (Biome) |
 | Token lint | `bun run lint:design` (design token checker) |
 | Full quality gate | `bun run check` (validate + lint + lint:design) |
-| Preview build | `bun run preview` |
 | Scaffold a blog post | `bun run 0:new:post` |
 | Scaffold an app | `bun run 0:new:app` |
 | List all content | `bun run 0:list` (`--drafts` / `--published`) |
 | Publish by slug | `bun run 0:publish <slug>` |
-| Delete by slug | `bun run 0:delete <slug>` |
 
 ## Code Quality
 
 - **Clean & Concise**: Write minimal, efficient code.
-- **DRY**: Extract common logic and styles into reusable components or global CSS variables. Use `getPublishedPosts()` from `src/utils/posts.ts` for post fetching and `getPublishedApps()` from `src/utils/apps.ts` for app fetching — never duplicate the filter/sort logic. Use `getFeedItems()` from `src/utils/feed.ts` for the mixed chronological feed. Render items using the unified `EntryCard.astro`.
-- **Pre-commit hook**: A git pre-commit hook runs `bun run check` automatically. CI does not run checks — it only builds and deploys.
-- **Linting**: Biome enforces consistent style. Run `bun run format` to auto-fix.
-- **CSS**: Keep it clean, organized, and specifically targeted. Prefer standard CSS features over heavy abstractions. Use global CSS variables from `src/styles/global.css` for colors, fonts, and spacing. Responsive design must work flawlessly on all devices.
+- **DRY**: Extract common logic into `src/utils/content.ts`. Use `getFeedItems()` for the mixed feed. Render entries using the unified `EntryCard.astro`.
+- **Layout Logic**: Use `<BaseHead>` in all layouts to share theme init, fonts, and meta logic.
+- **CSS**: Targeted, token-driven, and responsive. Use **Container Queries** (`cqi`) for component-level responsiveness.
 
 ---
 
 ## Design System — "The Digital Antiquarian"
 
-This is the **single source of truth** for visual identity. Every UI element, component, and page MUST adhere to these specifications. Do not deviate. Do not improvise.
+This is the **mathematical single source of truth**. Every element MUST adhere to these laws.
 
-### Geometric Engine (2026-02-14)
+### 1. Geometric Engine (Euclidean Axioms)
 
-The system now uses a mathematically derived engine for all spacing and typography to ensure perfect harmonic proportions:
+- **Modular Spacing**: Base grid `--grid: 4px`. All spacing tokens (`--space-1` to `--space-140`) are integer multiples of this grid via `calc()`.
+- **Vertical Rhythm**: Established via `--baseline: 1.6rem`. Vertical margins (`--space-y-*`) snap to this baseline to lock the vertical cadence.
+- **Harmonic Type Scale**: Headings derived exponentially using a strict **Minor Third (1.2)** ratio (`--font-ratio`) against the base font size.
+- **Topological Fluidity**: Components like `EntryCard` use **Container Query units (`cqi`)** to maintain proportions relative to their local context.
 
-1. **Modular Spacing Engine**: All spacing is derived from a base grid (`--grid: 4px`). Tokens (`--space-1` to `--space-140`) are multiples of this grid using `calc()`.
-2. **Fluid Harmonic Type Scale**: Headings are derived using a strict **Minor Third (1.2)** ratio (`--font-ratio`) against the base font size.
-3. **Color Synthesis**: Themes are built around master hues (`--hue`) with logical HSL offsets, ensuring chromatic consistency across all surfaces.
+### 2. Physical Dynamics (Newtonian Kinematics)
+
+- **Spring Physics**: Transitions use mass-spring-damping approximations: `--spring-stiff` (snappy), `--spring-bouncy` (elastic), `--spring-soft` (smooth).
+- **Interaction Hysteresis**: Asymmetrical hover states. Transition **IN** is fast (`--duration-in: 0.15s`), transition **OUT** is normal (`--duration-out: 0.2s`), mimicking physical inertia.
+- **Inertial Drift**: Microscopic `translateY(-1px)` on link hover to signal "lifting" from the substrate.
+- **Invisible Reach**: Hit-box expansion via `::after` on `<Link>` (expanded by `8px` per Fitts's Law).
+
+### 3. Materiality (Ecological Light Physics)
+
+- **Perceptual Field (OKLCH)**: Entire color system uses the OKLCH space for perceptual luminance orchestration.
+- **Entropy Synthesis**: Procedural SVG grain (`feTurbulence`) applied as a fixed overlay (`html::before`) to provide typographic "tooth."
+- **Chromatic Elevation**: Shadows derived from the master hue (`--hue`) to simulate real-world light occlusion on parchment.
+- **Material Inset**: Inset shadows (`--ui-inset`) and microscopic borders make media feel "embedded" into the substrate.
+- **Soft Focus Attention**: Body content blurs and recedes (`filter: blur(...) grayscale(...)`) when modals (Search, Lightbox) are active.
 
 ### Typography
 
-#### Font Stacks (Use ONLY These)
+#### Font Stacks
 
 | Variable | Font | Usage |
 |----------|------|-------|
-| `--font-sans` | `Inter Variable`, system-ui | Body UI, summaries, navigation labels |
-| `--font-serif` | `Merriweather` | **Primary reading font**: headings, article prose, blockquotes |
-| `--font-mono-brand` | `Space Mono` | Brand: logo, dates, metadata, error codes (`404`) |
-| `--font-mono` | `JetBrains Mono` | Code blocks, inline code, technical content |
+| `--font-sans` | `Inter Variable` | UI, navigation, summaries |
+| `--font-serif` | `Merriweather` | **Primary reading**: headings, article prose |
+| `--font-mono-brand` | `Space Mono` | Metadata, system labels, numeric data |
+| `--font-mono` | `JetBrains Mono` | Code blocks, technical syntax |
 
-#### Type Scale (Strict Minor Third — 1.200)
+#### OpenType Orchestration
 
-Framework: Linear interpolation (`slope * vw + intercept`) anchored to strict pixel values. Mobile base: `16px` (1rem), Desktop base: `17px` (1.0625rem).
+Root `--font-settings` enforces `cv05` (disambiguated L), `kern`, `liga`, and `tnum` (tabular numbers) for mathematical alignment.
 
-```css
---font-size-base: clamp(1rem, 0.11vw + 0.96rem, 1.0625rem);
---font-size-h1: clamp(1.728rem, 0.20vw + 1.66rem, 1.836rem);   /* 27.65px -> 29.38px */
---font-size-h2: clamp(1.44rem, 0.16vw + 1.39rem, 1.53rem);     /* 23.04px -> 24.48px */
---font-size-h3: clamp(1.2rem, 0.14vw + 1.15rem, 1.275rem);     /* 19.20px -> 20.40px */
---font-size-body: var(--font-size-base);
---font-size-lead: 1.35rem;
-/* UI: --font-size-sm (0.9375rem), --font-size-xs (0.875rem), --font-size-xxs, --font-size-label, --font-size-micro */
-```
+#### Line Heights (Tschichold Inverse Scale)
 
-#### Line Heights
-
-| Variable | Value | Usage |
-|----------|-------|-------|
-| `--line-height-tight` | 1.1 | Headings |
-| `--line-height-snug` | 1.25 | Subheadings |
-| `--line-height-subhead` | 1.4 | Subhead elements |
-| `--line-height-normal` | 1.5 | UI text |
-| `--line-height-relaxed` | 1.6 | Body default (Strict Density) |
-| `--line-height-loose` | 1.7 | Long-form prose |
-
-#### Font Weights
-
-Merriweather (serif) uses `font-weight: 400` in both light and dark modes for improved readability. The previous approach (300 in light, 400 in dark) created inconsistent rendering. Body prose (`.content`) and bio text both use 400 uniformly.
-
-#### List Typography
-
-Ordered lists use `list-style-position: outside` with `padding-left: 1.5em` to align wrapped text under the first line of text, not under the list number. This creates proper typographic hierarchy and readability for multi-line list items.
-
-### Color System (HSL-Based, Warm Palette)
-
-#### Light Mode (default — "The Parchment")
-
-```css
-/* Backgrounds — warm cream paper, NOT pure white */
---color-bg: hsl(45, 40%, 96%);
---color-surface: hsl(45, 30%, 92%);
---color-surface-raised: hsl(45, 25%, 88%);
---color-highlight: hsl(45, 45%, 90%);
-/* Text — deep sepia-brown, NOT pure black */
---color-text: hsl(25, 30%, 18%);
---color-text-secondary: hsl(25, 25%, 28%);  /* Perceptually distinct from muted */
---color-text-muted: hsl(25, 20%, 38%);
-/* Accents */
---color-primary: hsl(28, 80%, 38%);        /* Deep Amber */
---color-primary-dim: hsl(28, 60%, 48%);
---color-accent-cool: hsl(180, 30%, 35%);   /* Deep Teal */
-/* Borders & Shadows */
---color-border: hsl(35, 25%, 82%);
---color-border-subtle: hsl(35, 20%, 88%);
---shadow-color: rgba(60, 40, 20, 0.12);
-/* Shadows tokens: --shadow-sm, --shadow-md, --shadow-lg, --shadow-xl */
-/* Code Blocks (light mode) */
---color-code-bg: hsl(40, 30%, 95%);
---color-code-border: hsl(35, 25%, 85%);
---color-code-header-bg: hsl(40, 25%, 92%);
---color-code-inline-bg: hsl(40, 30%, 90%);
---color-code-inline-text: hsl(25, 50%, 35%);
---color-code-inline-border: hsl(35, 25%, 80%);
-```
-
-#### Dark Mode (`[data-theme="dark"]` — "The Archive")
-
-```css
-/* Backgrounds — warm charcoal, NOT cold gray */
---color-bg: hsl(20, 15%, 8%);
---color-surface: hsl(20, 12%, 12%);
---color-surface-raised: hsl(20, 10%, 16%);
---color-highlight: hsl(35, 20%, 14%);
-/* Text — warm off-white, NOT pure white */
---color-text: hsl(35, 12%, 87%);
---color-text-secondary: hsl(30, 10%, 60%);  /* Perceptually distinct from muted */
---color-text-muted: hsl(25, 6%, 52%);
-/* Accents */
---color-primary: hsl(42, 52%, 76%);        /* Gold / Cream */
---color-primary-dim: hsl(42, 35%, 58%);
---color-accent-cool: hsl(180, 20%, 72%);   /* Teal for inline code */
-/* Borders & Shadows */
---color-border: hsl(20, 10%, 18%);
---color-border-subtle: hsl(20, 8%, 14%);
---shadow-color: rgba(10, 5, 0, 0.6);
-/* Shadows tokens: --shadow-sm, --shadow-md, --shadow-lg, --shadow-xl */
-/* Code Blocks (dark mode — distinct from page bg) */
---color-code-bg: hsl(20, 10%, 11%);
---color-code-border: hsl(20, 8%, 16%);
---color-code-header-bg: hsl(20, 8%, 14%);
---color-code-inline-bg: hsl(20, 10%, 14%);
---color-code-inline-text: hsl(180, 20%, 72%);
---color-code-inline-border: hsl(20, 8%, 18%);
-```
-
-### Layout & Spacing
-
-- **Content max-width**: `var(--content-width)` (72ch), narrow variant: `var(--content-width-narrow)` (60ch)
-- **Padding**: `4rem 1.5rem` (desktop), `1.5rem 1rem` (mobile < var(--breakpoint-mobile))
-- **Mobile breakpoint**: Centralized in `src/utils/breakpoints.ts` (`BREAKPOINT_MOBILE`). For CSS, use `600px` with the mandatory comment: `@media (max-width: 600px) { /* @breakpoint-mobile */`. The linter (`bun run lint:design`) enforces this across all files. TOC sidebar: `1440px+`
-- **Spacing**: strict 4px/8px grid — all spacing MUST be integer multiples of `0.25rem` (4px). Use `--space-1` through `--space-125` variables. Use `--space-px` (1px), `--space-0-375` (1.5px), `--space-0-5` (2px), `--space-0-75` (3px), `--space-1-25` (5px), `--space-2-5` (10px), `--space-3-5` (14px), and `--space-4-5` (18px) for micro-spacing and non-grid refinements.
-
-#### Border Radius Scale
-
-Use token variables for all border-radius values:
-
-- `--radius-sm: 4px` — Small elements (checkboxes, small buttons, inline code)
-- `--radius-md: 6px` — Medium elements (buttons, input fields, tables)
-- `--radius-lg: 8px` — Large elements (code blocks, cards, modals)
-- `--radius-xl: 12px` — Extra large elements (major containers, tweet cards)
-- `--radius-full: 999px` — Pill-shaped elements (tags)
-- `--radius-round: 50%` — Circular elements (avatars, toggle buttons)
-
-#### Shadow Scale
-
-Use token variables for all elevation:
-
-- `--shadow-sm`: subtle
-- `--shadow-md`: medium
-- `--shadow-lg`: large (cards, floating bars)
-- `--shadow-xl`: extra large (modals, lightboxes)
-
-#### Opacity Scale
-
-- `--opacity-subtle: 0.35`
-- `--opacity-muted: 0.5`
-- `--opacity-recede: 0.6`
-- `--opacity-de-emphasize: 0.8`
-- `--opacity-hover: 0.9`
-
-#### Letter Spacing Scale
-
-- `--letter-spacing-extra-tight: -0.04em`
-- `--letter-spacing-tight: -0.03em`
-- `--letter-spacing-snug: -0.02em`
-- `--letter-spacing-normal: 0`
-- `--letter-spacing-slight: 0.02em`
-- `--letter-spacing-loose: 0.04em`
-- `--letter-spacing-wide: 0.06em`
-- `--letter-spacing-extra: 0.08em`
-
-#### Z-Index Scale
-
-Use token variables for all z-index layering:
-
-- `--z-base: 1` — Base layer (slight elevation)
-- `--z-float: 10` — Floating UI (code language labels, toggle buttons)
-- `--z-dropdown: 20` — Dropdown menus (copy buttons)
-- `--z-sticky: 50` — Sticky positioned elements (app shell bar)
-- `--z-fixed: 100` — Fixed positioned elements (scroll-to-top, theme toggle)
-- `--z-overlay: 1000` — Overlays (lightbox backdrop, search backdrop)
-- `--z-modal: 1010` — Modals (search modal)
-- `--z-toast: 9000` — Toast notifications (skip-link)
-
-#### Margin Patterns
-
-- **Headings**: `var(--space-12)` (H1), `var(--space-10)` (H2), `var(--space-8)` (H3)
-- **Paragraphs**: `margin-bottom: var(--space-6)` (Strict Density)
-- **Code blocks / Figures**: `margin: var(--space-10) 0`
-
-### Component Patterns
-
-#### The Logo / Brand Mark
-
-Use the `<Logo>` component (`src/components/Logo.astro`):
-
-```astro
-<Logo text="fpl0" />
-<Logo text="404" class="logo-404" />
-```
-
-The Logo component encapsulates the brand mark with the living cursor animation. Pass `text` for the display text and optional `class` for layout overrides.
-
-#### The Living Cursor (`_`)
-
-The blinking underscore is the brand's signature, built into the `<Logo>` component:
-
-```css
-.cursor {
-  display: inline-block;
-  color: var(--color-primary);
-  margin-left: 0.05em;
-  width: 0.6em;
-  text-align: center;
-  animation: blink 1s step-end infinite;
-}
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
-}
-```
-
-#### Links
-
-```css
-a {
-  color: var(--color-text);
-  text-decoration: underline;
-  text-decoration-color: var(--color-muted);
-  text-decoration-thickness: var(--space-px);
-  text-underline-offset: 0.2em;
-  transition: all var(--duration-normal) var(--ease-out);
-}
-a:hover {
-  color: var(--color-primary);
-  text-decoration-color: var(--color-primary);
-}
-```
-
-#### Blockquotes
-
-```css
-blockquote {
-  margin: var(--space-10) 0;
-  padding-left: var(--space-6);
-  border-left: var(--space-0-5) solid var(--color-primary);
-  font-family: var(--font-serif);
-  font-size: var(--font-size-sm);
-  font-style: italic;
-  color: var(--color-text-secondary);
-  line-height: var(--line-height-relaxed);
-}
-blockquote cite {
-  display: block;
-  font-family: var(--font-mono-brand);
-  font-size: var(--font-size-label);
-  letter-spacing: var(--letter-spacing-loose);
-  font-weight: 400;
-  color: var(--color-muted);
-  margin-top: var(--space-1);
-  font-style: normal;
-}
-```
-
-#### Code Blocks
-
-- **Background**: `var(--color-code-bg)` in both themes (distinct from page background)
-- **Border**: `var(--space-px) solid var(--color-code-border)`
-- **Font**: `var(--font-mono)`, `font-size: var(--font-size-xxs)`
-- **Border-radius**: `var(--radius-lg)` on wrapper, `var(--radius-md)` on buttons
-- **Inline code**: `background: var(--color-code-inline-bg)`, `color: var(--color-code-inline-text)`, `border: var(--space-px) solid var(--color-code-inline-border)`
-
-#### Buttons / Interactive Elements
-
-- **Border**: `var(--space-px) solid var(--color-border)`
-- **Hover**: `background: var(--color-highlight)`, `color: var(--color-primary)`
-- **Transition**: Use token variables — `transition: all var(--duration-normal) var(--ease-out)`
-- **Border-radius**: Use scale tokens (`var(--radius-sm)` through `var(--radius-xl)`)
-
-### Animation & Motion
-
-#### Transition Tokens
-
-Use token variables for consistent timing and easing:
-
-```css
-/* Easing functions */
---ease-out: cubic-bezier(0.16, 1, 0.3, 1);     /* Standard smooth easing */
---ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);  /* Spring/bounce effect */
-
-/* Durations */
---duration-fast: 0.15s;    /* Quick interactions */
---duration-normal: 0.2s;   /* Standard transitions */
---duration-slow: 0.3s;     /* Deliberate animations (modals, overlays) */
-
-/* Standard usage */
-transition: all var(--duration-normal) var(--ease-out);
-transition: color var(--duration-normal) var(--ease-out);
-
-/* View Transitions */
-animation-duration: var(--duration-normal);
-animation-timing-function: ease-out;
-```
-
-#### Reduced Motion
-
-The global reduced-motion handler preserves non-motion transitions (color, opacity) while disabling animations and transforms. **DO NOT add per-component `@media (prefers-reduced-motion: reduce)` blocks** — the global handler covers all cases except component-specific animation logic (e.g., Logo cursor blink).
-
-```css
-/* Global handler in global.css — do not duplicate elsewhere */
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    scroll-behavior: auto !important;
-    transition-property: color, background-color, border-color, outline-color,
-      text-decoration-color, fill, stroke, opacity, box-shadow, visibility !important;
-    transition-duration: 0.2s !important;
-  }
-  ::view-transition-old(root), ::view-transition-new(root) {
-    animation: none !important;
-  }
-}
-```
+Line heights are inversely proportional to font size: `--line-height-tight` (1.1) for H1, up to `--line-height-loose` (1.7) for long prose.
 
 ---
 
 ## Architecture Rules
 
-### View Transitions are everywhere
+### Unified Shell Logic
 
-Every page uses `ClientRouter`. All client-side code must handle both initial load and subsequent navigations. Three patterns — use the right one:
+All pages must utilize the `<BaseHead>` component to ensure consistent:
+1. **Theme Flash Prevention**: Critical inline script reading `localStorage`.
+2. **Font Preloading**: `font-display: block` for zero-flicker rendering.
+3. **CSP Headers**: Standardized security policy.
+4. **View Transitions**: Shared `ClientRouter` behavior.
 
-1. **`onPageReady()`** (preferred) — import from `src/utils/lifecycle.ts`. Manages AbortController cleanup automatically. Pass `signal` to all `addEventListener` calls. Used by: AnchorLinks, ImageLightbox, MermaidDiagram, ScrollToTop, SearchModal, TableOfContents, TableWrapper.
+### Interaction States
 
-2. **`is:inline` scripts** — for components that cannot import modules (CodeCopyButton, ThemeToggle, Analytics). Use IIFE + guard pattern (`data-initialized`). Must manually listen to both `DOMContentLoaded` and `astro:page-load`.
+Orchestrate the following root-level classes for global state transitions:
+- `.is-searching`: Content blurs and recedes for the search ledger.
+- `.is-viewing-image`: Content blurs and recedes for the lightbox.
 
-3. **Web Components** — LiteYouTube uses `connectedCallback`/`disconnectedCallback` with per-instance AbortController. Does NOT use the shared lifecycle utility.
+### Content Logic
 
-**Never add a bare `DOMContentLoaded` listener without also handling `astro:page-load`.** It will break on client-side navigation.
-
-### Content Collections
-
-Two collections share a common `publishableSchema` (title, summary, tags, dates, isDraft):
-
-- **Blog posts** in `src/content/blog/[slug]/index.md` or `.mdx` — extends the shared schema with `author` and `image` fields
-- **Apps** in `src/content/apps/[slug]/` — metadata (`index.md`), app component (`App.astro`), and source code (`.ts` modules) all co-located. The page in `src/pages/apps/[slug].astro` is a thin routing stub that imports `AppShell` + the app component.
-- Schema in `src/content/config.ts` — Zod-validated with transforms
-- `isDraft: true` by default — set `isDraft: false` to publish
-- `summary` must be 50–360 characters
-- `date` is computed: `publicationDate ?? createdDate`
-- `publicationDate` must be >= `createdDate`
-
-### Shared Utilities
-
-- **`getPublishedPosts()`** (`src/utils/posts.ts`) — Single source of truth for fetching published posts. Filters out drafts and sorts by date descending with slug tiebreaker for stable ordering. Use this in every page that needs blog posts — never duplicate the filter/sort logic.
-- **`getPublishedApps()`** (`src/utils/apps.ts`) — Same pattern as `getPublishedPosts()` but for the apps collection.
-- **`getFeedItems()`** (`src/utils/feed.ts`) — Returns a discriminated union `FeedItem = { type: "post" | "app", entry }` sorted by date descending. Used on the home page and tag pages to render a mixed chronological feed.
-- **`openSearch()`** (`src/utils/search-trigger.ts`) — Dispatches a synthetic Cmd+K event to trigger the search modal. Use in any button/element that should open search.
-- **`onPageReady()`** (`src/utils/lifecycle.ts`) — View Transition lifecycle manager with automatic AbortController cleanup.
-- **`getReadingTime()`** (`src/utils/readingTime.ts`) — Reading time calculator (200 WPM).
-- **`fuzzyMatch()`** (`src/utils/search.ts`) — Search scoring algorithm for the search modal.
-
-### Component Conventions
-
-- All components are `.astro` files in `src/components/`
-- Two layouts: `src/layouts/Layout.astro` (blog pages) and `src/components/AppShell.astro` (app pages)
-- Layout always includes: SearchModal, ScrollToTop, ThemeToggle, Analytics, FontPreload
-- AppShell provides: theme flash prevention, FontPreload, ClientRouter, SearchModal, ThemeToggle, and a thin top bar with `fpl0 / apps` navigation
-- Theme flash prevention: inline script in `<head>` reads localStorage before paint (both layouts)
-- SearchModal uses singleton pattern — module-level state persists across navigations
-- **`<PageHeader>`** — Site-wide nav bar: `fpl0_` brand link + `about / apps / tags / search`. Used by every blog Layout page (no props needed).
-- **`<AppShell>`** — Standalone layout for full-viewport apps. Top bar: `fpl0 / apps` (desktop), `← [title]` (mobile). Props: `title`, `description`.
-- **`<AppCard>`** — App preview card for feed listings. Visually matches PostCard but with an "app" label below the date. Uses `app-date` class with `::after` pseudo-element.
-- **`<Logo>`** — Reusable brand mark with cursor animation. `as` prop controls HTML element: `"h1"` (default) or `"span"` (for nav bar context).
-- **`<Caption>`** — Shared figcaption for `<Figure>` and `<Table>` components.
-
-### Styling
-
-- Design system in `src/styles/global.css` — CSS custom properties for everything
-- Component styles split into: `prose.css`, `code-block.css`, `search-modal.css`, `table-of-contents.css`, `tables.css`, `footnotes.css`, `home.css`, `about.css`, `blog-post.css`, `print.css`, `tags.css`, `app-shell.css`, `apps.css`
-
-### Performance
-
-- All CSS inlined at build time (`build.inlineStylesheets: "always"`)
-- Viewport-triggered link prefetching enabled
-- Images in `public/` optimized to WebP via `cwebp` in prebuild (requires `cwebp` installed); Astro Image service uses Sharp at build time
-- Analytics deferred until first interaction or 3s timeout
-- LiteYouTube defers ~800KB iframe until click
-- MermaidDiagram dynamically imports only when needed
-- SearchModal lazy-loads `/search.json` at idle time
-
-### Security
-
-- CSP headers in `Layout.astro` — update when adding new external resources
-- YouTube embeds use `youtube-nocookie.com` (privacy-enhanced mode)
-- RSS feed sanitizes HTML via `sanitize-html`
-- `object-src: 'none'` enforced
-
-## File Structure
-
-```
-scripts/
-├── base.ts          Shared paths, helpers, frontmatter parser
-├── new-post.ts      Scaffold blog post (bun run 0:new:post)
-├── new-app.ts       Scaffold app (bun run 0:new:app)
-├── list-content.ts  List content (bun run 0:list)
-├── publish.ts       Publish by slug (bun run 0:publish <slug>)
-└── delete.ts        Delete by slug (bun run 0:delete <slug>)
-src/
-├── components/     25 Astro components (includes Logo, Caption, AppCard, MermaidDiagram)
-├── content/
-│   ├── config.ts   Zod schema (shared publishableSchema for blog + apps)
-│   ├── blog/       Post directories (slug/index.md|mdx)
-│   └── apps/       App directories (slug/index.md + App.astro + .ts modules)
-├── layouts/
-│   ├── Layout.astro
-│   └── AppShell.astro
-├── pages/
-│   ├── index.astro
-│   ├── about.astro
-│   ├── 404.astro
-│   ├── blog/[slug].astro
-│   ├── apps/index.astro
-│   ├── apps/[name].astro   (one static page per app)
-│   ├── tags/index.astro
-│   ├── tags/[tag].astro
-│   ├── rss.xml.ts
-│   └── search.json.ts
-├── plugins/        Custom rehype plugin
-├── styles/         CSS design system + component styles (14 files)
-└── utils/
-    ├── apps.ts            getPublishedApps() — Published app fetching
-    ├── feed.ts            getFeedItems() — Mixed chronological feed
-    ├── lifecycle.ts       onPageReady() — View Transition lifecycle
-    ├── posts.ts           getPublishedPosts() — Published post fetching
-    ├── readingTime.ts     Reading time calculator (200 WPM)
-    ├── search.ts          fuzzyMatch() — Search scoring algorithm
-    └── search-trigger.ts  openSearch() — Search modal trigger
-```
+Single source of truth in `src/utils/content.ts`:
+- `getPublishedPosts()`: Filtered/Sorted blog posts.
+- `getPublishedApps()`: Filtered/Sorted apps.
+- `getFeedItems()`: Unified chronological feed.
+- `getReadingTime(content)`: Estimator (200 WPM).
 
 ## Common Pitfalls
 
-- **Adding a new external resource?** Update the CSP header in `Layout.astro`
-- **New interactive component?** Use `onPageReady()` and pass `signal` to all event listeners
-- **New `is:inline` script?** Cannot import modules — use IIFE + guard, handle both load events
-- **Blog post not showing?** Check `isDraft` — defaults to `true`
-- **Summary validation failing?** Must be 50–360 characters
-- **Styles not applying in dark mode?** Use CSS custom properties, never hardcoded colors
-- **Want to add a dependency?** Don't — use Web APIs and Bun built-ins first, ask the user if truly needed
-- **Need published posts?** Use `getPublishedPosts()` from `src/utils/posts.ts` — never duplicate the filter/sort
-- **Need to open search from a button?** Use `openSearch()` from `src/utils/search-trigger.ts`
-- **Need a figcaption?** Use the `<Caption>` component — never duplicate the label/caption pattern
-- **Need published apps?** Use `getPublishedApps()` from `src/utils/apps.ts`
-- **Need a mixed feed?** Use `getFeedItems()` from `src/utils/feed.ts`
-- **Hardcoded color/font/spacing/z-index/radius/duration/opacity/letter-spacing/shadow?** Use design tokens — `bun run lint:design` will catch it. Exempt with `/* token-exempt */`
+- **Bare <a> tags**: Breaks Hit-Box Expansion and physical hysteresis. Always use `<Link>`.
+- **HSL/Hex in CSS**: Violates perceptual field logic. Use tokens or OKLCH.
+- **Duplicate Logic**: Never rewrite post/app fetching or sorting. Use `content.ts`.
+- **Missing @breakpoint comment**: Linter will fail without `/* @breakpoint-mobile */`.
+- **Viewport Units in Components**: Prefers `cqi` for topological stability.
+- **Hardcoded borders/radii**: Violates the Semantic Abstraction Layer. Use `--ui-*` tokens.

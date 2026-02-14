@@ -102,23 +102,30 @@
   max-width: var(--content-width-narrow);
 }
 
-/* --- Container Query for Layout Stacking --- */
+/* --- Mobile: stack vertically (fallback/global) --- */
 
-@container (max-width: 400px) {
+@media (max-width: 600px) {
+  /* @breakpoint-mobile */
+  .bio-quote {
+    margin-bottom: var(--space-8);
+    padding-left: var(--space-4);
+  }
+
+  .post-list {
+    gap: var(--space-y-md);
+  }
+
   .post-item {
     grid-template-columns: 1fr;
-    gap: var(--space-1);
+    gap: var(--space-2);
   }
 
   .post-date {
     padding-top: 0;
     order: -1;
   }
-}
 
-/* --- Mobile: stack vertically (fallback/global) --- */
-
-@media (max-width: 600px) {
-  /* @breakpoint-mobile */
-  /* Kept for outer padding/margins, but logic moves to @container above */
+  .post-title {
+    font-size: var(--font-size-base);
+  }
 }
