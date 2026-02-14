@@ -1,0 +1,153 @@
+---
+/**
+ * ExplorerAnimation — Decorative procedural walking scene.
+ * A stickman traverses a generated landscape of trees, mountains, birds, and stars.
+ * Purely decorative (aria-hidden), pauses when off-screen, supports reduced motion.
+ */
+---
+
+<div class="explorer-wrapper">
+  <canvas id="explorer-canvas" aria-hidden="true"></canvas>
+</div>
+
+<script>
+  import { onPageReady } from "../utils/lifecycle";
+  import { createExplorerEngine } from "./explorer-engine";
+
+  onPageReady((signal) => {
+    const canvas = document.getElementById("explorer-canvas") as HTMLCanvasElement | null;
+    if (!canvas) return;
+    const maybeCtx = canvas.getContext("2d");
+    if (!maybeCtx) return;
+    const ctx = maybeCtx;
+
+    const isMobile = window.innerWidth <= 600;
+    let reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    function getColor(property: string): string {
+      return getComputedStyle(document.documentElement).getPropertyValue(property).trim();
+    }
+
+    /* --- DPR-aware resize --- */
+    function resizeCanvas(): { w: number; h: number } {
+      const container = canvas!.parentElement;
+      if (!container) return { w: 0, h: 0 };
+      const rect = container.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvas!.width = rect.width * dpr;
+      canvas!.height = rect.height * dpr;
+      canvas!.style.width = `${rect.width}px`;
+      canvas!.style.height = `${rect.height}px`;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      return { w: rect.width, h: rect.height };
+    }
+
+    const { w, h } = resizeCanvas();
+    if (w === 0 || h === 0) return;
+
+    const engine = createExplorerEngine({
+      ctx,
+      width: w,
+      height: h,
+      getColor,
+      isMobile,
+      reducedMotion,
+    });
+
+    /* --- Visibility (IntersectionObserver) --- */
+    let isVisible = false;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          isVisible = entry.isIntersecting;
+        }
+      },
+      { threshold: 0.1 },
+    );
+    observer.observe(canvas);
+
+    /* --- Theme changes (MutationObserver) --- */
+    const themeObserver = new MutationObserver(() => {
+      engine.onThemeChange();
+      engine.draw();
+    });
+    themeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme"],
+    });
+
+    /* --- Resize --- */
+    window.addEventListener(
+      "resize",
+      () => {
+        const { w: rw, h: rh } = resizeCanvas();
+        if (rw > 0 && rh > 0) {
+          engine.resize(rw, rh);
+          engine.draw();
+        }
+      },
+      { signal, passive: true },
+    );
+
+    /* --- Reduced motion --- */
+    const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    motionQuery.addEventListener(
+      "change",
+      (e) => {
+        reducedMotion = e.matches;
+        engine.setReducedMotion(reducedMotion);
+        engine.draw();
+      },
+      { signal },
+    );
+
+    /* --- Animation loop --- */
+    let lastTime = 0;
+    let rafId = 0;
+
+    function loop(timestamp: number): void {
+      rafId = requestAnimationFrame(loop);
+      if (!isVisible) return;
+      const dt = lastTime === 0 ? 0.016 : (timestamp - lastTime) / 1000;
+      lastTime = timestamp;
+      engine.update(dt);
+      engine.draw();
+    }
+
+    rafId = requestAnimationFrame(loop);
+
+    // Draw initial frame immediately
+    engine.draw();
+
+    /* --- Cleanup --- */
+    signal.addEventListener("abort", () => {
+      cancelAnimationFrame(rafId);
+      observer.disconnect();
+      themeObserver.disconnect();
+    });
+  });
+</script>
+
+<style>
+  .explorer-wrapper {
+    margin-top: var(--space-12);
+    overflow: hidden;
+  }
+
+  #explorer-canvas {
+    display: block;
+    width: 100%;
+    height: 220px;
+  }
+
+  @media (max-width: 600px) {
+    .explorer-wrapper {
+      margin-top: var(--space-8);
+      padding-top: var(--space-6);
+    }
+
+    #explorer-canvas {
+      height: 150px;
+    }
+  }
+</style>
