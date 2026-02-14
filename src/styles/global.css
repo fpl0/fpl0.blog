@@ -146,6 +146,12 @@
   --space-y-lg: calc(var(--baseline) * 1.5);
   --space-y-xl: calc(var(--baseline) * 2);
 
+  /* --- Spring Dynamics Engine (Physical Motion) --- */
+  /* Approximations of mass-spring-damping systems */
+  --spring-stiff: cubic-bezier(0.17, 0.67, 0.16, 0.99);
+  --spring-bouncy: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --spring-soft: cubic-bezier(0.16, 1, 0.3, 1);
+
   /* --- Fluid Type Engine (Minor Third - 1.2) --- */
   --font-ratio: 1.2;
   /* Base: 16px -> 17px (0.11vw slope) */
@@ -241,11 +247,14 @@
   --z-modal: 1010;
   --z-toast: 9000;
 
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --ease-out: var(--spring-soft);
+  --ease-spring: var(--spring-bouncy);
   --duration-fast: 0.15s;
   --duration-normal: 0.2s;
   --duration-slow: 0.3s;
+
+  /* --- Entropy Synthesis (Parchment Grain) --- */
+  --grain: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
 
   --opacity-subtle: 0.35;
   --opacity-muted: 0.5;
@@ -398,6 +407,25 @@
 html {
   background-color: var(--color-bg);
   height: 100%;
+}
+
+html::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: var(--grain);
+  opacity: 0.04;
+  pointer-events: none;
+  z-index: var(--z-toast); /* Overlay everything slightly */
+  mix-blend-mode: multiply;
+}
+
+[data-theme="dark"] html::before {
+  opacity: 0.02;
+  mix-blend-mode: overlay;
 }
 
 body {
