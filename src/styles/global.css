@@ -133,9 +133,11 @@
   --space-32: calc(var(--grid) * 32);
   --space-36: calc(var(--grid) * 36);
   --space-37-5: calc(var(--grid) * 37.5);
+  --space-48: calc(var(--grid) * 48);
   --space-55: calc(var(--grid) * 55);
   --space-80: calc(var(--grid) * 80);
   --space-100: calc(var(--grid) * 100);
+  --space-110: calc(var(--grid) * 110);
   --space-125: calc(var(--grid) * 125);
   --space-140: calc(var(--grid) * 140);
 

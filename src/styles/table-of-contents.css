@@ -16,9 +16,9 @@
     display: block;
     position: fixed;
     top: var(--space-32);
-    left: calc(50% + 440px);
+    left: calc(50% + var(--space-110));
     width: var(--space-55);
-    max-height: calc(100vh - 12rem);
+    max-height: calc(100vh - var(--space-48));
     overflow-y: auto;
     /* Hide scrollbar completely - "Invisible Scroll" */
     scrollbar-width: none;

@@ -89,7 +89,7 @@
   text-decoration: underline;
   text-decoration-color: var(--color-muted);
   text-decoration-thickness: var(--space-px);
-  text-underline-offset: 0.2em;
+  text-underline-offset: 0.2em; /* token-exempt */
   color: var(--color-text);
   border-bottom: none;
   transition: all var(--duration-normal) var(--ease-out);
@@ -134,7 +134,7 @@
   text-transform: uppercase;
   letter-spacing: var(--letter-spacing-loose);
   color: var(--color-primary);
-  margin-right: 0.35em;
+  margin-right: 0.35em; /* token-exempt */
   font-weight: 600;
 }
 
@@ -178,7 +178,7 @@
 .content :not(pre) > code {
   background-color: var(--color-surface);
   color: var(--color-accent-cool);
-  padding: 0.2em 0.4em;
+  padding: 0.2em 0.4em; /* token-exempt */
   border-radius: var(--ui-radius-sm);
   font-size: 0.85em;
   border: var(--ui-border);

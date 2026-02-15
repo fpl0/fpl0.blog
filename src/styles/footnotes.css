@@ -27,8 +27,8 @@
 .content input[type="checkbox"][type="checkbox"] {
   appearance: none;
   -webkit-appearance: none;
-  width: 1.35em;
-  height: 1.35em;
+  width: 1.35em; /* token-exempt */
+  height: 1.35em; /* token-exempt */
   border: var(--space-px) solid var(--color-muted);
   border-radius: var(--radius-sm);
   background-color: transparent;
@@ -42,8 +42,8 @@
 
 .content input[type="checkbox"]::before {
   content: "";
-  width: 0.8em;
-  height: 0.8em;
+  width: 0.8em; /* token-exempt */
+  height: 0.8em; /* token-exempt */
   transform: scale(0);
   transition: var(--duration-normal) transform var(--ease-out);
   box-shadow: inset 1em 1em var(--color-bg);
@@ -152,7 +152,7 @@
   /* Hide the original ↩ which renders as emoji on iOS */
   overflow: hidden;
   display: inline-block;
-  width: 1em;
+  width: 1em; /* token-exempt */
   text-indent: -9999px; /* token-exempt */
   vertical-align: baseline;
   position: relative;
@@ -176,8 +176,8 @@
 
 /* Superscript spacing */
 sup {
-  margin-left: 0.05em;
-  margin-right: 0.05em;
+  margin-left: 0.05em; /* token-exempt */
+  margin-right: 0.05em; /* token-exempt */
   line-height: 0;
 }
 

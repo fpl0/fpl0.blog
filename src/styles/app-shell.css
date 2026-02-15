@@ -71,7 +71,7 @@
 
 .app-shell-title-back {
   display: none;
-  margin-right: 0.3em;
+  margin-right: 0.3em; /* token-exempt */
 }
 
 /* --- Search hint button --- */

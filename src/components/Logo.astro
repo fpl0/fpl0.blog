@@ -36,9 +36,9 @@ const { text, as: Tag = "h1", class: className }: Props = Astro.props;
   .cursor {
     display: inline-block;
     color: var(--color-primary);
-    margin-left: 0.05em;
+    margin-left: 0.05em; /* token-exempt */
     animation: blink 1s step-end infinite;
-    width: 0.6em;
+    width: 0.6em; /* token-exempt */
     text-align: center;
   }
 

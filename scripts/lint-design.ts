@@ -237,18 +237,39 @@ const SPACING_PROPS =
 
 function scanSpacing(prop: string, value: string): Violation[] {
   if (/^[\s]*(0|auto|none|inherit|initial|unset|100%|50%)[\s;]*$/.test(value)) return [];
+
   const results: Violation[] = [];
+
   const regex = /(?<!var\([^)]*?|#|[0-9a-fA-F])\b([0-9.]+)(rem|px|em)\b/g;
-  let match: RegExpExecArray | null;
-  // biome-ignore lint/suspicious/noAssignInExpressions: iterator pattern
-  while ((match = regex.exec(value)) !== null) {
+
+  let match = regex.exec(value);
+
+  while (match !== null) {
     const lit = match[0];
+
     if (REGISTRY.spacing[lit]) {
       let suggestion = REGISTRY.spacing[lit];
+
       if (/top|bottom/.test(prop)) suggestion += " or var(--space-y-*)";
+
       results.push({ file: "", line: 0, raw: `${prop}: ${lit}`, suggestion });
+    } else {
+      // Hardcoded value NOT in design system
+
+      results.push({
+        file: "",
+
+        line: 0,
+
+        raw: `${prop}: ${lit}`,
+
+        suggestion: "Hardcoded magic number. Derive from --grid tokens.",
+      });
     }
+
+    match = regex.exec(value);
   }
+
   return results;
 }
 
