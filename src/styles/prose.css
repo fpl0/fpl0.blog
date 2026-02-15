@@ -359,11 +359,12 @@ a.anchor-link {
   padding: var(--space-5);
   padding-top: var(--space-8);
   text-align: center;
-  transition: opacity var(--duration-normal) var(--ease-out);
 }
 
-.mermaid-rendered.is-swapping {
-  opacity: 0;
+/* Theme-switched pre-rendered SVGs — instant CSS swap, no client JS */
+[data-theme="light"] .mermaid-dark,
+[data-theme="dark"] .mermaid-light {
+  display: none;
 }
 
 .mermaid-rendered svg {
