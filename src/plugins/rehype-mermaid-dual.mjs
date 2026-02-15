@@ -115,6 +115,7 @@ function getRenderer() {
 }
 
 export default function rehypeMermaidDual() {
+  // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: single-pass tree transform with error handling
   return async (tree) => {
     // 1. Collect every mermaid code block
     const targets = [];
@@ -176,9 +177,12 @@ export default function rehypeMermaidDual() {
         continue;
       }
 
-      // Deduplicate SVG IDs — both renders share `mermaid-N`, add theme suffix
-      lightSvg = lightSvg.replace(/id="(mermaid-\d+)"/, `id="$1-light"`);
-      darkSvg = darkSvg.replace(/id="(mermaid-\d+)"/, `id="$1-dark"`);
+      // Deduplicate SVG IDs — both renders share `mermaid-N`, add theme suffix.
+      // Must replace ALL occurrences (root id attr + internal CSS selectors like #mermaid-0).
+      const lightId = lightSvg.match(/id="(mermaid-\d+)"/)?.[1];
+      const darkId = darkSvg.match(/id="(mermaid-\d+)"/)?.[1];
+      if (lightId) lightSvg = lightSvg.replaceAll(lightId, `${lightId}-light`);
+      if (darkId) darkSvg = darkSvg.replaceAll(darkId, `${darkId}-dark`);
 
       const html = [
         '<div class="mermaid-container">',
