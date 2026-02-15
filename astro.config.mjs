@@ -5,6 +5,7 @@ import sitemap from "@astrojs/sitemap";
 import { defineConfig } from "astro/config";
 import remarkGfm from "remark-gfm";
 
+import rehypeMermaidDual from "./src/plugins/rehype-mermaid-dual.mjs";
 import rehypeTaskListLabels from "./src/plugins/rehype-task-list-labels.mjs";
 
 // https://astro.build/config
@@ -30,7 +31,11 @@ export default defineConfig({
   },
   markdown: {
     remarkPlugins: [remarkGfm],
-    rehypePlugins: [rehypeTaskListLabels],
+    rehypePlugins: [rehypeMermaidDual, rehypeTaskListLabels],
+    syntaxHighlight: {
+      type: "shiki",
+      excludeLangs: ["mermaid"],
+    },
     shikiConfig: {
       themes: {
         light: "github-light-high-contrast",
