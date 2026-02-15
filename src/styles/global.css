@@ -630,7 +630,7 @@ blockquote {
   font-size: var(--font-size-sm);
   font-style: italic;
   color: var(--color-text-secondary);
-  line-height: var(--line-height-loose);
+  line-height: var(--line-height-relaxed);
   letter-spacing: var(--letter-spacing-slight);
 }
 
