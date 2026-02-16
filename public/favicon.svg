@@ -1,11 +1,17 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-  <!-- Background: Ultra-Dark Walnut -->
-  <rect width="32" height="32" rx="6" fill="#161311" />
+  <!-- Walnut Background -->
+  <rect width="32" height="32" rx="4" fill="#231d1a" />
   
-  <!-- The Spark / Compass Symbol in Pale Bronze -->
-  <!-- A geometric 4-pointed star representing discovery and direction -->
-  <path d="M16 4L18.5 13.5L28 16L18.5 18.5L16 28L13.5 18.5L4 16L13.5 13.5L16 4Z" fill="#d9cba4" />
+  <!-- The Superellipse "0" (Geometric Abstraction) -->
+  <!-- A Squircle path: mathematically derived for elegance -->
+  <path d="M16 6 C 24 6 26 8 26 16 C 26 24 24 26 16 26 C 8 26 6 24 6 16 C 6 8 8 6 16 6" 
+        stroke="#f5f5f0" 
+        stroke-width="2.5" 
+        fill="none" />
   
-  <!-- Subtle center void for architectural detail -->
-  <circle cx="16" cy="16" r="1.5" fill="#161311" />
+  <!-- The Singularity (The center of the fpl0 brand) -->
+  <circle cx="16" cy="16" r="1.5" fill="#c1753c" />
+  
+  <!-- The 1-Grid-Unit Cursor (4px) -->
+  <rect x="14" y="22" width="4" height="1" fill="#c1753c" opacity="0.8" />
 </svg>
