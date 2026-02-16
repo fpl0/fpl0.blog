@@ -1,7 +1,7 @@
 /* ==========================================================================
    APP SHELL
    Minimal standalone layout for full-viewport client-side apps.
-   Provides only a back link and theme toggle — apps control everything else.
+   Fixed bar with back link, title, search hint, and theme toggle.
    ========================================================================== */
 
 .app-shell-bar {

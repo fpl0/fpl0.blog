@@ -1,4 +1,7 @@
-/* About page styles - Animation handled by Astro View Transitions */
+/* ==========================================================================
+   ABOUT PAGE
+   Intro, bio, section headings, and connect links
+   ========================================================================== */
 
 .intro {
   margin-bottom: var(--space-12);

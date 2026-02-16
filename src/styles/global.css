@@ -1,3 +1,7 @@
+/* ==========================================================================
+   GLOBAL STYLES
+   Design system tokens, font declarations, base element styles, and theming
+   ========================================================================== */
 @import "./print.css";
 @import "./tags.css";
 
