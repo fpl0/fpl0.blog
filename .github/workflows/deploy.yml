@@ -75,16 +75,12 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Check for Mermaid content in published posts
+      - name: Check for Mermaid content
         id: mermaid-check
         run: |
-          # Find content files with mermaid blocks, excluding drafts
-          for f in $(grep -rl '```mermaid' src/content/ 2>/dev/null); do
-            if ! grep -q 'isDraft: true' "$f"; then
-              echo "found=true" >> "$GITHUB_OUTPUT"
-              break
-            fi
-          done
+          if grep -r '```mermaid' src/content/ > /dev/null 2>&1; then
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Cache Playwright browsers
         if: steps.mermaid-check.outputs.found == 'true'

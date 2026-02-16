@@ -150,34 +150,52 @@ export default function rehypeMermaidDual() {
     if (targets.length === 0) return;
 
     // 2. Obtain (or create) the Playwright-backed renderer
-    const renderer = await getRenderer();
+    let renderer;
+    try {
+      renderer = await getRenderer();
+    } catch (error) {
+      // biome-ignore lint/suspicious/noConsole: build-time plugin, not client code
+      console.warn(
+        `[rehype-mermaid-dual] Playwright unavailable, skipping mermaid rendering: ${error.message}`,
+      );
+      return;
+    }
 
     // mermaid-isomorphic takes string[] (diagram source code)
     const sources = targets.map((t) => t.source);
 
     // 3. Render all diagrams in both themes in parallel
-    const [lightResults, darkResults] = await Promise.all([
-      renderer(sources, {
-        mermaidConfig: {
-          theme: "base",
-          fontFamily: FONT_FAMILY,
-          themeVariables: LIGHT_THEME_VARIABLES,
-          flowchart: { htmlLabels: false },
-          sequence: { htmlLabels: false },
-          gantt: { htmlLabels: false },
-        },
-      }),
-      renderer(sources, {
-        mermaidConfig: {
-          theme: "base",
-          fontFamily: FONT_FAMILY,
-          themeVariables: DARK_THEME_VARIABLES,
-          flowchart: { htmlLabels: false },
-          sequence: { htmlLabels: false },
-          gantt: { htmlLabels: false },
-        },
-      }),
-    ]);
+    let lightResults, darkResults;
+    try {
+      [lightResults, darkResults] = await Promise.all([
+        renderer(sources, {
+          mermaidConfig: {
+            theme: "base",
+            fontFamily: FONT_FAMILY,
+            themeVariables: LIGHT_THEME_VARIABLES,
+            flowchart: { htmlLabels: false },
+            sequence: { htmlLabels: false },
+            gantt: { htmlLabels: false },
+          },
+        }),
+        renderer(sources, {
+          mermaidConfig: {
+            theme: "base",
+            fontFamily: FONT_FAMILY,
+            themeVariables: DARK_THEME_VARIABLES,
+            flowchart: { htmlLabels: false },
+            sequence: { htmlLabels: false },
+            gantt: { htmlLabels: false },
+          },
+        }),
+      ]);
+    } catch (error) {
+      // biome-ignore lint/suspicious/noConsole: build-time plugin, not client code
+      console.warn(
+        `[rehype-mermaid-dual] Playwright unavailable, skipping mermaid rendering: ${error.message}`,
+      );
+      return;
+    }
 
     // 4. Replace each code block with a dual-SVG container
     //    (iterate in reverse so splice indices stay valid)
