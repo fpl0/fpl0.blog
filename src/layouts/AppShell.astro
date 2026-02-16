@@ -76,9 +76,8 @@ const { title, description = "An interactive app on fpl0's blog." } = Astro.prop
 		height: 100vh;
 	}
 
-	/* Place theme toggle inline within the bar instead of floating */
+	/* Size theme toggle to match app-shell bar */
 	.app-shell-right :global(.theme-toggle) {
-		position: static;
 		width: var(--space-8);
 		height: var(--space-8);
 	}

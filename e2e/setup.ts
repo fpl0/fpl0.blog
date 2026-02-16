@@ -13,14 +13,21 @@ const ROOT = join(DIR, "..");
 const PORT = 4321;
 const BASE_URL = `http://localhost:${PORT}`;
 
-/** Kill any process occupying the preview port. */
+/** Kill any process occupying the preview port and wait until it's free. */
 function freePort(): void {
   try {
     const pids = execSync(`lsof -ti :${PORT}`, { encoding: "utf-8" }).trim();
     if (pids) {
-      execSync(`kill ${pids}`, { stdio: "ignore" });
-      // Brief wait for port release
-      execSync("sleep 0.5");
+      execSync(`kill -9 ${pids}`, { stdio: "ignore" });
+      // Wait until the port is actually free (up to 5s)
+      for (let i = 0; i < 10; i++) {
+        try {
+          execSync(`lsof -ti :${PORT}`, { stdio: "ignore" });
+          execSync("sleep 0.5");
+        } catch {
+          return; // Port is free
+        }
+      }
     }
   } catch {
     // No process on port — nothing to do
