@@ -107,9 +107,10 @@ Line heights are inversely proportional to font size: `--line-height-tight` (1.1
 
 All pages must utilize the `<BaseHead>` component to ensure consistent:
 1. **Theme Flash Prevention**: Critical inline script reading `localStorage`.
-2. **Font Preloading**: `font-display: block` for zero-flicker rendering.
-3. **CSP Headers**: Standardized security policy.
-4. **View Transitions**: Shared `ClientRouter` behavior.
+2. **Safari Browser Chrome**: `<meta name="theme-color">` tags with `media` queries for light/dark, synced by `theme-init.inline.js` and `theme-toggle.inline.js`. Hex values (`#faf5ea` light, `#17100e` dark) are hardcoded in 3 places: `BaseHead.astro`, `theme-init.inline.js`, `theme-toggle.inline.js` — update all three if `--color-bg` tokens change. Meta tags **must** precede the theme-init script in the `<head>` so the script can override them before paint. The `astro:before-swap` handler also syncs meta tags on the new document to prevent flash during View Transitions.
+3. **Font Preloading**: `font-display: block` for zero-flicker rendering.
+4. **CSP Headers**: Standardized security policy.
+5. **View Transitions**: Shared `ClientRouter` behavior.
 
 ### Interaction States
 
