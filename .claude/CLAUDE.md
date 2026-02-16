@@ -131,6 +131,22 @@ Diagrams in ` ```mermaid ` code blocks are **pre-rendered at build time** by `sr
 - CSS (`.content img { width: 100%; height: auto; }`) uses these attributes for aspect ratio reservation.
 - There is **no image lightbox** — do not add one.
 
+### Client-Side Scripts (View Transitions)
+
+Module scripts (`<script>`) execute **once** — the browser caches them across View Transitions. Use these patterns for re-initialization:
+
+| Need | Pattern | Example |
+|------|---------|---------|
+| Listeners on `window`/`document`, observers, RAF | `onPageReady(signal => { ... })` from `src/utils/lifecycle.ts` | ScrollToTop, TableOfContents, ExplorerAnimation |
+| Idempotent DOM manipulation (no listeners) | `document.addEventListener("astro:page-load", init)` | TableWrapper, AnchorLinks |
+| Click delegation for known buttons | Event delegation on `document` (runs once, no cleanup) | Search trigger buttons |
+| Must run before paint (theme, CSP) | `<script is:inline>` with guard check | BaseHead theme init, ThemeToggle |
+
+Rules:
+- **NEVER use `DOMContentLoaded`** — `astro:page-load` fires on initial load and all navigations.
+- **ALWAYS pass the `signal`** to `addEventListener` when using `onPageReady`. Ignoring it causes listener accumulation.
+- **Prefer event delegation** for simple click handlers on elements with stable IDs.
+
 ### Content Logic
 
 Single source of truth in `src/utils/content.ts`:
@@ -147,3 +163,5 @@ Single source of truth in `src/utils/content.ts`:
 - **Missing @breakpoint comment**: Linter will fail without `/* @breakpoint-mobile */`.
 - **Viewport Units in Components**: Prefers `cqi` for topological stability.
 - **Hardcoded borders/radii**: Violates the Semantic Abstraction Layer. Use `--ui-*` tokens.
+- **`DOMContentLoaded` with View Transitions**: Never use it. `astro:page-load` replaces it completely.
+- **Missing `{ signal }` in `onPageReady`**: Causes listeners to accumulate across navigations. Always wire the signal.

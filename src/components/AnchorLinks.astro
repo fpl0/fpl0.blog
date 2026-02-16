@@ -8,9 +8,7 @@
 ---
 
 <script>
-  import { onPageReady } from "../utils/lifecycle";
-
-  onPageReady(() => {
+  function init() {
     document
       .querySelectorAll<HTMLHeadingElement>(
         ".content h2[id], .content h3[id], .content h4[id]",
@@ -28,5 +26,7 @@
         );
         header.appendChild(link);
       });
-  });
+  }
+
+  document.addEventListener("astro:page-load", init);
 </script>

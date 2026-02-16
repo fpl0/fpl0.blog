@@ -11,7 +11,7 @@
 <script>
   import { onPageReady } from "../utils/lifecycle";
 
-  onPageReady(() => {
+  onPageReady((signal) => {
     document
       .querySelectorAll<HTMLButtonElement>(".mermaid-toggle")
       .forEach((btn) => {
@@ -36,7 +36,7 @@
             "aria-label",
             showing ? "View diagram source" : "View rendered diagram",
           );
-        });
+        }, { signal });
       });
   });
 </script>

@@ -10,9 +10,7 @@
 ---
 
 <script>
-  import { onPageReady } from "../utils/lifecycle";
-
-  onPageReady(() => {
+  function init() {
     document
       .querySelectorAll<HTMLTableElement>(".content table")
       .forEach((table) => {
@@ -24,5 +22,7 @@
         table.parentNode.insertBefore(wrapper, table);
         wrapper.appendChild(table);
       });
-  });
+  }
+
+  document.addEventListener("astro:page-load", init);
 </script>

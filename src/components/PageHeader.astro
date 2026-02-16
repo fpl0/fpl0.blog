@@ -164,13 +164,3 @@ const isTags = pathname.startsWith("/tags");
   }
 
 </style>
-
-<script>
-  import { onPageReady } from "../utils/lifecycle";
-  import { openSearch } from "../utils/search-trigger";
-
-  onPageReady((signal) => {
-    const btn = document.getElementById("site-nav-search");
-    btn?.addEventListener("click", () => openSearch(), { signal });
-  });
-</script>

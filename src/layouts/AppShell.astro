@@ -89,13 +89,3 @@ const { title, description = "An interactive app on fpl0's blog." } = Astro.prop
 	}
 
 </style>
-
-<script>
-	import { onPageReady } from "../utils/lifecycle";
-	import { openSearch } from "../utils/search-trigger";
-
-	onPageReady((signal) => {
-		const btn = document.getElementById("app-shell-search");
-		btn?.addEventListener("click", () => openSearch(), { signal });
-	});
-</script>

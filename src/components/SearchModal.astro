@@ -68,6 +68,7 @@ const searchCacheBuster = Date.now().toString(36);
   import { navigate } from "astro:transitions/client";
   import { onPageReady } from "../utils/lifecycle";
   import { fuzzyMatch } from "../utils/search";
+  import "../utils/search-trigger";
 
   interface SearchItem {
     readonly title: string;
