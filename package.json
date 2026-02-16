@@ -17,7 +17,8 @@
     "0:list": "bun run scripts/list-content.ts",
     "0:publish": "bun run scripts/publish.ts",
     "0:delete": "bun run scripts/delete.ts",
-    "0:unpublish": "bun run scripts/unpublish.ts"
+    "0:unpublish": "bun run scripts/unpublish.ts",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.3.13",
@@ -35,6 +36,7 @@
   "devDependencies": {
     "@astrojs/check": "^0.9.6",
     "@biomejs/biome": "^2.3.15",
+    "@playwright/test": "1.56.0",
     "@types/node": "^25.2.3",
     "@types/sanitize-html": "^2.16.0",
     "hast-util-from-html": "^2.0.3",

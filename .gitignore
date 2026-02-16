@@ -25,3 +25,7 @@ pnpm-debug.log*
 
 # npm lockfile (Bun is the enforced package manager)
 package-lock.json
+
+# Playwright
+test-results/
+playwright-report/

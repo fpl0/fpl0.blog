@@ -5,6 +5,13 @@ import { type CollectionEntry, getCollection } from "astro:content";
    Unified logic for fetching, filtering, and processing blog posts and apps.
    ========================================================================== */
 
+/** Include draft content when INCLUDE_DRAFTS=true (used by E2E tests). */
+const includeDrafts = process.env.INCLUDE_DRAFTS === "true";
+
+function isPublished({ data }: { data: { isDraft: boolean } }): boolean {
+  return includeDrafts || !data.isDraft;
+}
+
 export type FeedItem =
   | { type: "post"; entry: CollectionEntry<"blog"> }
   | { type: "app"; entry: CollectionEntry<"apps"> };
@@ -24,7 +31,7 @@ function compareEntries(
  * Fetch all published (non-draft) blog posts.
  */
 export async function getPublishedPosts(): Promise<CollectionEntry<"blog">[]> {
-  const posts = await getCollection("blog", ({ data }) => !data.isDraft);
+  const posts = await getCollection("blog", isPublished);
   return posts.sort(compareEntries);
 }
 
@@ -32,7 +39,7 @@ export async function getPublishedPosts(): Promise<CollectionEntry<"blog">[]> {
  * Fetch all published (non-draft) apps.
  */
 export async function getPublishedApps(): Promise<CollectionEntry<"apps">[]> {
-  const apps = await getCollection("apps", ({ data }) => !data.isDraft);
+  const apps = await getCollection("apps", isPublished);
   return apps.sort(compareEntries);
 }
 
