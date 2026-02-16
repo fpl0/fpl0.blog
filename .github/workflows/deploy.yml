@@ -108,20 +108,16 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Cache Playwright browsers
+      - name: Cache Playwright
         uses: actions/cache@v4
-        id: playwright-cache
         with:
-          path: ~/.cache/ms-playwright
+          path: |
+            ~/.cache/ms-playwright
+            /var/cache/apt/archives
           key: ${{ runner.os }}-playwright-${{ hashFiles('node_modules/playwright-core/browsers.json') }}
 
       - name: Install Playwright Chromium
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: bunx playwright install --with-deps chromium
-
-      - name: Install Playwright system deps
-        if: steps.playwright-cache.outputs.cache-hit == 'true'
-        run: bunx playwright install-deps chromium
 
       - name: Run E2E tests
         run: bun run test:e2e
@@ -164,21 +160,18 @@ jobs:
             fi
           done
 
-      - name: Cache Playwright browsers
+      - name: Cache Playwright
         if: steps.mermaid-check.outputs.found == 'true'
         uses: actions/cache@v4
-        id: playwright-cache
         with:
-          path: ~/.cache/ms-playwright
+          path: |
+            ~/.cache/ms-playwright
+            /var/cache/apt/archives
           key: ${{ runner.os }}-playwright-${{ hashFiles('node_modules/playwright-core/browsers.json') }}
 
       - name: Install Playwright Chromium
-        if: steps.mermaid-check.outputs.found == 'true' && steps.playwright-cache.outputs.cache-hit != 'true'
+        if: steps.mermaid-check.outputs.found == 'true'
         run: bunx playwright install --with-deps chromium
-
-      - name: Install Playwright system deps
-        if: steps.mermaid-check.outputs.found == 'true' && steps.playwright-cache.outputs.cache-hit == 'true'
-        run: bunx playwright install-deps chromium
 
       - name: Build site
         run: bun run build
