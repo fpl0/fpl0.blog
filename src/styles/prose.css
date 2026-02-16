@@ -359,6 +359,7 @@ a.anchor-link {
   padding: var(--space-5);
   padding-top: var(--space-8);
   text-align: center;
+  overflow-x: auto;
 }
 
 /* Theme-switched pre-rendered SVGs — instant CSS swap, no client JS */
@@ -370,6 +371,15 @@ a.anchor-link {
 .mermaid-rendered svg {
   max-width: 100%;
   height: auto;
+  display: block;
+  margin-inline: auto;
+}
+
+/* @breakpoint-mobile */
+@media (max-width: 600px) {
+  .mermaid-rendered svg {
+    max-width: none;
+  }
 }
 
 /* Match the site's font rendering on SVG text */
