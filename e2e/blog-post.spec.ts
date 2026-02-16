@@ -123,6 +123,65 @@ test.describe("Blog post page", () => {
     }
   });
 
+  test("twitter card renders with fetched data", async ({ page }) => {
+    await goToTestPost(page);
+    const card = page.locator(".tweet-card");
+    if ((await card.count()) > 0) {
+      await expect(card.first().locator(".tweet-name")).toBeVisible();
+      await expect(card.first().locator(".tweet-content")).toBeVisible();
+      // Ensure the fallback blockquote is NOT rendered
+      await expect(page.locator(".tweet-fallback")).toHaveCount(0);
+    }
+  });
+
+  test("blockquotes render with cite attribution", async ({ page }) => {
+    await goToTestPost(page);
+    const blockquote = page.locator(".content blockquote").first();
+    await expect(blockquote).toBeVisible();
+    await expect(blockquote.locator("cite")).toBeAttached();
+  });
+
+  test("unordered lists render", async ({ page }) => {
+    await goToTestPost(page);
+    const lists = page.locator(".content ul:not([data-footnotes] ul)");
+    expect(await lists.count()).toBeGreaterThan(0);
+    await expect(lists.first().locator("li").first()).toBeVisible();
+  });
+
+  test("ordered lists render", async ({ page }) => {
+    await goToTestPost(page);
+    const lists = page.locator(".content ol");
+    expect(await lists.count()).toBeGreaterThan(0);
+    await expect(lists.first().locator("li").first()).toBeVisible();
+  });
+
+  test("task lists render with checkboxes", async ({ page }) => {
+    await goToTestPost(page);
+    const checkboxes = page.locator('.content input[type="checkbox"]');
+    expect(await checkboxes.count()).toBeGreaterThan(0);
+  });
+
+  test("youtube embed renders with thumbnail", async ({ page }) => {
+    await goToTestPost(page);
+    const yt = page.locator("lite-youtube");
+    await expect(yt.first()).toBeVisible();
+    await expect(yt.first()).toHaveAttribute("videoid");
+  });
+
+  test("definition lists render with terms and descriptions", async ({ page }) => {
+    await goToTestPost(page);
+    const dl = page.locator(".content dl");
+    await expect(dl.first()).toBeVisible();
+    expect(await dl.first().locator("dt").count()).toBeGreaterThan(0);
+    expect(await dl.first().locator("dd").count()).toBeGreaterThan(0);
+  });
+
+  test("inline code renders within paragraphs", async ({ page }) => {
+    await goToTestPost(page);
+    const inlineCode = page.locator(".content p code");
+    expect(await inlineCode.count()).toBeGreaterThan(0);
+  });
+
   test("headings have IDs for anchor linking", async ({ page }) => {
     await goToTestPost(page);
     const headings = page.locator(".content h2[id]");

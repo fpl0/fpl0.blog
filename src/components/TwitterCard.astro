@@ -39,12 +39,13 @@ function formatDate(dateString: string) {
   }).format(date);
 }
 
-// Fetch tweet data using the public syndication API (undocumented but stableish)
+// Fetch tweet data via react-tweet API (syndication endpoint is dead as of 2025)
 async function fetchTweet(id: string): Promise<TweetData | null> {
   try {
-    const response = await fetch(`https://cdn.syndication.twimg.com/tweet-result?id=${id}&token=x`);
-    if (!response.ok) throw new Error("Failed to fetch tweet");
-    return await response.json();
+    const response = await fetch(`https://react-tweet.vercel.app/api/tweet/${id}`);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const json = await response.json();
+    return json.data ?? null;
   } catch (e) {
     console.error(`Error fetching tweet ${id}:`, e);
     return null;
