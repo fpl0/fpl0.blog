@@ -189,7 +189,8 @@ jobs:
           path: ./dist
 
   deploy:
-    needs: [quality, build]
+    needs: [quality, build, e2e]
+    if: ${{ !failure() && !cancelled() }}
     runs-on: ubuntu-latest
     environment:
       name: github-pages
