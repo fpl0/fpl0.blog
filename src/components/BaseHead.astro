@@ -4,6 +4,8 @@
  */
 import { ClientRouter } from "astro:transitions";
 import FontPreload from "./FontPreload.astro";
+import { buildCSP } from "../utils/csp";
+import themeInit from "./theme-init.inline.js?raw"; // CSP-hashed
 
 interface Props {
   title: string;
@@ -25,21 +27,7 @@ const twitterCardType = image ? "summary_large_image" : "summary";
 ---
 
 <!-- Theme init - runs before paint to prevent flash -->
-<script is:inline>
-  (function () {
-    function getTheme() {
-      var stored = localStorage.getItem("theme");
-      if (stored) return stored;
-      return window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "dark"
-        : "light";
-    }
-    document.documentElement.setAttribute("data-theme", getTheme());
-    document.addEventListener("astro:before-swap", function (e) {
-      e.newDocument.documentElement.setAttribute("data-theme", getTheme());
-    });
-  })();
-</script>
+<script is:inline set:html={themeInit} />
 
 <FontPreload />
 <meta charset="utf-8" />
@@ -47,7 +35,7 @@ const twitterCardType = image ? "summary_large_image" : "summary";
 <!-- CSP -->
 <meta
   http-equiv="Content-Security-Policy"
-  content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://images.unsplash.com https://i.ytimg.com https://pbs.twimg.com https://abs.twimg.com; font-src 'self'; connect-src 'self' https://www.google-analytics.com https://www.googletagmanager.com; frame-src https://www.youtube.com https://www.youtube-nocookie.com; object-src 'none'; base-uri 'self'; form-action 'self'"
+  content={buildCSP()}
 />
 <meta name="generator" content={Astro.generator} />
 
@@ -73,6 +61,10 @@ const twitterCardType = image ? "summary_large_image" : "summary";
 
 <!-- Icons -->
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+<link rel="manifest" href="/site.webmanifest" />
 <link rel="icon" href="/favicon.ico" />
 
 <!-- Resource hints -->

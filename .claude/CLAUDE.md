@@ -140,12 +140,28 @@ Module scripts (`<script>`) execute **once** — the browser caches them across 
 | Listeners on `window`/`document`, observers, RAF | `onPageReady(signal => { ... })` from `src/utils/lifecycle.ts` | ScrollToTop, TableOfContents, ExplorerAnimation |
 | Idempotent DOM manipulation (no listeners) | `document.addEventListener("astro:page-load", init)` | TableWrapper, AnchorLinks |
 | Click delegation for known buttons | Event delegation on `document` (runs once, no cleanup) | Search trigger buttons |
-| Must run before paint (theme, CSP) | `<script is:inline>` with guard check | BaseHead theme init, ThemeToggle |
+| Must run before paint (theme, CSP) | `*.inline.js` + `set:html` (see below) | BaseHead theme init, ThemeToggle |
 
 Rules:
 - **NEVER use `DOMContentLoaded`** — `astro:page-load` fires on initial load and all navigations.
 - **ALWAYS pass the `signal`** to `addEventListener` when using `onPageReady`. Ignoring it causes listener accumulation.
 - **Prefer event delegation** for simple click handlers on elements with stable IDs.
+
+### Inline Scripts & CSP (SHA-256 Hashing)
+
+The CSP in `BaseHead.astro` uses **SHA-256 hashes** instead of `'unsafe-inline'` for `script-src`. Inline scripts are **auto-discovered** by `src/utils/csp.ts` via `import.meta.glob("../components/*.inline.js")`.
+
+**To add a new inline script:**
+1. Create `src/components/<name>.inline.js` next to the component
+2. In the component frontmatter: `import SCRIPT from './<name>.inline.js?raw'`
+3. Render it: `<script is:inline set:html={SCRIPT} />`
+
+That's it — `csp.ts` automatically picks up, hashes, and adds it to the CSP. No manual registration needed.
+
+**Rules:**
+- **NEVER write inline JS directly inside `<script is:inline>` tags.** Always use a co-located `*.inline.js` file with `?raw` import + `set:html`. Direct inline scripts will be blocked by CSP.
+- **NEVER add `'unsafe-inline'` or `'unsafe-eval'` to `script-src`.** The hash-based approach makes them unnecessary.
+- `style-src` retains `'unsafe-inline'` (required by Shiki's inline style attributes).
 
 ### Content Logic
 
