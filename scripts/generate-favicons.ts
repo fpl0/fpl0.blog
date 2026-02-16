@@ -1,3 +1,4 @@
+import { execSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
@@ -36,6 +37,18 @@ async function generateFavicons() {
   }
 
   await browser.close();
+
+  // Generate favicon.ico using sips (macOS)
+  if (process.platform === "darwin") {
+    try {
+      const png32 = join(publicDir, "favicon-32x32.png");
+      const ico = join(publicDir, "favicon.ico");
+      execSync(`sips -s format ico "${png32}" --out "${ico}"`, { stdio: "inherit" });
+      console.log("Generated favicon.ico (32x32)");
+    } catch (error) {
+      console.error("Failed to generate favicon.ico:", error);
+    }
+  }
 }
 
 generateFavicons().catch(console.error);
