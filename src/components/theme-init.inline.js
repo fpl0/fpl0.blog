@@ -17,5 +17,8 @@
   document.addEventListener("astro:before-swap", (e) => {
     var t = getTheme();
     e.newDocument.documentElement.setAttribute("data-theme", t);
+    e.newDocument.querySelectorAll('meta[name="theme-color"]').forEach((m) => {
+      m.setAttribute("content", themeColors[t]);
+    });
   });
 })();
