@@ -39,8 +39,9 @@
 | Auto-format | `bun run format` (Biome) |
 | Token lint | `bun run lint:design` (design token checker) |
 | Full quality gate | `bun run check` (validate + lint + lint:design) |
-| Scaffold a blog post | `bun run 0:new:post` |
-| Scaffold an app | `bun run 0:new:app` |
+| Scaffold a blog post | `bun run 0:new-post` |
+| Scaffold an app | `bun run 0:new-app` |
+| Generate favicons | `bun run scripts/generate-favicons.ts` (requires Playwright Chromium) |
 | List all content | `bun run 0:list` (`--drafts` / `--published`) |
 | Publish by slug | `bun run 0:publish <slug>` |
 

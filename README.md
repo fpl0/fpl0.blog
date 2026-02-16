@@ -49,6 +49,8 @@ import Figure from "../../../components/Figure.astro";
 <Figure
   src="https://example.com/photo.jpg"
   alt="Description of the image"
+  width={800}
+  height={450}
   label="Figure 1:"
   caption="Caption text here."
 />
@@ -58,6 +60,8 @@ import Figure from "../../../components/Figure.astro";
 | :--- | :---: | :--- |
 | `src` | Yes | Image URL |
 | `alt` | Yes | Alt text for accessibility |
+| `width` | Yes | Image width in pixels (prevents CLS) |
+| `height` | Yes | Image height in pixels (prevents CLS) |
 | `label` | No | Styled label (e.g. "Figure 1:") |
 | `caption` | No | Caption text (supports HTML) |
 
@@ -135,6 +139,43 @@ Hidden content here...
 </details>
 ```
 
+## Blog Posts
+
+Blog posts live in `src/content/blog/[slug]/`. Each post is an `.mdx` file that can import any of the components documented above.
+
+### Creating a New Post
+
+The fastest way is `bun run 0:new-post`, which prompts for title, slug, summary, and tags, then generates the file below. To do it manually:
+
+1. Create the post directory and file: `src/content/blog/my-post/index.mdx`
+
+```yaml
+---
+title: "My Post Title"
+summary: "A short description (50-360 characters)."
+createdDate: 2026-01-15
+isDraft: true
+tags: ["javascript", "tutorial"]
+---
+```
+
+2. Write your content below the frontmatter using Markdown and MDX components.
+
+3. Set `isDraft: false` in the frontmatter when ready to publish (or use `bun run 0:publish my-post`).
+
+#### Frontmatter Fields
+
+| Field | Required | Description |
+| :--- | :---: | :--- |
+| `title` | Yes | Post title |
+| `summary` | Yes | Short description (50-360 characters) |
+| `createdDate` | Yes | Date created (YYYY-MM-DD) |
+| `isDraft` | No | Draft status (defaults to `true`) |
+| `tags` | No | Array of tag strings |
+| `author` | No | Author name (defaults to "Filipe Lima") |
+| `image` | No | OG image URL |
+| `publicationDate` | No | Publish date if different from createdDate (must be on or after createdDate) |
+
 ## Apps
 
 Apps are standalone interactive pages hosted alongside the blog. Everything for an app lives in one directory under `src/content/apps/[slug]/`:
@@ -147,7 +188,7 @@ A dynamic route at `src/pages/apps/[slug].astro` automatically discovers all pub
 
 ### Creating a New App
 
-The fastest way is `bun run 0:new:app`, which prompts for title, slug, summary, and tags, then generates the files below. To do it manually:
+The fastest way is `bun run 0:new-app`, which prompts for title, slug, summary, and tags, then generates the files below. To do it manually:
 
 1. Create the app directory with metadata: `src/content/apps/my-app/index.md`
 
@@ -201,8 +242,8 @@ The design uses a warm palette of walnut and cream to support long-form technica
 | `bun run lint:design` | Check for hardcoded design tokens |
 | `bun run check` | Full quality gate (validate + lint + lint:design) |
 | `bun run preview` | Preview production build locally |
-| `bun run 0:new:post` | Scaffold a new blog post |
-| `bun run 0:new:app` | Scaffold a new app |
+| `bun run 0:new-post` | Scaffold a new blog post |
+| `bun run 0:new-app` | Scaffold a new app |
 | `bun run 0:list` | List all content (`--drafts` / `--published`) |
 | `bun run 0:publish <slug>` | Publish a post or app (sets isDraft: false, commits, pushes) |
 | `bun run 0:unpublish <slug>` | Unpublish a post or app (sets isDraft: true) |
