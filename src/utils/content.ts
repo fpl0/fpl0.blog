@@ -51,6 +51,53 @@ export async function getFeedItems(): Promise<FeedItem[]> {
 }
 
 /**
+ * Build a map of tag -> item count from all published content.
+ */
+export async function getTagCounts(): Promise<Map<string, number>> {
+  const [posts, apps] = await Promise.all([getPublishedPosts(), getPublishedApps()]);
+  const counts = new Map<string, number>();
+
+  for (const entry of [...posts, ...apps]) {
+    for (const tag of entry.data.tags) {
+      counts.set(tag, (counts.get(tag) ?? 0) + 1);
+    }
+  }
+
+  return counts;
+}
+
+/**
+ * Build a map of tag -> sorted FeedItems from all published content.
+ */
+export async function getTagMap(): Promise<Map<string, FeedItem[]>> {
+  const [posts, apps] = await Promise.all([getPublishedPosts(), getPublishedApps()]);
+  const tagMap = new Map<string, FeedItem[]>();
+
+  for (const post of posts) {
+    for (const tag of post.data.tags) {
+      const existing = tagMap.get(tag) ?? [];
+      existing.push({ type: "post", entry: post });
+      tagMap.set(tag, existing);
+    }
+  }
+
+  for (const app of apps) {
+    for (const tag of app.data.tags) {
+      const existing = tagMap.get(tag) ?? [];
+      existing.push({ type: "app", entry: app });
+      tagMap.set(tag, existing);
+    }
+  }
+
+  // Sort each tag's items by date descending, then slug
+  for (const items of tagMap.values()) {
+    items.sort((a, b) => compareEntries(a.entry, b.entry));
+  }
+
+  return tagMap;
+}
+
+/**
  * Calculate estimated reading time for markdown content.
  * Based on average reading speed of 200 words per minute.
  */

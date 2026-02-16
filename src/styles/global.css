@@ -1,4 +1,5 @@
 @import "./print.css";
+@import "./tags.css";
 
 /* ==========================================================================
    FONT FACE DECLARATIONS
@@ -367,15 +368,10 @@
   background-color: transparent !important;
 }
 
-/* Light mode code block & mermaid - warm cream tones matching page */
+/* Light mode code block - warm cream tones matching page */
 [data-theme="light"] .content pre {
   background-color: var(--color-code-bg) !important;
   border: 1px solid var(--color-code-border);
-}
-
-[data-theme="light"] .mermaid-container {
-  background: var(--color-code-bg);
-  border-color: var(--color-code-border);
 }
 
 /* Remove any line highlighting/stripes */
@@ -400,15 +396,10 @@
   border-color: var(--color-code-inline-border);
 }
 
-/* Dark mode code block & mermaid — distinct background from page */
+/* Dark mode code block — distinct background from page */
 [data-theme="dark"] .content pre {
   background-color: var(--color-code-bg) !important;
   border: 1px solid var(--color-code-border);
-}
-
-[data-theme="dark"] .mermaid-container {
-  background: var(--color-code-bg);
-  border-color: var(--color-code-border);
 }
 
 [data-theme="dark"] .code-header {

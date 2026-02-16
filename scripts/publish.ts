@@ -8,9 +8,14 @@
  * then commits and pushes.
  */
 
-import { readFileSync, writeFileSync } from "node:fs";
-
 import { findContentFile, git, printAvailableSlugs, relativePath, todayISO } from "./base";
+import {
+  getBooleanField,
+  insertFieldAfter,
+  parseFrontmatterBlock,
+  setFrontmatterField,
+  writeFrontmatter,
+} from "./frontmatter";
 
 // ---------------------------------------------------------------------------
 // Frontmatter mutation
@@ -20,45 +25,26 @@ function publish(filePath: string): {
   title: string;
   alreadyPublished: boolean;
 } {
-  const raw = readFileSync(filePath, "utf-8");
-  const match = raw.match(/^(---\r?\n)([\s\S]*?)(\r?\n---)/);
-  if (!match) {
+  const block = parseFrontmatterBlock(filePath);
+  if (!block) {
     console.error("Could not parse frontmatter.");
     process.exit(1);
   }
 
-  const open = match[1] ?? "";
-  const yaml = match[2] ?? "";
-  const close = match[3] ?? "";
-  const rest = raw.slice(match[0].length);
-
-  const titleMatch = yaml.match(/^title:\s*["']?(.+?)["']?\s*$/m);
-  const title = titleMatch?.[1] ?? "unknown";
-
-  const draftMatch = yaml.match(/^isDraft:\s*(true|false)\s*$/m);
-  if (draftMatch?.[1] === "false") {
-    return { title, alreadyPublished: true };
+  const isDraft = getBooleanField(block.yaml, "isDraft");
+  if (isDraft === false) {
+    return { title: block.title, alreadyPublished: true };
   }
 
-  let updated = yaml;
+  block.yaml = setFrontmatterField(block.yaml, "isDraft", "false");
 
-  if (draftMatch) {
-    updated = updated.replace(/^isDraft:\s*true\s*$/m, "isDraft: false");
-  } else {
-    updated += "\nisDraft: false";
-  }
-
-  const hasPubDate = /^publicationDate:/m.test(updated);
+  const hasPubDate = /^publicationDate:/m.test(block.yaml);
   if (!hasPubDate) {
-    if (/^createdDate:.*$/m.test(updated)) {
-      updated = updated.replace(/^(createdDate:.*$)/m, `$1\npublicationDate: "${todayISO()}"`);
-    } else {
-      updated += `\npublicationDate: "${todayISO()}"`;
-    }
+    block.yaml = insertFieldAfter(block.yaml, "createdDate", "publicationDate", `"${todayISO()}"`);
   }
 
-  writeFileSync(filePath, `${open}${updated}${close}${rest}`);
-  return { title, alreadyPublished: false };
+  writeFrontmatter(filePath, block);
+  return { title: block.title, alreadyPublished: false };
 }
 
 // ---------------------------------------------------------------------------

@@ -100,15 +100,23 @@
   color: var(--color-primary);
 }
 
-/* Pre block styling updates */
+/* Base code font */
+.content code {
+  font-family: var(--font-mono);
+}
+
+/* Pre block styling — sole owner of .content pre rules */
 .content pre {
-  margin: 0 !important;
+  margin: 0;
   padding: var(--space-5);
   padding-top: var(--space-10); /* Space for the floating elements */
-  border: none !important;
-  background: transparent !important;
-  border-radius: 0 !important;
+  border: none;
+  background: transparent;
+  border-radius: 0;
   overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xxs);
+  line-height: var(--line-height-relaxed);
 }
 
 /* Mobile adjustments */

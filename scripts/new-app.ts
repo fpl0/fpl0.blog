@@ -13,6 +13,7 @@ import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { APPS_DIR, ask, todayISO, toSlug } from "./base";
+import { SUMMARY_MAX, SUMMARY_MIN } from "./constants";
 
 // ---------------------------------------------------------------------------
 // Templates
@@ -106,9 +107,11 @@ if (existsSync(appDir)) {
 
 let summary = "";
 while (true) {
-  summary = ask("Summary (50-360 chars):");
-  if (summary.length >= 50 && summary.length <= 360) break;
-  console.log(`  Got ${summary.length} chars -- must be between 50 and 360.`);
+  summary = ask(`Summary (${SUMMARY_MIN}-${SUMMARY_MAX} chars):`);
+  if (summary.length >= SUMMARY_MIN && summary.length <= SUMMARY_MAX) break;
+  console.log(
+    `  Got ${summary.length} chars -- must be between ${SUMMARY_MIN} and ${SUMMARY_MAX}.`,
+  );
 }
 
 const tagsInput = ask("Tags (comma-separated, or empty):");

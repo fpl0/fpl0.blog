@@ -6,23 +6,9 @@
 import Link from "../../components/Link.astro";
 import PageHeader from "../../components/PageHeader.astro";
 import Layout from "../../layouts/Layout.astro";
-import { getPublishedApps, getPublishedPosts } from "../../utils/content";
-import "../../styles/tags.css";
+import { getTagCounts } from "../../utils/content";
 
-const [posts, apps] = await Promise.all([getPublishedPosts(), getPublishedApps()]);
-
-const tagCounts = new Map<string, number>();
-for (const post of posts) {
-  for (const tag of post.data.tags) {
-    tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1);
-  }
-}
-for (const app of apps) {
-  for (const tag of app.data.tags) {
-    tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1);
-  }
-}
-
+const tagCounts = await getTagCounts();
 const sortedTags = [...tagCounts.entries()].sort((a, b) => a[0].localeCompare(b[0]));
 ---
 

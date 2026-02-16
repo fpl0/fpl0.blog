@@ -67,149 +67,33 @@ const searchCacheBuster = Date.now().toString(36);
 <script>
   import { navigate } from "astro:transitions/client";
   import { onPageReady } from "../utils/lifecycle";
-  import { fuzzyMatch } from "../utils/search";
+  import { renderError, renderResults } from "../utils/search-renderer";
+  import {
+    abortFetch,
+    getLatestPosts,
+    isIndexLoaded,
+    loadSearchIndex,
+    searchPosts,
+  } from "../utils/search-service";
+  import type { SearchItem } from "../utils/search-service";
   import "../utils/search-trigger";
 
-  interface SearchItem {
-    readonly title: string;
-    readonly summary: string;
-    readonly tags: readonly string[];
-    readonly slug: string;
-    readonly date: string;
-    readonly type?: "post" | "app";
-  }
-
-  // Module state - persists across View Transitions
-  let searchIndex: SearchItem[] = [];
+  // Modal state - persists across View Transitions
   let selectedIndex = 0;
   let results: SearchItem[] = [];
   let isInitialized = false;
   let debounceTimer: ReturnType<typeof setTimeout> | null = null;
-  let indexPromise: Promise<void> | null = null;
-  let fetchAbortController: AbortController | null = null;
   let previousActiveElement: Element | null = null;
 
-  // Constants
-  const SEARCH_WEIGHTS = {
-    TITLE: 10,
-    TAG: 5,
-    SUMMARY: 1,
-  } as const;
-
-  const MAX_RESULTS = 8;
-  const MAX_VISIBLE_TAGS = 3;
-  const LATEST_POSTS_COUNT = 3;
   const DEBOUNCE_MS = 150;
-  const FETCH_TIMEOUT_MS = 5000;
 
-  function searchPosts(query: string): SearchItem[] {
-    const trimmedQuery = query.trim();
-    if (!trimmedQuery) return [];
-
-    const now = Date.now();
-    const MS_PER_DAY = 86400000;
-    const DECAY_LAMBDA = 0.005; // Tuning parameter for recency decay
-
-    const scored = searchIndex.map((post) => {
-      const titleScore =
-        fuzzyMatch(trimmedQuery, post.title) * SEARCH_WEIGHTS.TITLE;
-
-      const tagScore = post.tags.reduce(
-        (best, tag) => Math.max(best, fuzzyMatch(trimmedQuery, tag)),
-        0,
-      ) * SEARCH_WEIGHTS.TAG;
-
-      const summaryScore =
-        fuzzyMatch(trimmedQuery, post.summary) * SEARCH_WEIGHTS.SUMMARY;
-
-      const baseScore = titleScore + tagScore + summaryScore;
-      if (baseScore <= 0) return { post, score: 0 };
-
-      // Probabilistic Recency Weighting
-      // score = baseScore * (1 + e^(-lambda * daysOld))
-      const daysOld = (now - new Date(post.date).getTime()) / MS_PER_DAY;
-      const recencyBoost = Math.exp(-DECAY_LAMBDA * Math.max(0, daysOld));
-      
-      return { post, score: baseScore * (1 + recencyBoost) };
-    });
-
-    return scored
-      .filter((item) => item.score > 0)
-      .sort((a, b) => b.score - a.score)
-      .slice(0, MAX_RESULTS)
-      .map((item) => item.post);
-  }
-
-  function getLatestPosts(): SearchItem[] {
-    return [...searchIndex]
-      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-      .slice(0, LATEST_POSTS_COUNT);
-  }
-
-  function renderError(message: string): void {
-    const container = document.getElementById("search-results");
-    if (!container) return;
-    container.innerHTML = `<div class="search-empty">${message}</div>`;
-  }
-
-  function escapeHtml(text: string): string {
-    const div = document.createElement("div");
-    div.textContent = text;
-    return div.innerHTML;
-  }
-
-  function renderResults(items: SearchItem[], loading = false): void {
-    const container = document.getElementById("search-results");
-    if (!container) return;
-
-    if (loading) {
-      container.innerHTML = `<div class="search-empty">Loading...</div>`;
-      return;
-    }
-
-    if (items.length === 0) {
-      const input = document.getElementById(
-        "search-input",
-      ) as HTMLInputElement | null;
-      container.innerHTML = `<div class="search-empty">${
-        input?.value ? "No results found" : "Type to search..."
-      }</div>`;
-      return;
-    }
-
-    container.innerHTML = items
-      .map((item, i) => {
-        const isSelected = i === selectedIndex;
-        const visibleTags = item.tags.slice(0, MAX_VISIBLE_TAGS);
-        const tagsHtml = visibleTags.length
-          ? `<span class="search-result-tags">${visibleTags.map((t) => `<span class="search-tag">${escapeHtml(t)}</span>`).join("")}</span>`
-          : "";
-
-        const itemUrl = item.type === "app" ? `/apps/${item.slug}/` : `/blog/${item.slug}/`;
-
-        return `
-          <a href="${itemUrl}"
-             class="search-result ${isSelected ? "is-selected" : ""}" 
-             data-index="${i}" 
-             role="option" 
-             aria-selected="${isSelected}"
-             data-astro-prefetch="hover">
-            <div class="search-result-title">${escapeHtml(item.title)}${item.type === "app" ? '<span class="search-result-type">app</span>' : ""}</div>
-            <div class="search-result-meta">
-              <span class="search-result-summary">${escapeHtml(item.summary)}</span>
-              ${tagsHtml}
-            </div>
-          </a>
-        `;
-      })
-      .join("");
+  function getCacheBuster(): string {
+    return document.getElementById("search-backdrop")?.dataset.v ?? "";
   }
 
   function openSearch(): void {
     const backdrop = document.getElementById("search-backdrop");
-    const input = document.getElementById(
-      "search-input",
-    ) as HTMLInputElement | null;
+    const input = document.getElementById("search-input") as HTMLInputElement | null;
 
     previousActiveElement = document.activeElement;
     backdrop?.classList.add("is-open");
@@ -226,45 +110,37 @@ const searchCacheBuster = Date.now().toString(36);
 
     // Show loading state if index not ready
     selectedIndex = 0;
-    if (searchIndex.length === 0) {
-      renderResults([], true);
-      loadSearchIndex().then(() => {
+    if (!isIndexLoaded()) {
+      renderResults([], selectedIndex, true);
+      loadSearchIndex(getCacheBuster(), renderError).then(() => {
         results = getLatestPosts();
-        renderResults(results);
+        renderResults(results, selectedIndex);
       });
     } else {
       results = getLatestPosts();
-      renderResults(results);
+      renderResults(results, selectedIndex);
     }
   }
 
   function closeSearch(): void {
     const backdrop = document.getElementById("search-backdrop");
-    const input = document.getElementById(
-      "search-input",
-    ) as HTMLInputElement | null;
+    const input = document.getElementById("search-input") as HTMLInputElement | null;
 
-    // Clear pending debounce timer
     if (debounceTimer) {
       clearTimeout(debounceTimer);
       debounceTimer = null;
     }
 
-    // Abort any in-flight fetch
-    if (fetchAbortController) {
-      fetchAbortController.abort();
-      fetchAbortController = null;
-    }
+    abortFetch();
 
     backdrop?.classList.remove("is-open");
     document.documentElement.classList.remove("is-searching");
     if (input) input.value = "";
     results = [];
     selectedIndex = 0;
-    renderResults([]);
+    renderResults([], selectedIndex);
     document.body.style.overflow = "";
 
-    // Restore focus to the element that opened the modal
     if (previousActiveElement instanceof HTMLElement) {
       previousActiveElement.focus();
     }
@@ -274,9 +150,10 @@ const searchCacheBuster = Date.now().toString(36);
   function navigateToSelected(): void {
     const selectedResult = results[selectedIndex];
     if (selectedResult) {
-      const url = selectedResult.type === "app"
-        ? `/apps/${selectedResult.slug}/`
-        : `/blog/${selectedResult.slug}/`;
+      const url =
+        selectedResult.type === "app"
+          ? `/apps/${selectedResult.slug}/`
+          : `/blog/${selectedResult.slug}/`;
       closeSearch();
       navigate(url);
     }
@@ -302,19 +179,19 @@ const searchCacheBuster = Date.now().toString(36);
       case "ArrowDown":
         e.preventDefault();
         selectedIndex = Math.min(selectedIndex + 1, results.length - 1);
-        renderResults(results);
+        renderResults(results, selectedIndex);
         break;
       case "ArrowUp":
         e.preventDefault();
         selectedIndex = Math.max(selectedIndex - 1, 0);
-        renderResults(results);
+        renderResults(results, selectedIndex);
         break;
       case "Enter":
         e.preventDefault();
         navigateToSelected();
         break;
       case "Tab": {
-        // Focus trap — keep Tab cycling within the modal
+        // Focus trap -- keep Tab cycling within the modal
         const modal = backdrop.querySelector(".search-modal");
         if (!modal) break;
         const focusable = modal.querySelectorAll<HTMLElement>(
@@ -337,40 +214,6 @@ const searchCacheBuster = Date.now().toString(36);
     }
   }
 
-  async function loadSearchIndex(): Promise<void> {
-    if (searchIndex.length > 0) return;
-
-    // Return existing promise if already loading
-    if (indexPromise) return indexPromise;
-
-    indexPromise = (async () => {
-      try {
-        fetchAbortController = new AbortController();
-        const timeoutId = setTimeout(
-          () => fetchAbortController?.abort(),
-          FETCH_TIMEOUT_MS,
-        );
-
-        const v = document.getElementById("search-backdrop")?.dataset.v ?? "";
-        const response = await fetch(`/search.json?v=${v}`, {
-          signal: fetchAbortController.signal,
-        });
-        clearTimeout(timeoutId);
-        fetchAbortController = null;
-
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        searchIndex = await response.json();
-      } catch {
-        fetchAbortController = null;
-        // Clear cached promise so next attempt retries
-        indexPromise = null;
-        renderError("Failed to load search index. Please try again.");
-      }
-    })();
-
-    return indexPromise;
-  }
-
   // Global keyboard handler - singleton pattern
   if (!isInitialized) {
     isInitialized = true;
@@ -378,27 +221,22 @@ const searchCacheBuster = Date.now().toString(36);
   }
 
   onPageReady((signal) => {
-    // Clean up non-signal resources from previous run
     if (debounceTimer) {
       clearTimeout(debounceTimer);
       debounceTimer = null;
     }
-    if (fetchAbortController) {
-      fetchAbortController.abort();
-      fetchAbortController = null;
-    }
+    abortFetch();
 
-    const input = document.getElementById(
-      "search-input",
-    ) as HTMLInputElement | null;
+    const input = document.getElementById("search-input") as HTMLInputElement | null;
     const resultsContainer = document.getElementById("search-results");
     const backdrop = document.getElementById("search-backdrop");
 
     // Load search index during browser idle time
+    const startLoad = () => loadSearchIndex(getCacheBuster(), renderError);
     if ("requestIdleCallback" in window) {
-      requestIdleCallback(() => loadSearchIndex());
+      requestIdleCallback(() => startLoad());
     } else {
-      setTimeout(loadSearchIndex, 200);
+      setTimeout(startLoad, 200);
     }
 
     backdrop?.addEventListener(
@@ -415,10 +253,8 @@ const searchCacheBuster = Date.now().toString(36);
         if (debounceTimer) clearTimeout(debounceTimer);
         debounceTimer = setTimeout(() => {
           selectedIndex = 0;
-          results = input.value.trim()
-            ? searchPosts(input.value)
-            : getLatestPosts();
-          renderResults(results);
+          results = input.value.trim() ? searchPosts(input.value) : getLatestPosts();
+          renderResults(results, selectedIndex);
         }, DEBOUNCE_MS);
       },
       { signal },
@@ -445,7 +281,7 @@ const searchCacheBuster = Date.now().toString(36);
           const index = parseInt(result.getAttribute("data-index") ?? "0", 10);
           if (index !== selectedIndex) {
             selectedIndex = index;
-            renderResults(results);
+            renderResults(results, selectedIndex);
           }
         }
       },

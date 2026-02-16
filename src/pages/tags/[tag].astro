@@ -7,41 +7,17 @@ import PageHeader from "../../components/PageHeader.astro";
 import EntryCard from "../../components/EntryCard.astro";
 import Link from "../../components/Link.astro";
 import Layout from "../../layouts/Layout.astro";
-import { getPublishedApps, getPublishedPosts } from "../../utils/content";
+import { getTagMap } from "../../utils/content";
 import type { FeedItem } from "../../utils/content";
 import "../../styles/home.css";
 import "../../styles/apps.css";
 
 export async function getStaticPaths() {
-  const [posts, apps] = await Promise.all([getPublishedPosts(), getPublishedApps()]);
-
-  const tagMap = new Map<string, FeedItem[]>();
-
-  for (const post of posts) {
-    for (const tag of post.data.tags) {
-      const existing = tagMap.get(tag) ?? [];
-      existing.push({ type: "post", entry: post });
-      tagMap.set(tag, existing);
-    }
-  }
-
-  for (const app of apps) {
-    for (const tag of app.data.tags) {
-      const existing = tagMap.get(tag) ?? [];
-      existing.push({ type: "app", entry: app });
-      tagMap.set(tag, existing);
-    }
-  }
+  const tagMap = await getTagMap();
 
   return [...tagMap.entries()].map(([tag, items]) => ({
     params: { tag },
-    props: {
-      tag,
-      items: items.sort((a, b) => {
-        const dateDiff = b.entry.data.date.valueOf() - a.entry.data.date.valueOf();
-        return dateDiff !== 0 ? dateDiff : a.entry.slug.localeCompare(b.entry.slug);
-      }),
-    },
+    props: { tag, items },
   }));
 }
 

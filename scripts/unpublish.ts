@@ -7,9 +7,13 @@
  * Sets isDraft to true, then commits and pushes.
  */
 
-import { readFileSync, writeFileSync } from "node:fs";
-
 import { findContentFile, git, printAvailableSlugs, relativePath } from "./base";
+import {
+  getBooleanField,
+  parseFrontmatterBlock,
+  setFrontmatterField,
+  writeFrontmatter,
+} from "./frontmatter";
 
 // ---------------------------------------------------------------------------
 // Frontmatter mutation
@@ -19,36 +23,21 @@ function unpublish(filePath: string): {
   title: string;
   alreadyDraft: boolean;
 } {
-  const raw = readFileSync(filePath, "utf-8");
-  const match = raw.match(/^(---\r?\n)([\s\S]*?)(\r?\n---)/);
-  if (!match) {
+  const block = parseFrontmatterBlock(filePath);
+  if (!block) {
     console.error("Could not parse frontmatter.");
     process.exit(1);
   }
 
-  const open = match[1] ?? "";
-  const yaml = match[2] ?? "";
-  const close = match[3] ?? "";
-  const rest = raw.slice(match[0].length);
-
-  const titleMatch = yaml.match(/^title:\s*["']?(.+?)["']?\s*$/m);
-  const title = titleMatch?.[1] ?? "unknown";
-
-  const draftMatch = yaml.match(/^isDraft:\s*(true|false)\s*$/m);
-  if (draftMatch?.[1] === "true") {
-    return { title, alreadyDraft: true };
+  const isDraft = getBooleanField(block.yaml, "isDraft");
+  if (isDraft === true) {
+    return { title: block.title, alreadyDraft: true };
   }
 
-  let updated = yaml;
+  block.yaml = setFrontmatterField(block.yaml, "isDraft", "true");
 
-  if (draftMatch) {
-    updated = updated.replace(/^isDraft:\s*false\s*$/m, "isDraft: true");
-  } else {
-    updated += "\nisDraft: true";
-  }
-
-  writeFileSync(filePath, `${open}${updated}${close}${rest}`);
-  return { title, alreadyDraft: false };
+  writeFrontmatter(filePath, block);
+  return { title: block.title, alreadyDraft: false };
 }
 
 // ---------------------------------------------------------------------------

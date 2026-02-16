@@ -159,22 +159,7 @@
   background-color: var(--color-bg);
 }
 
-/* Code blocks - !important needed to override Shiki's inline styles */
-.content pre {
-  border: var(--ui-border);
-  border-radius: var(--ui-radius-md);
-  padding: var(--space-6);
-  overflow-x: auto;
-  margin: var(--space-y-lg) 0;
-  font-family: var(--font-mono);
-  font-size: var(--font-size-xxs);
-  line-height: var(--line-height-relaxed);
-}
-
-.content code {
-  font-family: var(--font-mono);
-}
-
+/* Inline code styling (not inside pre blocks) */
 .content :not(pre) > code {
   background-color: var(--color-surface);
   color: var(--color-accent-cool);
@@ -366,6 +351,17 @@ a.anchor-link {
 [data-theme="light"] .mermaid-dark,
 [data-theme="dark"] .mermaid-light {
   display: none;
+}
+
+/* Mermaid theme colors — warm cream tones matching code blocks */
+[data-theme="light"] .mermaid-container {
+  background: var(--color-code-bg);
+  border-color: var(--color-code-border);
+}
+
+[data-theme="dark"] .mermaid-container {
+  background: var(--color-code-bg);
+  border-color: var(--color-code-border);
 }
 
 .mermaid-rendered svg {

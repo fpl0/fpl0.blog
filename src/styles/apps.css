@@ -1,7 +1,5 @@
 /* ==========================================================================
    APPS
    Styles for app components.
-   Tag styles are centralized in tags.css
+   Tag styles are centralized in tags.css (imported via global.css)
    ========================================================================== */
-
-@import "./tags.css";
