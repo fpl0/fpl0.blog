@@ -12,7 +12,7 @@ const tagCounts = await getTagCounts();
 const sortedTags = [...tagCounts.entries()].sort((a, b) => a[0].localeCompare(b[0]));
 ---
 
-<Layout title="Tags | fpl0" description="Browse all tags">
+<Layout title="Tags" description="Browse all tags">
   <PageHeader />
 
   <main id="main-content" class="tags-main">

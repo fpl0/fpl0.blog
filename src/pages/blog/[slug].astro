@@ -45,7 +45,7 @@ const displayDate = post.data.publicationDate ?? post.data.createdDate;
 const canonicalURL = new URL(`/blog/${post.slug}/`, Astro.site);
 ---
 
-<Layout title={`${post.data.title} | fpl0`} description={post.data.summary}>
+<Layout title={post.data.title} description={post.data.summary}>
   <BlogPostSchema
     title={post.data.title}
     description={post.data.summary}
