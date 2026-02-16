@@ -10,6 +10,12 @@
       document.documentElement.setAttribute("data-theme", next);
       localStorage.setItem("theme", next);
 
+      var themeColors = { light: "#faf5ea", dark: "#17100e" };
+      var metas = document.querySelectorAll('meta[name="theme-color"]');
+      metas.forEach((m) => {
+        m.setAttribute("content", themeColors[next]);
+      });
+
       var announce = document.getElementById("theme-announce");
       if (announce) {
         announce.textContent = `Switched to ${next} theme`;

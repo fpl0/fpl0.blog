@@ -4,8 +4,8 @@
   "description": "True delight is in the finding out rather than in the knowing.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f5f5f0",
-  "theme_color": "#c1753c",
+  "background_color": "#faf5ea",
+  "theme_color": "#faf5ea",
   "icons": [
     {
       "src": "/favicon-16x16.png",
