@@ -38,7 +38,7 @@ All event listeners receive the lifecycle `signal` for automatic cleanup during 
 
 ## Coordinate System
 
-**Camera-offset parallax model.** The stickman is drawn at a fixed screen position (35% from left). A `worldOffset` value increases continuously at `WALK_SPEED` (45 px/s). Every entity has a `worldX` (absolute world position) and a `parallax` factor (0.0–1.0).
+**Camera-offset parallax model.** The stickman is drawn at a fixed screen position (35% from left). A `worldOffset` value increases continuously at `WALK_SPEED` (35 px/s). Every entity has a `worldX` (absolute world position) and a `parallax` factor (0.0–1.0).
 
 Screen position: `screenX = entity.worldX - worldOffset * entity.parallax`
 
@@ -73,7 +73,7 @@ const freeLists: Record<SpawnType, any[]> = { star: [], ... };
 Benefits:
 - **O(1) removal**: Swap-and-pop instead of `Array.splice()` which shifts elements
 - **Zero type filtering in draw loops**: Each draw function iterates only its own array
-- **Object pooling**: Culled entities are pushed to the free list instead of being GC'd. `createX()` functions check the free list first (`freeLists[type].pop()`), reinitialize all fields, and return the recycled object — eliminating all GC pressure from entity lifecycle during steady-state animation
+- **Object pooling**: Culled entities are pushed to the free list instead of being GC'd. A generic `allocEntity(freeList, props)` helper handles pool retrieval: pops from the free list and `Object.assign`s fresh properties onto the recycled object, or returns the props directly as a new entity — eliminating all GC pressure from entity lifecycle during steady-state animation
 
 ### Entity catalog
 
@@ -187,7 +187,7 @@ Formula: `finalAlpha = baseAlpha * depthAlpha * edgeFade`
 
 ## Stickman
 
-Drawn at a fixed screen position (35% from left) on the ground line (80% canvas height). Walk cadence: 5.0 rad/s (~1.6 steps/second).
+Drawn at a fixed screen position (35% from left) on the ground line (80% canvas height). Implemented as a module-level pure function `drawStickman(ctx, color, stickX, baseGroundY, walkPhase, reducedMotion)` — separated from engine state. Walk cadence: 3.0 rad/s (~1.0 steps/second).
 
 ### Body Proportions
 
@@ -200,21 +200,21 @@ NECK_LENGTH = 3      UPPER_LEG = 8
 
 ### Walk Cycle (Animated)
 
-**Asymmetric D-shaped foot path** (60% stance / 40% swing):
-- During stance (60% of cycle): foot slides linearly from front (+6px) to back (-6px) relative to hip — tracks the ground
-- During swing (40% of cycle): foot arcs forward via smoothstep (`6s^2 - 4s^3`) with sinusoidal 6px lift — smooth zero-velocity transitions at lift-off and landing
-- Module-level helpers: `footPathX(t, halfStride)` and `footLiftY(t, maxLift)`
+**Sinusoidal foot path** (50% stance / 50% swing):
+- Horizontal: cosine oscillation `±4px` (HALF_STRIDE) — smooth sinusoidal forward-backward motion relative to hip
+- Vertical: foot stays on ground during first half of cycle (t < 0.5), then lifts via cosine curve `(1 - cos(2πs))/2` with 2px peak (FOOT_LIFT) during second half — smooth zero-velocity transitions at lift-off and landing
+- Module-level helpers: `footX(t)` and `footY(t)`
 
-**Geometric knee computation**: Given hip and foot positions, knee is placed at midpoint + perpendicular offset pointing forward. Offset magnitude derived from `sqrt(UPPER_LEG^2 - halfDist^2)` — knees bend more when the leg is compressed (during swing), nearly straight during stance.
+**Geometric knee computation** (`legIK`): Given hip and foot positions, knee is placed via triangle projection + perpendicular offset. Offset magnitude derived from `sqrt(UPPER_LEG^2 - proj^2)` — knees bend more when the leg is compressed (during swing), nearly straight during stance.
 
 **Arms with phase-lag follow-through** (contralateral to legs):
-- Upper arm: `cos(walkPhase - 0.3) * 0.45 rad` — 0.3 rad phase lag behind legs
-- Forearm: `cos(walkPhase - 0.6) * 0.45 * 0.65` — double lag, 65% amplitude
-- The forearm always swings *less* than the upper arm, creating an elbow bend that naturally trails the direction of motion
+- Upper arm: `sign * 0.47 * cos(walkPhase)` — 0.47 rad swing amplitude, in phase with walk
+- Forearm: `sign * 0.47 * 0.6 * cos(walkPhase - 0.4)` — 60% amplitude, 0.4 rad phase lag
+- The forearm always swings *less* than the upper arm and lags behind, creating an elbow bend that naturally trails the direction of motion
 
-**Torso counter-rotation**: `shoulderTwist = sin(walkPhase) * 1px` — shoulder shifts laterally with each stride. Twist diminishes up the spine: shoulder 100%, neck 50%, head 25% (models vestibulo-ocular head stabilization).
+**Torso counter-rotation**: `shoulderTwist = sin(walkPhase) * 0.3px` — shoulder shifts laterally with each stride. Twist diminishes up the spine: shoulder 100%, neck 50%, head 25% (models vestibulo-ocular head stabilization).
 
-**Body dynamics**: Double-bounce bob (`abs(sin(walkPhase * 2)) * 1.2px`), subtle forward lean (0.03 rad), head bob dampened to 15% of body bob.
+**Body dynamics**: Vertical bob via `sin²(walkPhase) * ~0.55px` (double-frequency smooth bounce, amplitude derived from leg geometry), subtle forward lean (~0.015 rad), head bob dampened to 25% of body bob.
 
 **Batched draw calls**: Head circle + one composite path for spine and all four limbs (2 draw calls instead of 7).
 
@@ -230,7 +230,7 @@ Stroke: `--color-text`, `lineWidth: 1.8`, `lineCap: "round"`, `lineJoin: "round"
 
 Back to front, organized into layers:
 
-1. Clear canvas with `--color-bg`
+1. Clear canvas (transparent via `clearRect`)
 2. **Deep sky**: stars, meteors
 3. **Mid sky**: clouds, whales, jellyfish, balloons
 4. **Terrain**: mountains, ground line, pebbles, grass tufts
@@ -241,11 +241,10 @@ Back to front, organized into layers:
 
 ## Color System
 
-Six CSS custom properties cached at init, refreshed on theme change:
+Five CSS custom properties cached at init, refreshed on theme change:
 
 | Cache key | CSS variable | Usage |
 |-----------|-------------|-------|
-| `bg` | `--color-bg` | Canvas clear |
 | `text` | `--color-text` | Stickman |
 | `textMuted` | `--color-text-muted` | Stars, clouds, birds, whales, mountain strokes, grass tufts, pebbles, balloon baskets, jellyfish tentacles |
 | `primary` | `--color-primary` | Meteors (gradient trail + glow), balloon envelopes, UFOs, jellyfish bell |
@@ -299,7 +298,7 @@ The RAF loop **stops entirely** when the canvas is not intersecting the viewport
 
 ### Object pooling
 
-Culled entities are recycled via per-type free lists. `createX()` functions check `freeLists[type].pop()` before allocating, reinitialize all mutable fields on the recycled object, and return it. This eliminates all GC pressure from entity lifecycle during steady-state animation.
+Culled entities are recycled via per-type free lists. A module-level `allocEntity(freeList, props)` helper handles pool retrieval: pops from the free list and `Object.assign`s fresh properties, or returns the props directly as a new entity. This eliminates all GC pressure from entity lifecycle during steady-state animation.
 
 ### Cached Path2D shapes
 
