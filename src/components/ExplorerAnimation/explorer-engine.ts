@@ -162,7 +162,6 @@ export function createExplorerEngine(options: ExplorerEngineOptions): ExplorerEn
 
   function readColors() {
     return {
-      bg: getColor("--color-bg"),
       text: getColor("--color-text"),
       textMuted: getColor("--color-text-muted"),
       primary: getColor("--color-primary"),
@@ -1329,8 +1328,7 @@ export function createExplorerEngine(options: ExplorerEngineOptions): ExplorerEn
   }
 
   function draw(): void {
-    ctx.fillStyle = colors.bg;
-    ctx.fillRect(0, 0, width, height);
+    ctx.clearRect(0, 0, width, height);
     drawStars();
     drawMeteors();
     drawClouds();
