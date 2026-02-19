@@ -42,7 +42,7 @@ export async function GET(context: APIContext) {
   return rss({
     title: "fpl0",
     description: "True delight is in the finding out rather than in the knowing.",
-    site: context.site ?? "https://fpl0.github.io",
+    site: context.site ?? "https://fpl0.io",
     items,
     customData: `<language>en-us</language>`,
   });

@@ -10,7 +10,7 @@ import rehypeTaskListLabels from "./src/plugins/rehype-task-list-labels.mjs";
 
 // https://astro.build/config
 export default defineConfig({
-  site: "https://fpl0.github.io",
+  site: "https://fpl0.io",
   base: "/",
   prefetch: {
     prefetchAll: true,
