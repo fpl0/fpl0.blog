@@ -30,11 +30,11 @@ const SCRIPT_HASHES = INLINE_SCRIPTS.map((s) => `'sha256-${sha256(s)}'`);
 export function buildCSP(): string {
   return [
     "default-src 'self'",
-    `script-src 'self' ${SCRIPT_HASHES.join(" ")} https://www.googletagmanager.com`,
+    `script-src 'self' ${SCRIPT_HASHES.join(" ")}`,
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob: https://images.unsplash.com https://i.ytimg.com https://pbs.twimg.com https://abs.twimg.com",
     "font-src 'self'",
-    "connect-src 'self' https://www.google-analytics.com https://www.googletagmanager.com",
+    "connect-src 'self'",
     "frame-src https://www.youtube.com https://www.youtube-nocookie.com",
     "object-src 'none'",
     "base-uri 'self'",

@@ -3,7 +3,7 @@
  * Layout - Primary layout for blog posts and general pages
  *
  * Design: "The Digital Antiquarian"
- * Features: View Transitions, Theme Toggle, Scroll to Top, Analytics
+ * Features: View Transitions, Theme Toggle, Scroll to Top
  */
 
 import "../styles/global.css";
@@ -14,7 +14,6 @@ import "../styles/footnotes.css";
 import "../styles/table-of-contents.css";
 import "../styles/tables.css";
 
-import Analytics from "../components/Analytics.astro";
 import BaseHead from "../components/BaseHead.astro";
 import ScrollToTop from "../components/ScrollToTop.astro";
 import SearchModal from "../components/SearchModal.astro";
@@ -42,6 +41,5 @@ const {
     <slot />
     <SearchModal />
     <ScrollToTop />
-    <Analytics />
   </body>
 </html>
