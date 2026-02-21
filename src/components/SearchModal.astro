@@ -76,7 +76,21 @@ const searchCacheBuster = Date.now().toString(36);
     searchPosts,
   } from "../utils/search-service";
   import type { SearchItem } from "../utils/search-service";
-  import "../utils/search-trigger";
+
+  // Delegated click handler for search trigger buttons — survives View Transitions
+  document.addEventListener("click", (e) => {
+    const trigger = (e.target as Element).closest("#site-nav-search, #app-shell-search");
+    if (trigger) {
+      document.dispatchEvent(
+        new KeyboardEvent("keydown", {
+          key: "k",
+          metaKey: true,
+          ctrlKey: true,
+          bubbles: true,
+        }),
+      );
+    }
+  });
 
   // Modal state - persists across View Transitions
   let selectedIndex = 0;

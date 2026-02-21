@@ -5,7 +5,34 @@
  * and latest-posts retrieval.
  */
 
-import { fuzzyMatch } from "./search";
+/**
+ * Lightweight fuzzy matching.
+ * Exact substring: 100 + length ratio bonus. Fuzzy: 10 per char + consecutive bonus.
+ */
+function fuzzyMatch(query: string, text: string): number {
+  const lowerQuery = query.toLowerCase();
+  const lowerText = text.toLowerCase();
+
+  if (lowerText.includes(lowerQuery)) {
+    return 100 + (lowerQuery.length / lowerText.length) * 50;
+  }
+
+  let queryIndex = 0;
+  let score = 0;
+  let consecutiveBonus = 0;
+
+  for (let i = 0; i < lowerText.length && queryIndex < lowerQuery.length; i++) {
+    if (lowerText[i] === lowerQuery[queryIndex]) {
+      score += 10 + consecutiveBonus;
+      consecutiveBonus += 5;
+      queryIndex++;
+    } else {
+      consecutiveBonus = 0;
+    }
+  }
+
+  return queryIndex === lowerQuery.length ? score : 0;
+}
 
 export interface SearchItem {
   readonly title: string;

@@ -20,11 +20,10 @@ import PageHeader from "../../components/PageHeader.astro";
 import TableOfContents from "../../components/TableOfContents.astro";
 import TableWrapper from "../../components/TableWrapper.astro";
 import Layout from "../../layouts/Layout.astro";
-import { getPublishedPosts } from "../../utils/content";
-import { getReadingTime } from "../../utils/content";
+import { getPublishedPosts, getReadingTime } from "../../utils/content";
 import "../../styles/blog-post.css";
-import "../../styles/table-of-contents.css";
 import "../../styles/code-block.css";
+import "../../styles/table-of-contents.css";
 
 interface Props {
   post: CollectionEntry<"blog">;

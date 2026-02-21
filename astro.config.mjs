@@ -6,7 +6,6 @@ import { defineConfig } from "astro/config";
 import remarkGfm from "remark-gfm";
 
 import rehypeMermaidDual from "./src/plugins/rehype-mermaid-dual.mjs";
-import rehypeTaskListLabels from "./src/plugins/rehype-task-list-labels.mjs";
 
 // https://astro.build/config
 export default defineConfig({
@@ -31,7 +30,7 @@ export default defineConfig({
   },
   markdown: {
     remarkPlugins: [remarkGfm],
-    rehypePlugins: [rehypeMermaidDual, rehypeTaskListLabels],
+    rehypePlugins: [rehypeMermaidDual],
     syntaxHighlight: {
       type: "shiki",
       excludeLangs: ["mermaid"],

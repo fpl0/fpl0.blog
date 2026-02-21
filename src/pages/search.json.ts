@@ -1,6 +1,7 @@
 import type { APIRoute } from "astro";
 
 import { getPublishedApps, getPublishedPosts } from "../utils/content";
+import type { SearchItem } from "../utils/search-service";
 
 // Ensure this is always pre-rendered at build time
 export const prerender = true;
@@ -8,7 +9,7 @@ export const prerender = true;
 export const GET: APIRoute = async () => {
   const [posts, apps] = await Promise.all([getPublishedPosts(), getPublishedApps()]);
 
-  const searchIndex = [
+  const searchIndex: SearchItem[] = [
     ...posts.map((post) => ({
       title: post.data.title,
       summary: post.data.summary,

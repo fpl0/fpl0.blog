@@ -23,21 +23,6 @@
   margin: 0;
 }
 
-.bio-quote cite {
-  display: block;
-  font-family: var(--font-mono-brand);
-  font-size: var(--font-size-label);
-  letter-spacing: var(--letter-spacing-loose);
-  font-weight: 400;
-  color: var(--color-muted);
-  margin-top: var(--space-1);
-  font-style: normal;
-}
-
-.bio-quote cite::before {
-  content: "— ";
-}
-
 /* ==========================================================================
    POST LIST — Ledger Layout
    Date column on the left, content on the right.
