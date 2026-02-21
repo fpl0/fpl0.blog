@@ -1,36 +1,31 @@
-# Long cache for static assets (fonts, JS, CSS)
+# HTML pages - always revalidate (catch-all, overridden by specific rules below)
+/*
+  Cache-Control: public, max-age=0, must-revalidate
+
+# Long cache for static assets (fonts, JS, CSS — all content-hashed by Astro)
 /_astro/*
+  ! Cache-Control
   Cache-Control: public, max-age=31536000, immutable
 
 # Images and media
 /images/*
+  ! Cache-Control
   Cache-Control: public, max-age=31536000, immutable
 
+# Favicons and root-level assets
 /*.png
+  ! Cache-Control
   Cache-Control: public, max-age=31536000, immutable
 
-/*.jpg
-  Cache-Control: public, max-age=31536000, immutable
-
-/*.jpeg
-  Cache-Control: public, max-age=31536000, immutable
-
-/*.webp
+/*.ico
+  ! Cache-Control
   Cache-Control: public, max-age=31536000, immutable
 
 /*.svg
-  Cache-Control: public, max-age=31536000, immutable
-
-/*.woff2
+  ! Cache-Control
   Cache-Control: public, max-age=31536000, immutable
 
 # JSON data (search index) - cache but revalidate on deploy
 /search.json
+  ! Cache-Control
   Cache-Control: public, max-age=86400, stale-while-revalidate=604800
-
-# HTML pages - allow revalidation
-/*.html
-  Cache-Control: public, max-age=0, must-revalidate
-
-/
-  Cache-Control: public, max-age=0, must-revalidate
