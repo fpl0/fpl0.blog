@@ -129,6 +129,8 @@ const { videoId, title } = Astro.props;
 </style>
 
 <script>
+  import { onPageReady } from "../utils/lifecycle";
+
   class LiteYouTube extends HTMLElement {
     private static preconnected = false;
     private videoId = "";
@@ -233,7 +235,7 @@ const { videoId, title } = Astro.props;
   // Re-init after Astro View Transition page swaps.
   // connectedCallback may or may not fire reliably during DOM swaps,
   // so we unconditionally call init() which is idempotent.
-  document.addEventListener("astro:page-load", () => {
+  onPageReady(() => {
     document
       .querySelectorAll<LiteYouTube>("lite-youtube")
       .forEach((el) => el.init());
