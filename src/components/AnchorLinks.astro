@@ -10,7 +10,7 @@
 <script>
   import { onPageReady } from "../utils/lifecycle";
 
-  onPageReady(() => {
+  onPageReady((_signal) => {
     document
       .querySelectorAll<HTMLHeadingElement>(
         ".content h2[id], .content h3[id], .content h4[id]",

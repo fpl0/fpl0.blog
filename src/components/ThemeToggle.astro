@@ -8,7 +8,12 @@
  * - Respects prefers-color-scheme on first visit
  * - No flash on page load (handled by inline script in Layout)
  */
-import themeToggle from "./theme-toggle.inline.js?raw"; // CSP-hashed
+import { THEME_COLORS } from "../config/theme";
+import themeToggleRaw from "./theme-toggle.inline.js?raw"; // CSP-hashed
+
+const themeToggle = themeToggleRaw
+  .replace("__THEME_LIGHT__", THEME_COLORS.light)
+  .replace("__THEME_DARK__", THEME_COLORS.dark);
 ---
 
 <span

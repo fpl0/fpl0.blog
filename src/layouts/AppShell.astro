@@ -33,6 +33,7 @@ const { title, description = "An interactive app on fpl0's blog." } = Astro.prop
 		<BaseHead {title} {description} />
 	</head>
 	<body class="app-shell-body">
+		<a href="#main-content" class="skip-link">Skip to content</a>
 		<header class="app-shell-bar">
 			<nav class="app-shell-nav" aria-label="App navigation">
 				<Link href="/" class="app-shell-link"><span class="app-shell-back" aria-hidden="true">&larr;</span> fpl0</Link>
@@ -54,7 +55,8 @@ const { title, description = "An interactive app on fpl0's blog." } = Astro.prop
 						<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
 					</svg>
 					<span class="app-shell-search-text">search</span>
-					<kbd class="app-shell-search-kbd">⌘K</kbd>
+					<kbd class="app-shell-search-kbd kbd-mac">⌘K</kbd>
+				<kbd class="app-shell-search-kbd kbd-other">Ctrl+K</kbd>
 				</button>
 				<ThemeToggle />
 			</div>

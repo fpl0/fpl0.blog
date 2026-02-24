@@ -94,6 +94,12 @@
   border-color: var(--color-primary);
 }
 
+/* Error State */
+.code-copy.copy-error {
+  border-color: var(--color-error);
+  color: var(--color-error);
+}
+
 .code-copy:focus-visible {
   outline: var(--ui-focus-ring);
   outline-offset: var(--space-0-5);

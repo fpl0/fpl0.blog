@@ -1,0 +1,21 @@
+---
+/**
+ * WebSiteSchema - JSON-LD structured data for the home page
+ * Outputs schema.org WebSite markup for sitelinks and search
+ */
+
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "fpl0",
+  url: "https://fpl0.io",
+  description: "Writing, code, and other curiosities.",
+  author: {
+    "@type": "Person",
+    name: "Filipe",
+    url: "https://fpl0.io/about",
+  },
+};
+---
+
+<script is:inline type="application/ld+json" set:html={JSON.stringify(schema)} />

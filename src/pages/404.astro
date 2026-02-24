@@ -1,10 +1,15 @@
 ---
+import FormattedDate from "../components/FormattedDate.astro";
 import Link from "../components/Link.astro";
 import PageHeader from "../components/PageHeader.astro";
 import Layout from "../layouts/Layout.astro";
+import { getFeedItems } from "../utils/content";
 
 const title = "404 Not Found";
 const description = "The page you are looking for isn't here.";
+
+const feed = await getFeedItems();
+const recent = feed.slice(0, 3);
 ---
 
 <Layout title={title} description={description}>
@@ -16,6 +21,23 @@ const description = "The page you are looking for isn't here.";
       Nothing here. The page you requested does not exist.
     </p>
     <Link href="/" class="not-found-home" variant="muted">&larr; Back to home</Link>
+
+    {recent.length > 0 && (
+      <section class="not-found-recent">
+        <h2 class="not-found-section-title">Recent</h2>
+        <ul class="not-found-list">
+          {recent.map((item) => (
+            <li class="not-found-item">
+              <Link href={`/${item.entry.collection}/${item.entry.slug}/`} class="not-found-item-link">
+                {item.entry.data.title}
+              </Link>
+              <FormattedDate date={item.entry.data.date} variant="system" className="not-found-item-date" />
+            </li>
+          ))}
+        </ul>
+        <Link href="/tags/" class="not-found-home" variant="muted">Browse tags</Link>
+      </section>
+    )}
   </main>
 </Layout>
 
@@ -60,5 +82,56 @@ const description = "The page you are looking for isn't here.";
 
   .not-found-home:hover {
     color: var(--color-primary);
+  }
+
+  .not-found-recent {
+    margin-top: var(--space-16);
+    width: 100%;
+    max-width: 40ch;
+  }
+
+  .not-found-section-title {
+    font-family: var(--font-mono-brand);
+    font-size: var(--font-size-xxs);
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: var(--letter-spacing-wide);
+    color: var(--color-text-muted);
+    margin: 0 0 var(--space-4) 0;
+  }
+
+  .not-found-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .not-found-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .not-found-item-link {
+    font-family: var(--font-serif);
+    font-size: var(--font-size-sm);
+    font-weight: 400;
+    color: var(--color-text);
+    text-decoration: none;
+    line-height: var(--line-height-snug);
+    transition: color var(--duration-normal) var(--ease-out);
+  }
+
+  .not-found-item-link:hover {
+    color: var(--color-primary);
+    text-decoration: underline;
+    text-underline-offset: var(--space-0-75);
+  }
+
+  .not-found-item-date {
+    font-size: var(--font-size-micro);
   }
 </style>

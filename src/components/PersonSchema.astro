@@ -1,0 +1,22 @@
+---
+/**
+ * PersonSchema - JSON-LD structured data for the about page
+ * Outputs schema.org Person markup for author attribution
+ */
+
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "Person",
+  name: "Filipe",
+  url: "https://fpl0.io/about",
+  sameAs: ["https://github.com/fpl0"],
+  jobTitle: "Engineering Lead",
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: "Dublin",
+    addressCountry: "IE",
+  },
+};
+---
+
+<script is:inline type="application/ld+json" set:html={JSON.stringify(schema)} />

@@ -71,7 +71,7 @@ const { videoId, title } = Astro.props;
     transform: translate(-50%, -50%);
     width: var(--space-17);
     height: var(--space-12);
-    background-color: oklch(0.55 0.18 25); /* token-exempt */
+    background-color: var(--color-error);
     border: none;
     border-radius: var(--radius-xl);
     cursor: pointer;
@@ -235,7 +235,7 @@ const { videoId, title } = Astro.props;
   // Re-init after Astro View Transition page swaps.
   // connectedCallback may or may not fire reliably during DOM swaps,
   // so we unconditionally call init() which is idempotent.
-  onPageReady(() => {
+  onPageReady((_signal) => {
     document
       .querySelectorAll<LiteYouTube>("lite-youtube")
       .forEach((el) => el.init());

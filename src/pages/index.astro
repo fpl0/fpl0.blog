@@ -9,12 +9,14 @@ import "../styles/home.css";
 import ExplorerAnimation from "../components/ExplorerAnimation/ExplorerAnimation.astro";
 import PageHeader from "../components/PageHeader.astro";
 import EntryCard from "../components/EntryCard.astro";
+import WebSiteSchema from "../components/WebSiteSchema.astro";
 import { getFeedItems } from "../utils/content";
 
 const feedItems = await getFeedItems();
 ---
 
 <Layout title="Home">
+  <WebSiteSchema />
   <PageHeader />
   <blockquote class="bio-quote">
     <p>"True delight is in the finding out rather than in the knowing."</p>

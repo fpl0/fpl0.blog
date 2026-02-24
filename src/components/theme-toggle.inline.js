@@ -10,7 +10,7 @@
       document.documentElement.setAttribute("data-theme", next);
       localStorage.setItem("theme", next);
 
-      var themeColors = { light: "#faf5ea", dark: "#17100e" };
+      var themeColors = { light: "__THEME_LIGHT__", dark: "__THEME_DARK__" };
       var metas = document.querySelectorAll('meta[name="theme-color"]');
       metas.forEach((m) => {
         m.setAttribute("content", themeColors[next]);

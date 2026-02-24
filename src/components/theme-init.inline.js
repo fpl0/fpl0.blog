@@ -1,5 +1,5 @@
 (() => {
-  var themeColors = { light: "#faf5ea", dark: "#17100e" };
+  var themeColors = { light: "__THEME_LIGHT__", dark: "__THEME_DARK__" };
   function getTheme() {
     var stored = localStorage.getItem("theme");
     if (stored) return stored;

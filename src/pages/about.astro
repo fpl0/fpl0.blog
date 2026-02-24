@@ -5,13 +5,20 @@
 
 import Link from "../components/Link.astro";
 import PageHeader from "../components/PageHeader.astro";
+import PersonSchema from "../components/PersonSchema.astro";
 import Layout from "../layouts/Layout.astro";
+import { getPublishedPosts, getPublishedApps } from "../utils/content";
 import "../styles/about.css";
 
 const description = "Engineering lead based in Dublin, endlessly curious.";
+
+const [posts, apps] = await Promise.all([getPublishedPosts(), getPublishedApps()]);
+const postCount = posts.length;
+const appCount = apps.length;
 ---
 
 <Layout title="About" description={description}>
+  <PersonSchema />
   <PageHeader />
 
   <main id="main-content" class="about-main">
@@ -41,8 +48,11 @@ const description = "Engineering lead based in Dublin, endlessly curious.";
 
     <section class="details">
       <h2 class="section-title">Explore</h2>
+      <p class="explore-counts">{postCount} posts, {appCount} {appCount === 1 ? "app" : "apps"}</p>
       <div class="connect-links">
-        <Link href="/" class="connect-link">Blog</Link>
+        <Link href="/" class="connect-link">Feed</Link>
+        <Link href="/tags/" class="connect-link">Tags</Link>
+        <Link href="/rss.xml" class="connect-link">RSS</Link>
       </div>
     </section>
   </main>

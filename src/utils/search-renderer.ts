@@ -14,6 +14,13 @@ function escapeHtml(text: string): string {
   return div.innerHTML;
 }
 
+function updateComboboxAria(hasResults: boolean, selectedIndex: number): void {
+  const input = document.getElementById("search-input");
+  if (!input) return;
+  input.setAttribute("aria-expanded", String(hasResults));
+  input.setAttribute("aria-activedescendant", hasResults ? `search-result-${selectedIndex}` : "");
+}
+
 /**
  * Render an error message into the search results container.
  */
@@ -21,6 +28,7 @@ export function renderError(message: string): void {
   const container = document.getElementById("search-results");
   if (!container) return;
   container.innerHTML = `<div class="search-empty">${message}</div>`;
+  updateComboboxAria(false, 0);
 }
 
 /**
@@ -32,14 +40,16 @@ export function renderResults(items: SearchItem[], selectedIndex: number, loadin
 
   if (loading) {
     container.innerHTML = `<div class="search-empty">Loading...</div>`;
+    updateComboboxAria(false, 0);
     return;
   }
 
   if (items.length === 0) {
     const input = document.getElementById("search-input") as HTMLInputElement | null;
-    container.innerHTML = `<div class="search-empty">${
-      input?.value ? "No results found" : "Type to search..."
-    }</div>`;
+    container.innerHTML = input?.value
+      ? `<div class="search-empty">No results found<span class="search-empty-hint">Try different keywords or <a href="/tags/" data-astro-prefetch="hover">browse tags</a></span></div>`
+      : `<div class="search-empty">Type to search...</div>`;
+    updateComboboxAria(false, 0);
     return;
   }
 
@@ -56,6 +66,7 @@ export function renderResults(items: SearchItem[], selectedIndex: number, loadin
 
       return `
           <a href="${itemUrl}"
+             id="search-result-${i}"
              class="search-result ${isSelected ? "is-selected" : ""}"
              data-index="${i}"
              role="option"
@@ -70,4 +81,6 @@ export function renderResults(items: SearchItem[], selectedIndex: number, loadin
         `;
     })
     .join("");
+
+  updateComboboxAria(true, selectedIndex);
 }

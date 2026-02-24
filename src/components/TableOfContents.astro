@@ -84,6 +84,11 @@ const tocHeadings = headings.filter((h) => h.depth === 2 || h.depth === 3);
         const href = link.getAttribute("href");
         const isActive = href === `#${activeId}`;
         link.classList.toggle("is-active", isActive);
+        if (isActive) {
+          link.setAttribute("aria-current", "location");
+        } else {
+          link.removeAttribute("aria-current");
+        }
       });
     }
 

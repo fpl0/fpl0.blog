@@ -12,13 +12,21 @@
  */
 import { createHash } from "node:crypto";
 
+import { THEME_COLORS } from "../config/theme";
+
 const modules = import.meta.glob("../components/*.inline.js", {
   query: "?raw",
   import: "default",
   eager: true,
 });
 
-const INLINE_SCRIPTS = Object.values(modules) as string[];
+function resolveThemePlaceholders(script: string): string {
+  return script
+    .replace("__THEME_LIGHT__", THEME_COLORS.light)
+    .replace("__THEME_DARK__", THEME_COLORS.dark);
+}
+
+const INLINE_SCRIPTS = Object.values(modules).map((s) => resolveThemePlaceholders(s as string));
 
 function sha256(content: string): string {
   return createHash("sha256").update(content, "utf8").digest("base64");

@@ -45,6 +45,14 @@
   margin-top: var(--space-12);
 }
 
+.explore-counts {
+  font-family: var(--font-mono-brand);
+  font-size: var(--font-size-xxs);
+  letter-spacing: var(--letter-spacing-slight);
+  color: var(--color-text-muted);
+  margin: 0 0 var(--space-6) 0;
+}
+
 .connect-links {
   display: flex;
   gap: var(--space-6);

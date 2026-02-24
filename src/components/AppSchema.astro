@@ -1,0 +1,35 @@
+---
+/**
+ * AppSchema - JSON-LD structured data for app pages
+ * Outputs schema.org WebApplication markup for rich search results
+ */
+
+interface Props {
+  title: string;
+  description: string;
+  datePublished: Date;
+  dateModified?: Date;
+  url: string;
+}
+
+const { title, description, datePublished, dateModified, url } = Astro.props;
+
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  name: title,
+  description,
+  datePublished: datePublished.toISOString(),
+  dateModified: (dateModified ?? datePublished).toISOString(),
+  url,
+  applicationCategory: "BrowserApplication",
+  operatingSystem: "Any",
+  author: {
+    "@type": "Person",
+    name: "Filipe",
+    url: "https://fpl0.io/about",
+  },
+};
+---
+
+<script is:inline type="application/ld+json" set:html={JSON.stringify(schema)} />

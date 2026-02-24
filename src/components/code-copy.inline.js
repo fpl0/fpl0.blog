@@ -33,14 +33,24 @@
     btn.innerHTML = COPY_ICON;
 
     btn.addEventListener("click", () => {
-      navigator.clipboard.writeText(text).then(() => {
-        btn.classList.add("copied");
-        btn.setAttribute("aria-label", "Copied!");
-        setTimeout(() => {
-          btn.classList.remove("copied");
-          btn.setAttribute("aria-label", "Copy code");
-        }, FEEDBACK_MS);
-      });
+      navigator.clipboard
+        .writeText(text)
+        .then(() => {
+          btn.classList.add("copied");
+          btn.setAttribute("aria-label", "Copied!");
+          setTimeout(() => {
+            btn.classList.remove("copied");
+            btn.setAttribute("aria-label", "Copy code");
+          }, FEEDBACK_MS);
+        })
+        .catch(() => {
+          btn.classList.add("copy-error");
+          btn.setAttribute("aria-label", "Copy failed");
+          setTimeout(() => {
+            btn.classList.remove("copy-error");
+            btn.setAttribute("aria-label", "Copy code");
+          }, FEEDBACK_MS);
+        });
     });
 
     wrapper.appendChild(btn);

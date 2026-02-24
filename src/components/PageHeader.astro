@@ -42,7 +42,8 @@ const isTags = pathname.startsWith("/tags");
           <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
         </svg>
         <span class="site-nav-search-text">search</span>
-        <kbd class="site-nav-search-kbd">⌘K</kbd>
+        <kbd class="site-nav-search-kbd kbd-mac">⌘K</kbd>
+        <kbd class="site-nav-search-kbd kbd-other">Ctrl+K</kbd>
       </button>
       <ThemeToggle />
     </nav>
@@ -150,6 +151,18 @@ const isTags = pathname.startsWith("/tags");
     border: var(--space-px) solid var(--color-border);
     border-radius: var(--radius-sm);
     color: var(--color-muted);
+  }
+
+  .kbd-other {
+    display: none;
+  }
+
+  :global([data-platform="other"]) .kbd-mac {
+    display: none;
+  }
+
+  :global([data-platform="other"]) .kbd-other {
+    display: inline;
   }
 
   /* --- Mobile --- */

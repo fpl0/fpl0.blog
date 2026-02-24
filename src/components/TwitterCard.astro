@@ -23,6 +23,8 @@ interface TweetData {
   video?: TweetVideo;
 }
 
+import Link from "./Link.astro";
+
 interface Props {
   id: string;
 }
@@ -77,33 +79,33 @@ const videoPoster = tweet?.video?.poster;
   hasTweet ? (
     <article class="tweet-card">
       <div class="tweet-header">
-        <a
+        <Link
           href={`https://twitter.com/${user.screen_name}`}
           class="tweet-author-link"
-          target="_blank"
-          rel="noopener noreferrer"
         >
           <img
             src={user.profile_image_url_https}
             alt={user.name}
             class="tweet-avatar"
+            width="48"
+            height="48"
+            loading="lazy"
+            decoding="async"
           />
           <div class="tweet-author-info">
             <span class="tweet-name">{user.name}</span>
             <span class="tweet-handle">@{user.screen_name}</span>
           </div>
-        </a>
-        <a
+        </Link>
+        <Link
           href={`https://twitter.com/${user.screen_name}/status/${id}`}
           class="tweet-icon-link"
-          target="_blank"
-          rel="noopener noreferrer"
           aria-label="View on Twitter"
         >
           <svg viewBox="0 0 24 24" aria-hidden="true" class="tweet-logo">
             <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
           </svg>
-        </a>
+        </Link>
       </div>
 
       <div class="tweet-content">
@@ -111,23 +113,21 @@ const videoPoster = tweet?.video?.poster;
       </div>
 
       {photos.length > 0 && (
-        <a
+        <Link
           href={`https://twitter.com/${user.screen_name}/status/${id}`}
           class="tweet-media-link"
-          target="_blank"
-          rel="noopener noreferrer"
         >
           <div class={`tweet-media grid-${Math.min(photos.length, 4)}`}>
             {photos.map((photo: TweetPhoto) => (
-              <img src={photo.url} alt="Tweet media" width={photo.width} height={photo.height} />
+              <img src={photo.url} alt="Tweet media" width={photo.width} height={photo.height} loading="lazy" decoding="async" />
             ))}
           </div>
-        </a>
+        </Link>
       )}
 
       {videoPoster && (
         <div class="tweet-media">
-          <img src={videoPoster} alt="Video thumbnail" class="video-poster" />
+          <img src={videoPoster} alt="Video thumbnail" class="video-poster" loading="lazy" decoding="async" />
           <div class="video-overlay">
             <button class="play-button" aria-label="Play video">&#9654;</button>
           </div>
@@ -135,20 +135,18 @@ const videoPoster = tweet?.video?.poster;
       )}
 
       <div class="tweet-footer">
-        <a
+        <Link
           href={`https://twitter.com/${user.screen_name}/status/${id}`}
           class="tweet-date"
-          target="_blank"
-          rel="noopener noreferrer"
         >
           {date}
-        </a>
+        </Link>
       </div>
     </article>
   ) : (
     <blockquote class="tweet-fallback">
       <p>
-        <a href={`https://twitter.com/i/status/${id}`}>View Tweet on Twitter</a>
+        <Link href={`https://twitter.com/i/status/${id}`}>View Tweet on Twitter</Link>
       </p>
     </blockquote>
   )

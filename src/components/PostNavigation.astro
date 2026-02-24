@@ -1,0 +1,120 @@
+---
+/**
+ * PostNavigation - Previous/Next post links at the end of a blog post
+ *
+ * Renders directional links to adjacent posts in chronological order.
+ * Left = older (prev), Right = newer (next). Only renders if at
+ * least one neighbor exists. Falls back to "All posts" link.
+ */
+
+import type { CollectionEntry } from "astro:content";
+import Link from "./Link.astro";
+
+interface Props {
+  prevPost: CollectionEntry<"blog"> | null;
+  nextPost: CollectionEntry<"blog"> | null;
+}
+
+const { prevPost, nextPost } = Astro.props;
+---
+
+<footer class="post-endmatter">
+  {(prevPost || nextPost) ? (
+    <nav class="post-nav" aria-label="Post navigation">
+      {prevPost ? (
+        <Link href={`/blog/${prevPost.slug}/`} class="post-nav-link post-nav-prev">
+          <span class="post-nav-label">Older</span>
+          <span class="post-nav-title">{prevPost.data.title}</span>
+        </Link>
+      ) : <span />}
+      {nextPost ? (
+        <Link href={`/blog/${nextPost.slug}/`} class="post-nav-link post-nav-next">
+          <span class="post-nav-label">Newer</span>
+          <span class="post-nav-title">{nextPost.data.title}</span>
+        </Link>
+      ) : <span />}
+    </nav>
+  ) : (
+    <Link href="/" variant="back" class="post-home-link">&larr; All posts</Link>
+  )}
+</footer>
+
+<style>
+  .post-nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-6);
+  }
+
+  .post-nav-link {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding: var(--space-4);
+    border: var(--ui-border-subtle);
+    border-radius: var(--ui-radius);
+    text-decoration: none;
+    transition:
+      border-color var(--duration-out) var(--ease-out),
+      box-shadow var(--duration-out) var(--ease-out);
+  }
+
+  .post-nav-link:hover {
+    border-color: var(--color-primary);
+    box-shadow: var(--ui-shadow);
+    transform: none;
+  }
+
+  .post-nav-prev {
+    text-align: left;
+  }
+
+  .post-nav-next {
+    text-align: right;
+    grid-column: 2;
+  }
+
+  .post-nav-label {
+    font-family: var(--font-mono-brand);
+    font-size: var(--font-size-micro);
+    text-transform: uppercase;
+    letter-spacing: var(--letter-spacing-wide);
+    color: var(--color-muted);
+  }
+
+  .post-nav-prev .post-nav-label::before {
+    content: "\2190 ";
+  }
+
+  .post-nav-next .post-nav-label::after {
+    content: " \2192";
+  }
+
+  .post-nav-title {
+    font-family: var(--font-serif);
+    font-size: var(--font-size-sm);
+    font-weight: 400;
+    color: var(--color-text);
+    line-height: var(--line-height-snug);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 600px) {
+    /* @breakpoint-mobile */
+    .post-nav {
+      grid-template-columns: 1fr;
+      gap: var(--space-3);
+    }
+
+    .post-nav-next {
+      grid-column: 1;
+      text-align: left;
+    }
+
+    .post-nav-title {
+      white-space: normal;
+    }
+  }
+</style>

@@ -8,6 +8,7 @@
  */
 
 import type { CollectionEntry } from "astro:content";
+import AppSchema from "../../components/AppSchema.astro";
 import AppShell from "../../layouts/AppShell.astro";
 import { getPublishedApps } from "../../utils/content";
 
@@ -35,5 +36,12 @@ const AppComponent = mod.default;
 ---
 
 <AppShell title={app.data.title} description={app.data.summary}>
+  <AppSchema
+    title={app.data.title}
+    description={app.data.summary}
+    datePublished={app.data.createdDate}
+    dateModified={app.data.publicationDate}
+    url={new URL(`/apps/${app.slug}/`, Astro.site).toString()}
+  />
   <AppComponent />
 </AppShell>

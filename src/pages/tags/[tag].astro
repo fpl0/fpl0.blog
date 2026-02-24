@@ -29,6 +29,7 @@ const { tag, items } = Astro.props;
   <main id="main-content" class="home-main">
     <Link href="/tags/" class="tag-back-link" variant="muted">&larr; all tags</Link>
     <h1 class="tag-page-title">#{tag}</h1>
+    <p class="tag-page-count">{items.length} {items.length === 1 ? "entry" : "entries"}</p>
     <section class="archive">
       <ul class="post-list">
         {items.map((item: FeedItem) => (
@@ -60,8 +61,16 @@ const { tag, items } = Astro.props;
     font-size: var(--font-size-h2);
     font-weight: 400;
     margin-top: 0;
-    margin-bottom: var(--space-10);
+    margin-bottom: var(--space-2);
     color: var(--color-primary);
+  }
+
+  .tag-page-count {
+    font-family: var(--font-mono-brand);
+    font-size: var(--font-size-xxs);
+    letter-spacing: var(--letter-spacing-slight);
+    color: var(--color-text-muted);
+    margin: 0 0 var(--space-10) 0;
   }
 
   @media (max-width: 600px) {

@@ -9,6 +9,7 @@
 import type { CollectionEntry } from "astro:content";
 import FormattedDate from "./FormattedDate.astro";
 import Link from "./Link.astro";
+import { getReadingTime } from "../utils/content";
 
 interface Props {
   entry: CollectionEntry<"blog"> | CollectionEntry<"apps">;
@@ -17,10 +18,14 @@ interface Props {
 const { entry } = Astro.props;
 const collection = entry.collection;
 const url = `/${collection}/${entry.slug}/`;
+const readingTime = collection === "blog" && entry.body ? getReadingTime(entry.body) : null;
 ---
 
 <li class="post-item">
-  <FormattedDate date={entry.data.date} className="post-date" variant="system" />
+  <div class="post-date-group">
+    <FormattedDate date={entry.data.date} className="post-date" variant="system" />
+    {readingTime && <span class="post-reading-time">{readingTime}</span>}
+  </div>
   <div class="post-content">
     <Link href={url} class="post-title">
       {entry.data.title}

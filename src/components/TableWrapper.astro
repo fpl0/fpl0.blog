@@ -12,7 +12,7 @@
 <script>
   import { onPageReady } from "../utils/lifecycle";
 
-  onPageReady(() => {
+  onPageReady((_signal) => {
     document
       .querySelectorAll<HTMLTableElement>(".content table")
       .forEach((table) => {

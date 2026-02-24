@@ -111,6 +111,18 @@
   color: var(--color-muted);
 }
 
+.kbd-other {
+  display: none;
+}
+
+[data-platform="other"] .kbd-mac {
+  display: none;
+}
+
+[data-platform="other"] .kbd-other {
+  display: inline;
+}
+
 /* --- Right group: search hint + theme toggle --- */
 
 .app-shell-right {

@@ -18,7 +18,7 @@
   margin: 0;
   font-family: var(--font-sans);
   font-size: var(--font-size-xs);
-  border: var(--space-px) solid var(--color-border);
+  border: var(--ui-border);
   border-radius: var(--radius-md);
   overflow: hidden;
   font-variant-numeric: tabular-nums;

@@ -10,6 +10,7 @@ isDraft: false
 import LiteYouTube from "../../../components/LiteYouTube.astro";
 import Figure from "../../../components/Figure.astro";
 import Table from "../../../components/Table.astro";
+import TwitterCard from "../../../components/TwitterCard.astro";
 
 Writing for this digital library is an exercise in intentionality. Every element in this design system—from the width of a character to the physics of a link—has been calibrated to honor the act of reading.
 
@@ -172,6 +173,14 @@ The `<LiteYouTube>` component renders a lightweight facade that only loads the f
 **The Why and When**: This saves roughly 800 KiB of initial payload and uses `youtube-nocookie.com` for privacy. Use it when motion or sound is critical to the explanation, without punishing the reader's bandwidth.
 
 <LiteYouTube videoId="dQw4w9WgXcQ" title="Rick Astley - Never Gonna Give You Up" />
+
+### Embedded Tweets
+
+The `<TwitterCard>` component renders a static snapshot of a tweet, fetched at build time. It avoids loading Twitter's JavaScript entirely, preserving performance and privacy.
+
+**The Why and When**: Use this when referencing a public statement, opinion, or announcement that adds authority or context to your argument. The card is styled to feel native to the page rather than injected from a foreign design system.
+
+<TwitterCard id="20" />
 
 ### Technical Demonstrations (Code Blocks)
 

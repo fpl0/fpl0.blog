@@ -375,7 +375,7 @@
 /* Light mode code block - warm cream tones matching page */
 [data-theme="light"] .content pre {
   background-color: var(--color-code-bg) !important;
-  border: 1px solid var(--color-code-border);
+  border: var(--space-px) solid var(--color-code-border);
 }
 
 /* Remove any line highlighting/stripes */
@@ -403,7 +403,7 @@
 /* Dark mode code block — distinct background from page */
 [data-theme="dark"] .content pre {
   background-color: var(--color-code-bg) !important;
-  border: 1px solid var(--color-code-border);
+  border: var(--space-px) solid var(--color-code-border);
 }
 
 [data-theme="dark"] .code-header {
@@ -607,6 +607,23 @@ a:hover {
   background-color: transparent;
   transition-duration: var(--duration-in);
   transform: translateY(calc(var(--space-px) * -1));
+}
+
+/* External link indicator — subtle arrow for target="_blank" links */
+a[target="_blank"]:not(
+    .site-nav a,
+    .site-header-brand,
+    .tweet-card a,
+    .lyt-playbtn,
+    .search-result a,
+    .post-title
+  )::after {
+  content: " \2197";
+  font-size: 0.75em;
+  color: var(--color-muted);
+  text-decoration: none;
+  display: inline-block;
+  vertical-align: baseline;
 }
 
 .back-link {

@@ -5,7 +5,13 @@
 import { ClientRouter } from "astro:transitions";
 import FontPreload from "./FontPreload.astro";
 import { buildCSP } from "../utils/csp";
-import themeInit from "./theme-init.inline.js?raw"; // CSP-hashed
+import { THEME_COLORS } from "../config/theme";
+import themeInitRaw from "./theme-init.inline.js?raw"; // CSP-hashed
+import platformDetectRaw from "./platform-detect.inline.js?raw"; // CSP-hashed
+
+const themeInit = themeInitRaw
+  .replace("__THEME_LIGHT__", THEME_COLORS.light)
+  .replace("__THEME_DARK__", THEME_COLORS.dark);
 
 interface Props {
   title: string;
@@ -21,17 +27,19 @@ const ogImage = image
   ? image.startsWith("http")
     ? image
     : `${siteURL}${image.startsWith("/") ? "" : "/"}${image}`
-  : `${siteURL}/favicon.svg`;
+  : `${siteURL}/og-default.png`;
 
 const twitterCardType = image ? "summary_large_image" : "summary";
 ---
 
 <!-- Theme color (browser chrome) — must precede theme-init so the script can override -->
-<meta name="theme-color" content="#faf5ea" media="(prefers-color-scheme: light)" />
-<meta name="theme-color" content="#17100e" media="(prefers-color-scheme: dark)" />
+<meta name="theme-color" content={THEME_COLORS.light} media="(prefers-color-scheme: light)" />
+<meta name="theme-color" content={THEME_COLORS.dark} media="(prefers-color-scheme: dark)" />
 
 <!-- Theme init - runs before paint to prevent flash -->
 <script is:inline set:html={themeInit} />
+<!-- Platform detection — sets data-platform="other" on non-Mac for kbd hints -->
+<script is:inline set:html={platformDetectRaw} />
 
 <FontPreload />
 <meta charset="utf-8" />

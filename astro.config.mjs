@@ -19,7 +19,15 @@ export default defineConfig({
   build: {
     inlineStylesheets: "always",
   },
-  integrations: [sitemap(), mdx()],
+  integrations: [
+    sitemap({
+      serialize(item) {
+        item.lastmod = new Date();
+        return item;
+      },
+    }),
+    mdx(),
+  ],
   image: {
     // Optimize images to WebP with good quality
     service: {

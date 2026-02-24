@@ -36,6 +36,10 @@ const searchCacheBuster = Date.now().toString(36);
         autocomplete="off"
         spellcheck="false"
         aria-label="Search posts and apps"
+        role="combobox"
+        aria-controls="search-results"
+        aria-expanded="false"
+        aria-activedescendant=""
       />
       <div class="search-kbd">
         <kbd>esc</kbd>
@@ -65,17 +69,17 @@ const searchCacheBuster = Date.now().toString(36);
 </div>
 
 <script>
-  import { navigate } from "astro:transitions/client";
   import { onPageReady } from "../utils/lifecycle";
+  import { SearchController } from "../utils/search-controller";
   import { renderError, renderResults } from "../utils/search-renderer";
-  import {
-    abortFetch,
-    getLatestPosts,
-    isIndexLoaded,
-    loadSearchIndex,
-    searchPosts,
-  } from "../utils/search-service";
-  import type { SearchItem } from "../utils/search-service";
+  import { loadSearchIndex } from "../utils/search-service";
+
+  let controller: SearchController | null = null;
+  let isInitialized = false;
+
+  function getCacheBuster(): string {
+    return document.getElementById("search-backdrop")?.dataset.v ?? "";
+  }
 
   // Delegated click handler for search trigger buttons — survives View Transitions
   document.addEventListener("click", (e) => {
@@ -92,158 +96,15 @@ const searchCacheBuster = Date.now().toString(36);
     }
   });
 
-  // Modal state - persists across View Transitions
-  let selectedIndex = 0;
-  let results: SearchItem[] = [];
-  let isInitialized = false;
-  let debounceTimer: ReturnType<typeof setTimeout> | null = null;
-  let previousActiveElement: Element | null = null;
-
-  const DEBOUNCE_MS = 150;
-
-  function getCacheBuster(): string {
-    return document.getElementById("search-backdrop")?.dataset.v ?? "";
-  }
-
-  function openSearch(): void {
-    const backdrop = document.getElementById("search-backdrop");
-    const input = document.getElementById("search-input") as HTMLInputElement | null;
-
-    previousActiveElement = document.activeElement;
-    backdrop?.classList.add("is-open");
-    document.documentElement.classList.add("is-searching");
-    document.body.style.overflow = "hidden";
-
-    // Double rAF ensures the browser has painted visibility:visible before focusing
-    requestAnimationFrame(() =>
-      requestAnimationFrame(() => {
-        input?.focus();
-        input?.select();
-      }),
-    );
-
-    // Show loading state if index not ready
-    selectedIndex = 0;
-    if (!isIndexLoaded()) {
-      renderResults([], selectedIndex, true);
-      loadSearchIndex(getCacheBuster(), renderError).then(() => {
-        results = getLatestPosts();
-        renderResults(results, selectedIndex);
-      });
-    } else {
-      results = getLatestPosts();
-      renderResults(results, selectedIndex);
-    }
-  }
-
-  function closeSearch(): void {
-    const backdrop = document.getElementById("search-backdrop");
-    const input = document.getElementById("search-input") as HTMLInputElement | null;
-
-    if (debounceTimer) {
-      clearTimeout(debounceTimer);
-      debounceTimer = null;
-    }
-
-    abortFetch();
-
-    backdrop?.classList.remove("is-open");
-    document.documentElement.classList.remove("is-searching");
-    if (input) input.value = "";
-    results = [];
-    selectedIndex = 0;
-    renderResults([], selectedIndex);
-    document.body.style.overflow = "";
-
-    if (previousActiveElement instanceof HTMLElement) {
-      previousActiveElement.focus();
-    }
-    previousActiveElement = null;
-  }
-
-  function navigateToSelected(): void {
-    const selectedResult = results[selectedIndex];
-    if (selectedResult) {
-      const url =
-        selectedResult.type === "app"
-          ? `/apps/${selectedResult.slug}/`
-          : `/blog/${selectedResult.slug}/`;
-      closeSearch();
-      navigate(url);
-    }
-  }
-
-  function handleKeydown(e: KeyboardEvent): void {
-    const backdrop = document.getElementById("search-backdrop");
-
-    // Toggle search with Cmd/Ctrl+K
-    if ((e.metaKey || e.ctrlKey) && e.key === "k") {
-      e.preventDefault();
-      backdrop?.classList.contains("is-open") ? closeSearch() : openSearch();
-      return;
-    }
-
-    // Early return if modal not open
-    if (!backdrop?.classList.contains("is-open")) return;
-
-    switch (e.key) {
-      case "Escape":
-        closeSearch();
-        break;
-      case "ArrowDown":
-        e.preventDefault();
-        selectedIndex = Math.min(selectedIndex + 1, results.length - 1);
-        renderResults(results, selectedIndex);
-        break;
-      case "ArrowUp":
-        e.preventDefault();
-        selectedIndex = Math.max(selectedIndex - 1, 0);
-        renderResults(results, selectedIndex);
-        break;
-      case "Enter":
-        e.preventDefault();
-        navigateToSelected();
-        break;
-      case "Tab": {
-        // Focus trap -- keep Tab cycling within the modal
-        const modal = backdrop.querySelector(".search-modal");
-        if (!modal) break;
-        const focusable = modal.querySelectorAll<HTMLElement>(
-          'input, button, a[href], [tabindex]:not([tabindex="-1"])',
-        );
-        if (focusable.length === 0) break;
-        const first = focusable[0] as HTMLElement | undefined;
-        const last = focusable[focusable.length - 1] as HTMLElement | undefined;
-        if (first && last) {
-          if (e.shiftKey && document.activeElement === first) {
-            e.preventDefault();
-            last.focus();
-          } else if (!e.shiftKey && document.activeElement === last) {
-            e.preventDefault();
-            first.focus();
-          }
-        }
-        break;
-      }
-    }
-  }
-
   // Global keyboard handler - singleton pattern
   if (!isInitialized) {
     isInitialized = true;
-    document.addEventListener("keydown", handleKeydown);
+    document.addEventListener("keydown", (e) => controller?.handleKeydown(e));
   }
 
   onPageReady((signal) => {
-    if (debounceTimer) {
-      clearTimeout(debounceTimer);
-      debounceTimer = null;
-    }
-    abortFetch();
-
-    const input = document.getElementById("search-input") as HTMLInputElement | null;
-    const resultsContainer = document.getElementById("search-results");
-    const backdrop = document.getElementById("search-backdrop");
+    controller?.cleanup();
+    controller = new SearchController(getCacheBuster());
 
     // Load search index during browser idle time
     const startLoad = () => loadSearchIndex(getCacheBuster(), renderError);
@@ -253,10 +114,14 @@ const searchCacheBuster = Date.now().toString(36);
       setTimeout(startLoad, 200);
     }
 
+    const backdrop = document.getElementById("search-backdrop");
+    const input = document.getElementById("search-input") as HTMLInputElement | null;
+    const resultsContainer = document.getElementById("search-results");
+
     backdrop?.addEventListener(
       "click",
       (e) => {
-        if (e.target === backdrop) closeSearch();
+        if (e.target === backdrop) controller?.close();
       },
       { signal },
     );
@@ -264,12 +129,7 @@ const searchCacheBuster = Date.now().toString(36);
     input?.addEventListener(
       "input",
       () => {
-        if (debounceTimer) clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(() => {
-          selectedIndex = 0;
-          results = input.value.trim() ? searchPosts(input.value) : getLatestPosts();
-          renderResults(results, selectedIndex);
-        }, DEBOUNCE_MS);
+        controller?.handleInput(input.value);
       },
       { signal },
     );
@@ -278,10 +138,10 @@ const searchCacheBuster = Date.now().toString(36);
       "click",
       (e) => {
         const result = (e.target as HTMLElement).closest(".search-result");
-        if (result) {
+        if (result && controller) {
           const index = parseInt(result.getAttribute("data-index") ?? "0", 10);
-          selectedIndex = index;
-          navigateToSelected();
+          controller.selectedIndex = index;
+          controller.navigateToSelected();
         }
       },
       { signal },
@@ -291,11 +151,11 @@ const searchCacheBuster = Date.now().toString(36);
       "mousemove",
       (e) => {
         const result = (e.target as HTMLElement).closest(".search-result");
-        if (result) {
+        if (result && controller) {
           const index = parseInt(result.getAttribute("data-index") ?? "0", 10);
-          if (index !== selectedIndex) {
-            selectedIndex = index;
-            renderResults(results, selectedIndex);
+          if (index !== controller.selectedIndex) {
+            controller.selectedIndex = index;
+            renderResults(controller.results, controller.selectedIndex);
           }
         }
       },

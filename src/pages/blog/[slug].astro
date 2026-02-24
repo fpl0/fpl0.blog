@@ -17,6 +17,7 @@ import FormattedDate from "../../components/FormattedDate.astro";
 import Link from "../../components/Link.astro";
 import MermaidDiagram from "../../components/MermaidDiagram.astro";
 import PageHeader from "../../components/PageHeader.astro";
+import PostNavigation from "../../components/PostNavigation.astro";
 import TableOfContents from "../../components/TableOfContents.astro";
 import TableWrapper from "../../components/TableWrapper.astro";
 import Layout from "../../layouts/Layout.astro";
@@ -27,30 +28,39 @@ import "../../styles/table-of-contents.css";
 
 interface Props {
   post: CollectionEntry<"blog">;
+  prevPost: CollectionEntry<"blog"> | null;
+  nextPost: CollectionEntry<"blog"> | null;
 }
 
 export async function getStaticPaths() {
   const sorted = await getPublishedPosts();
-  return sorted.map((post) => ({
+  return sorted.map((post, i) => ({
     params: { slug: post.slug },
-    props: { post },
+    props: {
+      post,
+      prevPost: sorted[i + 1] ?? null,
+      nextPost: sorted[i - 1] ?? null,
+    },
   }));
 }
 
-const { post } = Astro.props;
+const { post, prevPost, nextPost } = Astro.props;
 const { Content, headings } = await render(post);
 const readingTime = getReadingTime(post.body ?? "");
 const displayDate = post.data.publicationDate ?? post.data.createdDate;
 const canonicalURL = new URL(`/blog/${post.slug}/`, Astro.site);
+
+const tocHeadings = headings.filter((h) => h.depth === 2 || h.depth === 3);
 ---
 
-<Layout title={post.data.title} description={post.data.summary}>
+<Layout title={post.data.title} description={post.data.summary} image={post.data.image}>
   <BlogPostSchema
     title={post.data.title}
     description={post.data.summary}
     datePublished={post.data.createdDate}
     dateModified={post.data.publicationDate}
     url={canonicalURL.toString()}
+    image={post.data.image}
   />
   <PageHeader />
   <TableOfContents headings={headings} />
@@ -71,12 +81,24 @@ const canonicalURL = new URL(`/blog/${post.slug}/`, Astro.site);
           )}
         </div>
       </header>
+      {tocHeadings.length > 0 && (
+        <details class="toc-inline">
+          <summary class="toc-inline-summary">Table of contents</summary>
+          <nav aria-label="Table of contents">
+            <ul class="toc-inline-list">
+              {tocHeadings.map((heading) => (
+                <li class={`toc-inline-item toc-inline-item--${heading.depth === 2 ? "h2" : "h3"}`}>
+                  <Link href={`#${heading.slug}`} class="toc-inline-link">{heading.text}</Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </details>
+      )}
       <div class="content">
         <Content />
       </div>
-      <footer class="post-endmatter">
-        <Link href="/" variant="back" class="post-home-link">← All posts</Link>
-      </footer>
+      <PostNavigation prevPost={prevPost} nextPost={nextPost} />
     </article>
   </main>
   <MermaidDiagram />
