@@ -147,32 +147,42 @@
   border: none;
   margin-left: var(--space-1);
   color: var(--color-primary);
-  font-size: calc(1em / var(--font-ratio));
   opacity: var(--opacity-recede);
-  transition: opacity var(--duration-normal) var(--ease-out);
+  transition:
+    opacity var(--duration-normal) var(--ease-out),
+    transform var(--duration-normal) var(--ease-out);
   /* Hide the original ↩ which renders as emoji on iOS */
   overflow: hidden;
   display: inline-block;
-  width: 1em; /* token-exempt */
+  width: 0.75em; /* token-exempt */
+  height: 0.75em; /* token-exempt */
   text-indent: -9999px; /* token-exempt */
   vertical-align: baseline;
   position: relative;
 }
 
-/* Replace with ← which never renders as emoji */
+/* Replace with a clean SVG return arrow via CSS mask */
 .content a[data-footnote-backref]::after,
 .content .footnote-backref::after {
-  content: "←";
-  text-indent: 0;
+  content: "";
   position: absolute;
-  left: 0;
-  top: 0;
+  inset: 0;
+  background-color: currentColor;
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 7l-3-3 3-3'/%3E%3Cpath d='M1 4h9.5a4.5 4.5 0 0 1 0 9H10'/%3E%3C/svg%3E");
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 7l-3-3 3-3'/%3E%3Cpath d='M1 4h9.5a4.5 4.5 0 0 1 0 9H10'/%3E%3C/svg%3E");
+  -webkit-mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
 }
 
 .content a[data-footnote-backref]:hover,
 .content .footnote-backref:hover {
   opacity: 1;
   background-color: transparent;
+  transform: translateY(calc(var(--space-px) * -1));
 }
 
 /* Superscript spacing */

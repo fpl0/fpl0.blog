@@ -9,26 +9,28 @@
  * - Uses youtube-nocookie.com for privacy
  */
 interface Props {
-  videoid: string;
+  videoId: string;
   title: string;
 }
 
-const { videoid, title } = Astro.props;
+const { videoId, title } = Astro.props;
 ---
 
-<!-- This component only registers the custom element - renders nothing visible -->
-{/^[a-zA-Z0-9_-]{11}$/.test(videoid ?? "") ? (
-  <lite-youtube
-    videoid={videoid}
-    title={title}
-    content-title={title}
-    role="button"
-    tabindex="0"></lite-youtube>
-) : (
-  <div class="lite-youtube-error" role="alert">
-    <p>Invalid or missing YouTube video ID.</p>
-  </div>
-)}
+<!-- This component only registers the custom element - renders nothing visible -->{
+  /^[a-zA-Z0-9_-]{11}$/.test(videoId ?? "") ? (
+    <lite-youtube
+      videoid={videoId}
+      title={title}
+      content-title={title}
+      role="button"
+      tabindex="0"
+    />
+  ) : (
+    <div class="lite-youtube-error" role="alert">
+      <p>Invalid or missing YouTube video ID.</p>
+    </div>
+  )
+}
 <style is:global>
   lite-youtube {
     display: block;
@@ -51,7 +53,11 @@ const { videoid, title } = Astro.props;
     left: 0;
     right: 0;
     padding: var(--space-3) var(--space-4);
-    background: linear-gradient(to bottom, oklch(0.15 0.05 45 / 0.7), transparent); /* token-exempt */
+    background: linear-gradient(
+      to bottom,
+      oklch(0.15 0.05 45 / 0.7),
+      transparent
+    ); /* token-exempt */
     color: var(--color-overlay-text);
     font-size: var(--font-size-sm);
     font-family: var(--font-sans);
