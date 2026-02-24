@@ -2,7 +2,7 @@
  * Scaffold a new app.
  *
  * Usage:
- *   bun run 0:new:app
+ *   bun run 0:new-app
  *
  * Creates:
  *   - src/content/apps/<slug>/index.md
@@ -13,7 +13,23 @@ import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 import { APPS_DIR, ask, todayISO, toSlug } from "./base";
+import { printHelp, wantsHelp } from "./cli";
 import { SUMMARY_MAX, SUMMARY_MIN } from "./constants";
+import { error, heading, info, success, warn } from "./fmt";
+
+// ---------------------------------------------------------------------------
+// Help
+// ---------------------------------------------------------------------------
+
+if (wantsHelp()) {
+  printHelp({
+    command: "0:new-app",
+    summary: "Scaffold a new app",
+    usage: "bun run 0:new-app",
+    examples: ["bun run 0:new-app"],
+  });
+  process.exit(0);
+}
 
 // ---------------------------------------------------------------------------
 // Templates
@@ -87,11 +103,11 @@ ${"</"}script>
 // Main
 // ---------------------------------------------------------------------------
 
-console.log("\n--- New App Scaffolding ---\n");
+heading("New App");
 
 const title = ask("Title:");
 if (!title) {
-  console.error("Title is required.");
+  error("Title is required.");
   process.exit(1);
 }
 
@@ -101,7 +117,7 @@ const slug = slugInput || defaultSlug;
 
 const appDir = join(APPS_DIR, slug);
 if (existsSync(appDir)) {
-  console.error(`App "${slug}" already exists.`);
+  error(`App "${slug}" already exists.`);
   process.exit(1);
 }
 
@@ -109,9 +125,12 @@ let summary = "";
 while (true) {
   summary = ask(`Summary (${SUMMARY_MIN}-${SUMMARY_MAX} chars):`);
   if (summary.length >= SUMMARY_MIN && summary.length <= SUMMARY_MAX) break;
-  console.log(
-    `  Got ${summary.length} chars -- must be between ${SUMMARY_MIN} and ${SUMMARY_MAX}.`,
-  );
+  const count = summary.length;
+  const delta =
+    count < SUMMARY_MIN
+      ? `${SUMMARY_MIN - count} more needed`
+      : `${count - SUMMARY_MAX} over limit`;
+  warn(`${count} chars (${delta}) -- target: ${SUMMARY_MIN}-${SUMMARY_MAX}`);
 }
 
 const tagsInput = ask("Tags (comma-separated, or empty):");
@@ -127,7 +146,8 @@ mkdirSync(appDir, { recursive: true });
 writeFileSync(join(appDir, "index.md"), indexMd(title, summary, tags, date));
 writeFileSync(join(appDir, "App.astro"), appAstro(slug));
 
-console.log("\nCreated:");
-console.log(`  src/content/apps/${slug}/index.md`);
-console.log(`  src/content/apps/${slug}/App.astro`);
-console.log(`\nThe app is unpublished (isDraft: true). Edit App.astro to build it out.\n`);
+console.log("");
+success(`Created src/content/apps/${slug}/index.md`);
+success(`Created src/content/apps/${slug}/App.astro`);
+info("The app is a draft. Edit App.astro to build it out.");
+console.log("");

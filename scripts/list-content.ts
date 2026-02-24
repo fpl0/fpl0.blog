@@ -11,6 +11,23 @@ import { readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 
 import { APPS_DIR, BLOG_DIR, type Frontmatter, parseFrontmatter } from "./base";
+import { printHelp, wantsHelp } from "./cli";
+import { cyan, dim, green, yellow } from "./fmt";
+
+// ---------------------------------------------------------------------------
+// Help
+// ---------------------------------------------------------------------------
+
+if (wantsHelp()) {
+  printHelp({
+    command: "0:list",
+    summary: "List all content entries",
+    usage: "bun run 0:list [--drafts|--published]",
+    flags: ["--drafts     Show only draft entries", "--published  Show only published entries"],
+    examples: ["bun run 0:list", "bun run 0:list -- --drafts"],
+  });
+  process.exit(0);
+}
 
 // ---------------------------------------------------------------------------
 // Collect entries
@@ -75,16 +92,20 @@ function printTable(rows: Row[]): void {
   const slugW = Math.max(4, ...rows.map((r) => r.slug.length));
 
   const header = `  ${pad("status", 9)}  ${pad("type", 4)}  ${"date"}        ${pad("slug", slugW)}  title`;
-  const sep = `  ${"─".repeat(header.length - 2)}`;
+  const sep = `  ${dim("─".repeat(header.length - 2))}`;
 
   console.log("");
-  console.log(header);
+  console.log(dim(header));
   console.log(sep);
 
   for (const r of rows) {
-    console.log(
-      `  ${pad(r.status, 9)}  ${pad(r.type, 4)}  ${pad(r.date, 10)}  ${pad(r.slug, slugW)}  ${r.title}`,
-    );
+    const statusPadded = pad(r.status, 9);
+    const statusStr = r.status === "draft" ? yellow(statusPadded) : green(statusPadded);
+    const typeStr = cyan(pad(r.type, 4));
+    const dateStr = dim(pad(r.date, 10));
+    const slugStr = pad(r.slug, slugW);
+
+    console.log(`  ${statusStr}  ${typeStr}  ${dateStr}  ${slugStr}  ${r.title}`);
   }
 }
 
@@ -111,8 +132,8 @@ entries.sort((a, b) => {
 });
 
 if (entries.length === 0) {
-  console.log("\n  No content found.\n");
+  console.log(dim("\n  No content found.\n"));
 } else {
   printTable(entries.map(toRow));
-  console.log(`\n  ${entries.length} item${entries.length !== 1 ? "s" : ""}\n`);
+  console.log(dim(`\n  ${entries.length} item${entries.length !== 1 ? "s" : ""}\n`));
 }

@@ -2,7 +2,7 @@
  * Delete a content entry (blog post or app).
  *
  * Usage:
- *   bun run 0:delete <slug>
+ *   bun run 0:delete <slug> [--no-push]
  *
  * Removes all files for the given slug, then commits and pushes.
  */
@@ -10,7 +10,25 @@
 import { existsSync, rmSync, statSync } from "node:fs";
 import { join } from "node:path";
 
-import { APPS_DIR, APPS_PAGES, BLOG_DIR, git, printAvailableSlugs, relativePath } from "./base";
+import { APPS_DIR, APPS_PAGES, BLOG_DIR, gitStep, relativePath } from "./base";
+import { noPush, printAvailableSlugs, printHelp, wantsHelp } from "./cli";
+import { error, heading, red, success, warn } from "./fmt";
+
+// ---------------------------------------------------------------------------
+// Help
+// ---------------------------------------------------------------------------
+
+if (wantsHelp()) {
+  printHelp({
+    command: "0:delete",
+    summary: "Permanently delete a content entry",
+    usage: "bun run 0:delete <slug> [--no-push]",
+    args: ["<slug>  The content slug to delete"],
+    flags: ["--no-push  Commit but skip git push"],
+    examples: ["bun run 0:delete my-old-post"],
+  });
+  process.exit(0);
+}
 
 // ---------------------------------------------------------------------------
 // Find all paths to delete for a slug
@@ -44,41 +62,54 @@ function findTarget(slug: string): DeleteTarget | null {
 
 const slug = process.argv[2];
 
-if (!slug) {
-  console.error("\nUsage: bun run 0:delete <slug>\n");
+if (!slug || slug.startsWith("-")) {
+  error("Missing slug argument.");
+  console.error("");
+  console.error(`  Usage: bun run 0:delete <slug> [--no-push]`);
+  console.error("");
   printAvailableSlugs();
   process.exit(1);
 }
 
 const target = findTarget(slug);
 if (!target) {
-  console.error(`\nNo content found for slug "${slug}".\n`);
+  error(`No content found for slug "${slug}".`);
   printAvailableSlugs();
   process.exit(1);
 }
 
 const relativePaths = target.paths.map(relativePath);
-console.log(`\nThis will delete the following (${target.type}):\n`);
-for (const p of relativePaths) {
-  console.log(`  ${p}`);
-}
 
-const answer = prompt("\nProceed? (y/N):");
+heading(`Delete: ${slug}`);
+warn(`This will permanently delete the following ${target.type}:`);
+console.log("");
+for (const p of relativePaths) {
+  console.log(`    ${red(p)}`);
+}
+console.log("");
+
+const answer = prompt("  Proceed? (y/N):");
 if (answer?.toLowerCase() !== "y") {
-  console.log("Aborted.\n");
+  console.log("\n  Aborted.\n");
   process.exit(0);
 }
+
+console.log("");
 
 for (const p of target.paths) {
   rmSync(p, { recursive: true });
 }
-
-console.log("\nDeleted.");
+success("Deleted files");
 
 for (const p of relativePaths) {
-  git(`git add ${p}`);
+  gitStep(`git add ${p}`, "Staging changes");
 }
-git(`git commit -m "delete: ${slug}"`);
-git("git push");
+gitStep(`git commit -m "delete: ${slug}"`, "Committing");
 
-console.log("Committed and pushed.\n");
+if (noPush()) {
+  warn("Skipped push (--no-push)");
+} else {
+  gitStep("git push", "Pushing to remote");
+}
+
+console.log("");

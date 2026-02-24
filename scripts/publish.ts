@@ -2,13 +2,15 @@
  * Publish a content entry (blog post or app).
  *
  * Usage:
- *   bun run 0:publish <slug>
+ *   bun run 0:publish <slug> [--no-push]
  *
  * Sets isDraft to false, sets publicationDate to today (if not already set),
  * then commits and pushes.
  */
 
-import { findContentFile, git, printAvailableSlugs, relativePath, todayISO } from "./base";
+import { findContentFile, gitStep, relativePath, todayISO } from "./base";
+import { noPush, printAvailableSlugs, printHelp, wantsHelp } from "./cli";
+import { error, heading, info, success, warn } from "./fmt";
 import {
   getBooleanField,
   insertFieldAfter,
@@ -16,6 +18,22 @@ import {
   setFrontmatterField,
   writeFrontmatter,
 } from "./frontmatter";
+
+// ---------------------------------------------------------------------------
+// Help
+// ---------------------------------------------------------------------------
+
+if (wantsHelp()) {
+  printHelp({
+    command: "0:publish",
+    summary: "Publish a draft content entry",
+    usage: "bun run 0:publish <slug> [--no-push]",
+    args: ["<slug>  The content slug to publish"],
+    flags: ["--no-push  Commit but skip git push"],
+    examples: ["bun run 0:publish my-first-post", "bun run 0:publish my-app --no-push"],
+  });
+  process.exit(0);
+}
 
 // ---------------------------------------------------------------------------
 // Frontmatter mutation
@@ -27,7 +45,7 @@ function publish(filePath: string): {
 } {
   const block = parseFrontmatterBlock(filePath);
   if (!block) {
-    console.error("Could not parse frontmatter.");
+    error("Could not parse frontmatter.");
     process.exit(1);
   }
 
@@ -53,15 +71,18 @@ function publish(filePath: string): {
 
 const slug = process.argv[2];
 
-if (!slug) {
-  console.error("\nUsage: bun run 0:publish <slug>\n");
+if (!slug || slug.startsWith("-")) {
+  error("Missing slug argument.");
+  console.error("");
+  console.error(`  Usage: bun run 0:publish <slug> [--no-push]`);
+  console.error("");
   printAvailableSlugs();
   process.exit(1);
 }
 
 const content = findContentFile(slug);
 if (!content) {
-  console.error(`\nNo content found for slug "${slug}".\n`);
+  error(`No content found for slug "${slug}".`);
   printAvailableSlugs();
   process.exit(1);
 }
@@ -69,15 +90,21 @@ if (!content) {
 const { title, alreadyPublished } = publish(content.path);
 
 if (alreadyPublished) {
-  console.log(`\n"${title}" is already published.\n`);
+  info(`"${title}" is already published.`);
   process.exit(0);
 }
 
-console.log(`\nPublished: ${title} (${content.type})`);
+heading(`Publish: ${title}`);
+success(`Set isDraft: false (${content.type})`);
 
 const rel = relativePath(content.path);
-git(`git add ${rel}`);
-git(`git commit -m "publish: ${title}"`);
-git("git push");
+gitStep(`git add ${rel}`, "Staging changes");
+gitStep(`git commit -m "publish: ${title}"`, "Committing");
 
-console.log("\nCommitted and pushed.\n");
+if (noPush()) {
+  warn("Skipped push (--no-push)");
+} else {
+  gitStep("git push", "Pushing to remote");
+}
+
+console.log("");

@@ -6,6 +6,8 @@ import { execSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 
+import { dim, error as fmtError, success as fmtSuccess } from "./fmt";
+
 // ---------------------------------------------------------------------------
 // Paths
 // ---------------------------------------------------------------------------
@@ -41,8 +43,18 @@ export function todayISO(): string {
 // Git helpers
 // ---------------------------------------------------------------------------
 
-export function git(cmd: string): void {
-  execSync(cmd, { cwd: ROOT, stdio: "inherit" });
+export function gitStep(cmd: string, label: string): void {
+  try {
+    execSync(cmd, { cwd: ROOT, stdio: "pipe" });
+    fmtSuccess(label);
+  } catch (e) {
+    fmtError(`${label} failed`);
+    if (e instanceof Error && "stderr" in e) {
+      const stderr = (e as { stderr: Buffer }).stderr?.toString().trim();
+      if (stderr) console.error(dim(`    ${stderr}`));
+    }
+    process.exit(1);
+  }
 }
 
 export function relativePath(absPath: string): string {
@@ -92,18 +104,6 @@ export function listSlugs(): string[] {
     }
   }
   return slugs;
-}
-
-/** Print available slugs to stderr (for error messages). */
-export function printAvailableSlugs(): void {
-  const slugs = listSlugs();
-  if (slugs.length > 0) {
-    console.error("Available slugs:");
-    for (const s of slugs) {
-      console.error(`  ${s}`);
-    }
-    console.error("");
-  }
 }
 
 // ---------------------------------------------------------------------------

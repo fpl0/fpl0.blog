@@ -2,18 +2,36 @@
  * Unpublish a content entry (blog post or app).
  *
  * Usage:
- *   bun run 0:unpublish <slug>
+ *   bun run 0:unpublish <slug> [--no-push]
  *
  * Sets isDraft to true, then commits and pushes.
  */
 
-import { findContentFile, git, printAvailableSlugs, relativePath } from "./base";
+import { findContentFile, gitStep, relativePath } from "./base";
+import { noPush, printAvailableSlugs, printHelp, wantsHelp } from "./cli";
+import { error, heading, info, success, warn } from "./fmt";
 import {
   getBooleanField,
   parseFrontmatterBlock,
   setFrontmatterField,
   writeFrontmatter,
 } from "./frontmatter";
+
+// ---------------------------------------------------------------------------
+// Help
+// ---------------------------------------------------------------------------
+
+if (wantsHelp()) {
+  printHelp({
+    command: "0:unpublish",
+    summary: "Revert a published entry to draft",
+    usage: "bun run 0:unpublish <slug> [--no-push]",
+    args: ["<slug>  The content slug to unpublish"],
+    flags: ["--no-push  Commit but skip git push"],
+    examples: ["bun run 0:unpublish my-first-post"],
+  });
+  process.exit(0);
+}
 
 // ---------------------------------------------------------------------------
 // Frontmatter mutation
@@ -25,7 +43,7 @@ function unpublish(filePath: string): {
 } {
   const block = parseFrontmatterBlock(filePath);
   if (!block) {
-    console.error("Could not parse frontmatter.");
+    error("Could not parse frontmatter.");
     process.exit(1);
   }
 
@@ -46,15 +64,18 @@ function unpublish(filePath: string): {
 
 const slug = process.argv[2];
 
-if (!slug) {
-  console.error("\nUsage: bun run 0:unpublish <slug>\n");
+if (!slug || slug.startsWith("-")) {
+  error("Missing slug argument.");
+  console.error("");
+  console.error(`  Usage: bun run 0:unpublish <slug> [--no-push]`);
+  console.error("");
   printAvailableSlugs();
   process.exit(1);
 }
 
 const content = findContentFile(slug);
 if (!content) {
-  console.error(`\nNo content found for slug "${slug}".\n`);
+  error(`No content found for slug "${slug}".`);
   printAvailableSlugs();
   process.exit(1);
 }
@@ -62,15 +83,21 @@ if (!content) {
 const { title, alreadyDraft } = unpublish(content.path);
 
 if (alreadyDraft) {
-  console.log(`\n"${title}" is already a draft.\n`);
+  info(`"${title}" is already a draft.`);
   process.exit(0);
 }
 
-console.log(`\nUnpublished: ${title} (${content.type})`);
+heading(`Unpublish: ${title}`);
+success(`Set isDraft: true (${content.type})`);
 
 const rel = relativePath(content.path);
-git(`git add ${rel}`);
-git(`git commit -m "unpublish: ${title}"`);
-git("git push");
+gitStep(`git add ${rel}`, "Staging changes");
+gitStep(`git commit -m "unpublish: ${title}"`, "Committing");
 
-console.log("\nCommitted and pushed.\n");
+if (noPush()) {
+  warn("Skipped push (--no-push)");
+} else {
+  gitStep("git push", "Pushing to remote");
+}
+
+console.log("");
