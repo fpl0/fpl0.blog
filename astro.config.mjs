@@ -9,6 +9,7 @@ import rehypeMermaidDual from "./src/plugins/rehype-mermaid-dual.mjs";
 
 // https://astro.build/config
 export default defineConfig({
+  devToolbar: { enabled: false },
   site: "https://fpl0.io",
   base: "/",
   prefetch: {
