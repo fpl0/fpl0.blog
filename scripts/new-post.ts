@@ -11,7 +11,7 @@
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { ask, BLOG_DIR, todayISO, toSlug } from "./base";
+import { ask, BLOG_DIR, nowISO, toSlug } from "./base";
 import { printHelp, wantsHelp } from "./cli";
 import { SUMMARY_MAX, SUMMARY_MIN } from "./constants";
 import { error, heading, info, success, warn } from "./fmt";
@@ -88,7 +88,7 @@ const tags = tagsInput
       .filter(Boolean)
   : [];
 
-const date = todayISO();
+const date = nowISO();
 mkdirSync(postDir, { recursive: true });
 writeFileSync(join(postDir, "index.mdx"), indexMdx(title, summary, tags, date));
 

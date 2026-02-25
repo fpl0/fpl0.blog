@@ -8,7 +8,7 @@
  * then commits and pushes.
  */
 
-import { findContentFile, gitStep, relativePath, todayISO } from "./base";
+import { findContentFile, gitStep, nowISO, relativePath } from "./base";
 import { noPush, printAvailableSlugs, printHelp, wantsHelp } from "./cli";
 import { error, heading, info, success, warn } from "./fmt";
 import {
@@ -58,7 +58,7 @@ function publish(filePath: string): {
 
   const hasPubDate = /^publicationDate:/m.test(block.yaml);
   if (!hasPubDate) {
-    block.yaml = insertFieldAfter(block.yaml, "createdDate", "publicationDate", `"${todayISO()}"`);
+    block.yaml = insertFieldAfter(block.yaml, "createdDate", "publicationDate", `"${nowISO()}"`);
   }
 
   writeFrontmatter(filePath, block);

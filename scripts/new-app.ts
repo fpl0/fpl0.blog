@@ -12,7 +12,7 @@
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { APPS_DIR, ask, todayISO, toSlug } from "./base";
+import { APPS_DIR, ask, nowISO, toSlug } from "./base";
 import { printHelp, wantsHelp } from "./cli";
 import { SUMMARY_MAX, SUMMARY_MIN } from "./constants";
 import { error, heading, info, success, warn } from "./fmt";
@@ -40,7 +40,7 @@ function indexMd(title: string, summary: string, tags: string[], date: string): 
   return `---
 title: "${title}"
 summary: "${summary}"
-createdDate: ${date}
+createdDate: "${date}"
 isDraft: true
 tags: ${tagList}
 ---
@@ -141,7 +141,7 @@ const tags = tagsInput
       .filter(Boolean)
   : [];
 
-const date = todayISO();
+const date = nowISO();
 mkdirSync(appDir, { recursive: true });
 writeFileSync(join(appDir, "index.md"), indexMd(title, summary, tags, date));
 writeFileSync(join(appDir, "App.astro"), appAstro(slug));
