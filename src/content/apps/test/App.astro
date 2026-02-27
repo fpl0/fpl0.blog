@@ -1,0 +1,42 @@
+---
+/**
+ * test -- App Component
+ */
+---
+
+<div class="test-root" id="test-root">
+  <p class="test-placeholder">App goes here.</p>
+</div>
+
+<style>
+  .test-root {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: var(--color-text);
+  }
+
+  .test-placeholder {
+    font-family: var(--font-serif);
+    font-size: var(--font-size-h3);
+    color: var(--color-text-muted);
+  }
+</style>
+
+<script>
+  import { onPageReady } from "../../../utils/lifecycle";
+
+  onPageReady((signal) => {
+    const root = document.getElementById("test-root");
+    if (!root) return;
+
+    const themeObserver = new MutationObserver(() => {});
+    themeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme"],
+    });
+    signal.addEventListener("abort", () => themeObserver.disconnect());
+  });
+</script>

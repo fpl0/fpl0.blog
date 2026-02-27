@@ -5,8 +5,8 @@ import { type CollectionEntry, getCollection } from "astro:content";
    Unified logic for fetching, filtering, and processing blog posts and apps.
    ========================================================================== */
 
-/** Include draft content when INCLUDE_DRAFTS=true (used by E2E tests). */
-const includeDrafts = process.env.INCLUDE_DRAFTS === "true";
+/** Include draft content in dev mode or when INCLUDE_DRAFTS=true (E2E tests). */
+const includeDrafts = import.meta.env.DEV || process.env.INCLUDE_DRAFTS === "true";
 
 function isPublished({ data }: { data: { isDraft: boolean } }): boolean {
   return includeDrafts || !data.isDraft;
