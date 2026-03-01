@@ -6,7 +6,7 @@
 import Layout from "../layouts/Layout.astro";
 import "../styles/home.css";
 
-import ExplorerAnimation from "../components/ExplorerAnimation/ExplorerAnimation.astro";
+import EndOrnament from "../components/EndOrnament.astro";
 import PageHeader from "../components/PageHeader.astro";
 import EntryCard from "../components/EntryCard.astro";
 import WebSiteSchema from "../components/WebSiteSchema.astro";
@@ -23,17 +23,19 @@ const feedItems = await getFeedItems();
     <cite>Isaac Asimov</cite>
   </blockquote>
   <main id="main-content" class="home-main">
-    {feedItems.length > 0 ? (
-      <section class="archive">
-        <ul class="post-list">
-          {feedItems.map((item) => (
-            <EntryCard entry={item.entry} />
-          ))}
-        </ul>
-      </section>
-    ) : (
-      <p class="empty-state">Nothing here yet.</p>
-    )}
-    <ExplorerAnimation />
+    {
+      feedItems.length > 0 ? (
+        <section class="archive">
+          <ul class="post-list">
+            {feedItems.map((item) => (
+              <EntryCard entry={item.entry} />
+            ))}
+          </ul>
+        </section>
+      ) : (
+        <p class="empty-state">Nothing here yet.</p>
+      )
+    }
+    <EndOrnament />
   </main>
 </Layout>
