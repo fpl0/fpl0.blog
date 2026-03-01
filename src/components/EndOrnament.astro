@@ -3,18 +3,34 @@
  * EndOrnament - A handmade, paper-like illustration
  * placed at the end of the home page.
  * Theme: A vintage, Da Vinci-style graphite portrait of the author.
+ *
+ * Uses two dedicated assets:
+ *   - fpl0-sketch.png: dark graphite on cream paper (light mode)
+ *   - fpl0-sketch-dark.png: cream chalk on black paper (dark mode)
+ * Wrapper divs handle show/hide since Astro <Image> may generate <picture> elements.
  */
 import { Image } from "astro:assets";
 import authorSketch from "../assets/fpl0-sketch.png";
+import authorSketchDark from "../assets/fpl0-sketch-dark.png";
 ---
 
 <div class="end-ornament" aria-hidden="true">
-  <Image
-    src={authorSketch}
-    alt="Vintage graphite sketch of the author"
-    class="ornament-image"
-    width={512}
-  />
+  <div class="show-light">
+    <Image
+      src={authorSketch}
+      alt="Vintage graphite sketch of the author"
+      class="ornament-image"
+      width={512}
+    />
+  </div>
+  <div class="show-dark">
+    <Image
+      src={authorSketchDark}
+      alt="Vintage graphite sketch of the author"
+      class="ornament-image"
+      width={512}
+    />
+  </div>
 </div>
 
 <style>
@@ -25,42 +41,42 @@ import authorSketch from "../assets/fpl0-sketch.png";
     margin-top: var(--space-y-xl);
     padding: var(--space-8) 0;
     width: 100%;
-    /* Note: Do NOT add `opacity` or `transform` here, as it creates a formatting context
-       and ruins the child's `mix-blend-mode` with the global page background! */
   }
 
-  /* The sketch is generated on a pure white background.
-     In light mode, `mix-blend-mode: multiply` makes the white entirely transparent,
-     letting the warm paper background bleed through.
-     We use `contrast(1.5)` to ruthlessly crush any off-white paper artifacts from the AI into pure white,
-     ensuring the bounding box disappears completely. */
   .ornament-image {
-    /* Scale proportionally to the site header logo */
-    height: calc(var(--font-size-h2) * 5);
+    height: calc(var(--font-size-h2) * 6.5);
     width: auto;
     object-fit: contain;
-
-    mix-blend-mode: multiply;
-    filter: contrast(1.5) grayscale(1) sepia(0.2) opacity(0.75);
     transition:
       filter var(--duration-slow) var(--ease-out),
       opacity var(--duration-slow) var(--ease-out);
   }
 
-  /* In dark mode we must isolate the graphite lines and drop the white paper:
-     1. contrast(1.1) crushes any faint off-white noise to pure white (#FFFFFF).
-     2. invert(1) turns the pure white to pure black (#000000).
-     3. mix-blend-mode: screen; treats any pure black pixel as 100% transparent.
-     4. This leaves ONLY the white sketch lines, which we then tint to true gold 
-        using sepia, saturate, hue-rotate, and brightness. */
-  :global([data-theme="dark"]) .ornament-image {
-    mix-blend-mode: plus-lighter;
-    filter: contrast(1.2) invert(1) grayscale(1) sepia(1) saturate(3)
-      hue-rotate(35deg) brightness(0.9) opacity(0.85);
+  /* Light mode: show light sketch, hide dark */
+  .show-light .ornament-image {
+    mix-blend-mode: multiply;
+    filter: contrast(1.5) grayscale(1) sepia(0.2) opacity(0.75);
+  }
+
+  .show-dark {
+    display: none;
+  }
+
+  /* Dark mode: show dark sketch, hide light */
+  :global([data-theme="dark"]) .show-light {
+    display: none;
+  }
+
+  :global([data-theme="dark"]) .show-dark {
+    display: block;
+  }
+
+  :global([data-theme="dark"]) .show-dark .ornament-image {
+    mix-blend-mode: screen;
+    filter: sepia(0.08) opacity(0.85);
   }
 
   @media (max-width: 600px) {
-    /* @breakpoint-mobile */
     .end-ornament {
       margin-top: var(--space-y-md);
       padding: var(--space-4) 0;
