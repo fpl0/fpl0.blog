@@ -190,29 +190,29 @@
   --line-height-loose: calc(var(--lh-ratio) + 0.6);
 
   /* --- Color Synthesis (OKLCH Perceptual Field) --- */
-  /* Master Hue: 85 (Amber/Gold in OKLCH) */
-  --hue: 85;
-  --color-bg: oklch(0.97 0.015 var(--hue));
-  --color-surface: oklch(0.94 0.02 var(--hue));
-  --color-surface-raised: oklch(0.91 0.025 var(--hue));
-  --color-highlight: oklch(0.92 0.04 var(--hue));
+  /* Master Hue: 80 (Deep Amber/Gold in OKLCH) */
+  --hue: 80;
+  --color-bg: oklch(0.96 0.025 var(--hue)); /* Richer, creamier paper */
+  --color-surface: oklch(0.93 0.03 var(--hue));
+  --color-surface-raised: oklch(0.89 0.035 var(--hue));
+  --color-highlight: oklch(0.91 0.05 var(--hue));
 
   /* Text Hierarchy (Perceptually Uniform Sepia) */
-  --text-hue: 45; /* Slightly warmer for text */
-  --color-text: oklch(0.22 0.03 var(--text-hue)); /* Increased contrast */
-  --color-text-secondary: oklch(0.42 0.02 var(--text-hue));
-  --color-text-muted: oklch(0.52 0.015 var(--text-hue));
+  --text-hue: 40; /* Warmer, deeper text hue */
+  --color-text: oklch(0.18 0.04 var(--text-hue)); /* Deeper charcoal, higher chroma */
+  --color-text-secondary: oklch(0.38 0.035 var(--text-hue));
+  --color-text-muted: oklch(0.48 0.03 var(--text-hue));
 
-  /* Primary Accent (Cognac) */
-  --color-primary: oklch(0.55 0.12 55);
-  --color-primary-dim: oklch(0.65 0.1 55);
-  --color-accent-cool: oklch(0.55 0.08 190);
+  /* Primary Accent (Richer Cognac/Ochre) */
+  --color-primary: oklch(0.52 0.18 45); /* Much richer chroma */
+  --color-primary-dim: oklch(0.62 0.14 45);
+  --color-accent-cool: oklch(0.52 0.12 195); /* Deeper, richer teal */
 
-  --color-warn: oklch(0.65 0.15 80);
-  --color-error: oklch(0.55 0.18 25);
+  --color-warn: oklch(0.62 0.18 80);
+  --color-error: oklch(0.52 0.2 25);
 
-  --color-border: oklch(0.88 0.02 var(--hue));
-  --color-border-subtle: oklch(0.92 0.01 var(--hue));
+  --color-border: oklch(0.86 0.03 var(--hue));
+  --color-border-subtle: oklch(0.9 0.02 var(--hue));
 
   /* --- Chromatic Elevation (Ecological Light Physics) --- */
   --shadow-color: oklch(0.1 0.02 var(--hue) / 0.08);
@@ -313,28 +313,34 @@
 }
 
 [data-theme="dark"] {
-  --hue: 30;
+  /* Master Hue: 40 (Neutral Antique Warmth) */
+  --hue: 40;
   --text-hue: 45;
-  --color-bg: oklch(0.18 0.012 var(--hue));
-  --color-surface: oklch(0.22 0.015 var(--hue));
-  --color-surface-raised: oklch(0.26 0.018 var(--hue));
-  --color-highlight: oklch(0.24 0.03 var(--hue));
 
-  --color-text: oklch(0.95 0.01 var(--text-hue)); /* Increased contrast */
-  --color-text-secondary: oklch(0.8 0.008 var(--text-hue));
-  --color-text-muted: oklch(0.65 0.005 var(--text-hue));
+  /* Perfect Background Logarithmic Staircase */
+  --color-bg: oklch(0.17 0.015 var(--hue)); /* Matte dark roast void */
+  --color-surface: oklch(0.21 0.02 var(--hue));
+  --color-surface-raised: oklch(0.25 0.025 var(--hue));
+  --color-highlight: oklch(0.23 0.03 var(--hue));
 
-  --color-primary: oklch(0.88 0.06 85);
-  --color-primary-dim: oklch(0.75 0.05 85);
-  --color-accent-cool: oklch(0.85 0.04 190);
+  /* Typography: Dropped peak luminance (L=0.86) to eliminate halation */
+  --color-text: oklch(0.86 0.015 var(--text-hue)); /* Soft bone white */
+  --color-text-secondary: oklch(0.74 0.01 var(--text-hue)); /* Ash */
+  --color-text-muted: oklch(0.62 0.01 var(--text-hue)); /* Graphite */
 
-  --color-warn: oklch(0.8 0.1 80);
-  --color-error: oklch(0.7 0.12 25);
+  /* Accents: Harmonic, desaturated glows */
+  --color-primary: oklch(0.7 0.12 55); /* Antique brass */
+  --color-primary-dim: oklch(0.64 0.1 55);
+  --color-accent-cool: oklch(0.72 0.08 190); /* Muted Verdigris / Sage */
 
-  --color-border: oklch(0.28 0.02 var(--hue));
-  --color-border-subtle: oklch(0.24 0.015 var(--hue));
+  --color-warn: oklch(0.75 0.12 80);
+  --color-error: oklch(0.65 0.12 25);
 
-  --shadow-color: oklch(0.02 0.01 var(--hue) / 0.6);
+  /* Structure: Borders blending perfectly into the background */
+  --color-border: oklch(0.27 0.015 var(--hue));
+  --color-border-subtle: oklch(0.21 0.01 var(--hue));
+
+  --shadow-color: oklch(0.02 0.01 var(--hue) / 0.5);
 
   --color-code-bg: oklch(0.2 0.012 var(--hue));
   --color-code-border: oklch(0.25 0.015 var(--hue));

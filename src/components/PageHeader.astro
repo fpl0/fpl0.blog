@@ -26,9 +26,17 @@ const isTags = pathname.startsWith("/tags");
       <Logo text="fpl0" as="span" />
     </Link>
     <nav class="site-nav" aria-label="Main navigation">
-      <Link href="/about" aria-current={isAbout ? "page" : undefined} variant="muted">about</Link>
+      <Link
+        href="/about"
+        aria-current={isAbout ? "page" : undefined}
+        variant="muted">about</Link
+      >
       <span class="site-nav-sep">/</span>
-      <Link href="/tags/" aria-current={isTags ? "page" : undefined} variant="muted">tags</Link>
+      <Link
+        href="/tags/"
+        aria-current={isTags ? "page" : undefined}
+        variant="muted">tags</Link
+      >
       <span class="site-nav-sep">/</span>
       <button
         class="site-nav-search"
@@ -37,7 +45,16 @@ const isTags = pathname.startsWith("/tags");
         aria-label="Search"
         aria-controls="search-backdrop"
       >
-        <svg class="site-nav-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <svg
+          class="site-nav-search-icon"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
           <circle cx="11" cy="11" r="8"></circle>
           <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
         </svg>
@@ -76,7 +93,7 @@ const isTags = pathname.startsWith("/tags");
 
   /* Override Logo h1 sizing for the nav bar context */
   .site-header-brand :global(.logo) {
-    font-size: var(--font-size-h3);
+    font-size: var(--font-size-h2);
     margin: 0;
   }
 
@@ -167,7 +184,8 @@ const isTags = pathname.startsWith("/tags");
 
   /* --- Mobile --- */
 
-  @media (max-width: 600px) { /* @breakpoint-mobile */
+  @media (max-width: 600px) {
+    /* @breakpoint-mobile */
     .site-nav-search-text,
     .site-nav-search-kbd {
       display: none;
@@ -177,5 +195,4 @@ const isTags = pathname.startsWith("/tags");
       display: block;
     }
   }
-
 </style>
