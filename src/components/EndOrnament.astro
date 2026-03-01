@@ -261,15 +261,15 @@
     justify-content: center;
     align-items: center;
     margin-top: var(--space-y-xl);
-    padding: var(--space-8) 0;
+    padding: var(--space-4) 0;
     width: 100%;
     opacity: 0.9;
   }
 
   .ornament-svg {
-    width: calc(var(--space-100) * 2);
-    max-width: 100%;
-    height: auto;
+    /* Scale exactly to the font-size of the site header logo */
+    height: var(--font-size-h2);
+    width: auto;
     /* Soft architectural bloom to enhance the --color-primary lines */
     filter: drop-shadow(0px 2px 4px var(--color-bg));
   }
@@ -278,11 +278,12 @@
     /* @breakpoint-mobile */
     .end-ornament {
       margin-top: var(--space-y-md);
-      padding: var(--space-4) 0;
+      padding: var(--space-2) 0;
     }
 
+    /* Variables natively respond in mobile, but we can enforce inheritance */
     .ornament-svg {
-      width: calc(var(--space-100) * 1.5);
+      height: var(--font-size-h2);
     }
   }
 </style>
