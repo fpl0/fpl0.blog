@@ -328,13 +328,18 @@
   --color-text-secondary: oklch(0.74 0.01 var(--text-hue)); /* Ash */
   --color-text-muted: oklch(0.62 0.01 var(--text-hue)); /* Graphite */
 
-  /* Accents: Harmonic, desaturated glows */
-  --color-primary: oklch(0.7 0.12 55); /* Antique brass */
-  --color-primary-dim: oklch(0.64 0.1 55);
-  --color-accent-cool: oklch(0.72 0.08 190); /* Muted Verdigris / Sage */
+  /* Accents: The "Aged Gold Leaf" Philosophy
+     A PhD-level digital library requires an accent color that doesn't shout like a modern tech interface. 
+     Instead of high-chroma amber, we use a desaturated, luminous metallic gold — evoking the subtle 
+     glint of gold-leaf lettering on a dark leather spine catching the candlelight.
+     Low chroma (0.06) prevents neon glare; high lightness (0.78) ensures razor-sharp legibility. */
+  --color-primary: oklch(0.78 0.06 75); /* Aged Gold Leaf */
+  --color-primary-dim: oklch(0.68 0.04 75); /* Deep Gold Reflection */
+  --color-accent-cool: oklch(0.75 0.06 190); /* Oxidized Copper / Sage */
 
-  --color-warn: oklch(0.75 0.12 80);
-  --color-error: oklch(0.65 0.12 25);
+  /* Semantic colors desaturated for dark mode harmony */
+  --color-warn: oklch(0.78 0.08 75);
+  --color-error: oklch(0.68 0.08 25);
 
   /* Structure: Borders blending perfectly into the background */
   --color-border: oklch(0.27 0.015 var(--hue));
