@@ -47,16 +47,16 @@ import authorSketch from "../assets/fpl0-sketch.png";
       opacity var(--duration-slow) var(--ease-out);
   }
 
-  /* In dark mode, we must mathematically reverse the image.
-     1. contrast(2.5) forces the off-white background to #FFFFFF.
-     2. invert(1) turns the #FFFFFF bg to #000000, and the black pencil to white.
-     3. mix-blend-mode: screen; makes the #000000 bg entirely transparent.
-     4. We then apply heavy sepia and hue-rotate to tint the white pencil lines
-        into our elegant "Aged Gold Leaf" primary color (approx hue 75). */
+  /* In dark mode we must isolate the graphite lines and drop the white paper:
+     1. contrast(1.1) crushes any faint off-white noise to pure white (#FFFFFF).
+     2. invert(1) turns the pure white to pure black (#000000).
+     3. mix-blend-mode: screen; treats any pure black pixel as 100% transparent.
+     4. This leaves ONLY the white sketch lines, which we then tint to true gold 
+        using sepia, saturate, hue-rotate, and brightness. */
   :global([data-theme="dark"]) .ornament-image {
-    mix-blend-mode: screen;
-    filter: contrast(2.5) invert(1) grayscale(1) sepia(1) saturate(2)
-      hue-rotate(30deg) brightness(0.8) opacity(0.8);
+    mix-blend-mode: plus-lighter;
+    filter: contrast(1.2) invert(1) grayscale(1) sepia(1) saturate(3)
+      hue-rotate(35deg) brightness(0.9) opacity(0.85);
   }
 
   @media (max-width: 600px) {
