@@ -25,35 +25,38 @@ import authorSketch from "../assets/fpl0-sketch.png";
     margin-top: var(--space-y-xl);
     padding: var(--space-8) 0;
     width: 100%;
-    opacity: 0.9;
+    /* Note: Do NOT add `opacity` or `transform` here, as it creates a formatting context
+       and ruins the child's `mix-blend-mode` with the global page background! */
   }
 
   /* The sketch is generated on a pure white background.
      In light mode, `mix-blend-mode: multiply` makes the white entirely transparent,
      letting the warm paper background bleed through.
-     We then use sepia/opacity to soften the black graphite to match `--color-text-muted`. */
+     We use `contrast(1.5)` to ruthlessly crush any off-white paper artifacts from the AI into pure white,
+     ensuring the bounding box disappears completely. */
   .ornament-image {
     /* Scale proportionally to the site header logo */
-    height: calc(var(--font-size-h2) * 6);
+    height: calc(var(--font-size-h2) * 5);
     width: auto;
     object-fit: contain;
 
     mix-blend-mode: multiply;
-    filter: sepia(0.2) opacity(0.75);
+    filter: contrast(1.5) grayscale(1) sepia(0.2) opacity(0.75);
     transition:
       filter var(--duration-slow) var(--ease-out),
       opacity var(--duration-slow) var(--ease-out);
   }
 
   /* In dark mode, we must mathematically reverse the image.
-     1. invert(1) turns the white bg to black, and the black pencil to white.
-     2. mix-blend-mode: screen; makes the black bg entirely transparent.
-     3. We then apply heavy sepia and hue-rotate to tint the white pencil lines 
+     1. contrast(2.5) forces the off-white background to #FFFFFF.
+     2. invert(1) turns the #FFFFFF bg to #000000, and the black pencil to white.
+     3. mix-blend-mode: screen; makes the #000000 bg entirely transparent.
+     4. We then apply heavy sepia and hue-rotate to tint the white pencil lines
         into our elegant "Aged Gold Leaf" primary color (approx hue 75). */
   :global([data-theme="dark"]) .ornament-image {
     mix-blend-mode: screen;
-    filter: invert(1) sepia(1) saturate(1.5) hue-rotate(30deg) brightness(0.9)
-      opacity(0.8);
+    filter: contrast(2.5) invert(1) grayscale(1) sepia(1) saturate(2)
+      hue-rotate(30deg) brightness(0.8) opacity(0.8);
   }
 
   @media (max-width: 600px) {
@@ -64,7 +67,7 @@ import authorSketch from "../assets/fpl0-sketch.png";
     }
 
     .ornament-image {
-      height: calc(var(--font-size-h2) * 4);
+      height: calc(var(--font-size-h2) * 3.5);
     }
   }
 </style>
