@@ -1,258 +1,20 @@
 ---
 /**
- * EndOrnament - A handmade, paper-like SVG illustration
+ * EndOrnament - A handmade, paper-like illustration
  * placed at the end of the home page.
- * Theme: Esoteric geometric alchemy symbol (Triangle, Square, Circles)
- * Rich use of primary colors to create a glowing, celestial aesthetic.
+ * Theme: A vintage, Da Vinci-style graphite portrait of the author.
  */
+import { Image } from "astro:assets";
+import authorSketch from "../assets/fpl0-sketch.png";
 ---
 
 <div class="end-ornament" aria-hidden="true">
-  <svg
-    viewBox="0 0 500 500"
-    class="ornament-svg"
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <!-- DEFINITIONS for glowing/blending effects -->
-    <defs>
-      <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-        <feGaussianBlur stdDeviation="4" result="blur"></feGaussianBlur>
-        <feComposite in="SourceGraphic" in2="blur" operator="over"
-        ></feComposite>
-      </filter>
-    </defs>
-
-    <g stroke-linecap="round" stroke-linejoin="round" fill="none">
-      <!-- BACKGROUND / SUBTLE ARCHITECTURAL GUIDES -->
-      <!-- Vertical Center Axis -->
-      <line
-        x1="250"
-        y1="20"
-        x2="250"
-        y2="480"
-        stroke="var(--color-primary)"
-        stroke-width="1.5"
-        opacity="0.6"></line>
-      <line
-        x1="245"
-        y1="250"
-        x2="255"
-        y2="250"
-        stroke="var(--color-primary)"
-        stroke-width="2"></line>
-
-      <!-- Horizontal Base Axis -->
-      <line
-        x1="20"
-        y1="340"
-        x2="480"
-        y2="340"
-        stroke="var(--color-text-muted)"
-        stroke-width="1"
-        opacity="0.3"
-        stroke-dasharray="4 4"></line>
-
-      <!-- Diagonal Axes crossing at center -->
-      <line
-        x1="108.6"
-        y1="108.6"
-        x2="391.4"
-        y2="391.4"
-        stroke="var(--color-text-muted)"
-        stroke-width="0.5"
-        opacity="0.3"
-        stroke-dasharray="4 4"></line>
-      <line
-        x1="108.6"
-        y1="391.4"
-        x2="391.4"
-        y2="108.6"
-        stroke="var(--color-text-muted)"
-        stroke-width="0.5"
-        opacity="0.3"
-        stroke-dasharray="4 4"></line>
-
-      <!-- OUTER CONCENTRIC RINGS -->
-      <circle
-        cx="250"
-        cy="250"
-        r="210"
-        stroke="var(--color-text-muted)"
-        stroke-width="0.5"
-        opacity="0.2"></circle>
-      <!-- Outer dashed orbit -->
-      <circle
-        cx="250"
-        cy="250"
-        r="195"
-        stroke="var(--color-primary)"
-        stroke-width="1.5"
-        stroke-dasharray="2 12"
-        opacity="0.5"></circle>
-      <!-- Main bounding circle from reference -->
-      <circle
-        cx="250"
-        cy="250"
-        r="180"
-        stroke="var(--color-text-muted)"
-        stroke-width="2.5"
-        opacity="0.8"></circle>
-
-      <!-- INVERTED SECONDARY TRIANGLE (Adds esoteric star complex) -->
-      <!-- Points: Bottom(250, 430) TopLeft(94.1, 160) TopRight(405.9, 160) -->
-      <polygon
-        points="250,430 94.1,160 405.9,160"
-        stroke="var(--color-primary)"
-        stroke-width="1.5"
-        fill="var(--color-primary)"
-        fill-opacity="0.03"
-        opacity="0.5"></polygon>
-
-      <!-- THE CORE GEOMETRY (FROM REFERENCE) -->
-
-      <!-- Main Upright Triangle -->
-      <!-- Points: Top(250, 70) BottomLeft(94.1, 340) BottomRight(405.9, 340) -->
-      <polygon
-        points="250,70 94.1,340 405.9,340"
-        stroke="var(--color-text-muted)"
-        stroke-width="3"></polygon>
-
-      <!-- The Square (inscribed in the upright triangle) -->
-      <!-- Side S=145, centered at x=250, base at y=340 -->
-      <!-- Touching the triangle perfectly -->
-      <rect
-        x="177.5"
-        y="195"
-        width="145"
-        height="145"
-        stroke="var(--color-primary)"
-        stroke-width="2.5"
-        fill="var(--color-bg)"
-        fill-opacity="0.9"></rect>
-
-      <!-- The Inner Circle (inscribed in the square) -->
-      <!-- Radius = S/2 = 72.5 -->
-      <!-- We add primary color fill with high opacity blending to satisfy the "good use of colors" -->
-      <circle
-        cx="250"
-        cy="267.5"
-        r="72.5"
-        stroke="var(--color-primary)"
-        stroke-width="2.5"
-        fill="var(--color-primary)"
-        fill-opacity="0.15"></circle>
-
-      <!-- Inner detailed concentric rings -->
-      <circle
-        cx="250"
-        cy="267.5"
-        r="60"
-        stroke="var(--color-text-muted)"
-        stroke-width="1"
-        opacity="0.8"></circle>
-      <circle cx="250" cy="267.5" r="5" fill="var(--color-primary)"></circle>
-
-      <!-- Subtle internal starburst lines inside the circle -->
-      <g stroke="var(--color-primary)" stroke-width="0.5" opacity="0.4">
-        <line x1="250" y1="195" x2="250" y2="210"></line>
-        <line x1="250" y1="325" x2="250" y2="340"></line>
-        <line x1="177.5" y1="267.5" x2="192.5" y2="267.5"></line>
-        <line x1="307.5" y1="267.5" x2="322.5" y2="267.5"></line>
-      </g>
-
-      <!-- MAIN VERTEX CIRCLES (Solid masking circles at the points of the triangle) -->
-
-      <!-- Top Vertex -->
-      <circle cx="250" cy="70" r="38" fill="var(--color-bg)"></circle>
-      <circle
-        cx="250"
-        cy="70"
-        r="38"
-        stroke="var(--color-primary)"
-        stroke-width="3"
-        fill="var(--color-primary)"
-        fill-opacity="0.05"></circle>
-      <circle
-        cx="250"
-        cy="70"
-        r="28"
-        stroke="var(--color-text-muted)"
-        stroke-width="1.5"
-        opacity="0.8"></circle>
-      <circle cx="250" cy="70" r="6" fill="var(--color-primary)"></circle>
-
-      <!-- Bottom Left Vertex -->
-      <circle cx="94.1" cy="340" r="38" fill="var(--color-bg)"></circle>
-      <circle
-        cx="94.1"
-        cy="340"
-        r="38"
-        stroke="var(--color-primary)"
-        stroke-width="3"
-        fill="var(--color-primary)"
-        fill-opacity="0.05"></circle>
-      <circle
-        cx="94.1"
-        cy="340"
-        r="28"
-        stroke="var(--color-text-muted)"
-        stroke-width="1.5"
-        opacity="0.8"></circle>
-      <circle cx="94.1" cy="340" r="6" fill="var(--color-primary)"></circle>
-
-      <!-- Bottom Right Vertex -->
-      <circle cx="405.9" cy="340" r="38" fill="var(--color-bg)"></circle>
-      <circle
-        cx="405.9"
-        cy="340"
-        r="38"
-        stroke="var(--color-primary)"
-        stroke-width="3"
-        fill="var(--color-primary)"
-        fill-opacity="0.05"></circle>
-      <circle
-        cx="405.9"
-        cy="340"
-        r="28"
-        stroke="var(--color-text-muted)"
-        stroke-width="1.5"
-        opacity="0.8"></circle>
-      <circle cx="405.9" cy="340" r="6" fill="var(--color-primary)"></circle>
-
-      <!-- OUTER ORBITING ACCENTS (Celestial markers) -->
-
-      <!-- Top marker -->
-      <circle cx="250" cy="20" r="5" fill="var(--color-primary)" opacity="0.8"
-      ></circle>
-      <circle cx="250" cy="20" r="1.5" fill="var(--color-bg)"></circle>
-
-      <!-- Base orbit markers -->
-      <circle cx="56.1" cy="362" r="5" fill="var(--color-primary)" opacity="0.8"
-      ></circle>
-      <circle cx="56.1" cy="362" r="1.5" fill="var(--color-bg)"></circle>
-      <circle
-        cx="443.9"
-        cy="362"
-        r="5"
-        fill="var(--color-primary)"
-        opacity="0.8"></circle>
-      <circle cx="443.9" cy="362" r="1.5" fill="var(--color-bg)"></circle>
-
-      <!-- Arching celestial tracks -->
-      <path
-        d="M 120 230 Q 250 180 380 230"
-        stroke="var(--color-primary)"
-        stroke-width="1"
-        opacity="0.4"
-        stroke-dasharray="2 4"></path>
-      <path
-        d="M 120 280 Q 250 330 380 280"
-        stroke="var(--color-primary)"
-        stroke-width="1"
-        opacity="0.4"
-        stroke-dasharray="2 4"></path>
-    </g>
-  </svg>
+  <Image
+    src={authorSketch}
+    alt="Vintage graphite sketch of the author"
+    class="ornament-image"
+    width={512}
+  />
 </div>
 
 <style>
@@ -266,12 +28,32 @@
     opacity: 0.9;
   }
 
-  .ornament-svg {
-    /* Scale proportionally to the site header logo, but at a visible multiplier */
-    height: calc(var(--font-size-h2) * 4.5);
+  /* The sketch is generated on a pure white background.
+     In light mode, `mix-blend-mode: multiply` makes the white entirely transparent,
+     letting the warm paper background bleed through.
+     We then use sepia/opacity to soften the black graphite to match `--color-text-muted`. */
+  .ornament-image {
+    /* Scale proportionally to the site header logo */
+    height: calc(var(--font-size-h2) * 6);
     width: auto;
-    /* Soft architectural bloom to enhance the --color-primary lines */
-    filter: drop-shadow(0px 2px 4px var(--color-bg));
+    object-fit: contain;
+
+    mix-blend-mode: multiply;
+    filter: sepia(0.2) opacity(0.75);
+    transition:
+      filter var(--duration-slow) var(--ease-out),
+      opacity var(--duration-slow) var(--ease-out);
+  }
+
+  /* In dark mode, we must mathematically reverse the image.
+     1. invert(1) turns the white bg to black, and the black pencil to white.
+     2. mix-blend-mode: screen; makes the black bg entirely transparent.
+     3. We then apply heavy sepia and hue-rotate to tint the white pencil lines 
+        into our elegant "Aged Gold Leaf" primary color (approx hue 75). */
+  :global([data-theme="dark"]) .ornament-image {
+    mix-blend-mode: screen;
+    filter: invert(1) sepia(1) saturate(1.5) hue-rotate(30deg) brightness(0.9)
+      opacity(0.8);
   }
 
   @media (max-width: 600px) {
@@ -281,9 +63,8 @@
       padding: var(--space-4) 0;
     }
 
-    /* Variables natively respond in mobile, but we can enforce inheritance */
-    .ornament-svg {
-      height: calc(var(--font-size-h2) * 3);
+    .ornament-image {
+      height: calc(var(--font-size-h2) * 4);
     }
   }
 </style>
