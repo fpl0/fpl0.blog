@@ -1,0 +1,10 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "command": "case \"$CLAUDE_FILE_PATH\" in */bun.lock|*/dist/*|*/.astro/*) echo 'BLOCK: This file is generated — do not edit directly.' >&2; exit 2;; esac"
+      }
+    ]
+  }
+}
