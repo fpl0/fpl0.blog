@@ -26,6 +26,13 @@
 - **Fonts**: `@fontsource` packages with `font-display: block` and metric-override fallbacks
 - **Syntax highlighting**: Shiki with CSS variables, dual themes (OKLCH-compatible)
 - **Mermaid diagrams**: Pre-rendered at build time via `rehype-mermaid-dual.mjs` (Playwright + `mermaid-isomorphic`)
+- **Deployment**: Cloudflare Pages via Wrangler (`wrangler.jsonc`), CI in `.github/workflows/deploy.yml`
+
+## Environment
+
+- `INCLUDE_DRAFTS=true` — include draft content in builds (useful for local preview: `INCLUDE_DRAFTS=true bun run build`)
+- Playwright Chromium required for Mermaid rendering and OG image generation (`bunx playwright install chromium`)
+- No `.env` file needed for local development
 
 ## Commands
 
@@ -43,13 +50,18 @@
 | Scaffold an app | `bun run 0:new-app` |
 | Generate favicons | `bun run scripts/generate-favicons.ts` (requires Playwright Chromium) |
 | List all content | `bun run 0:list` (`--drafts` / `--published`) |
-| Publish by slug | `bun run 0:publish <slug>` |
+| Publish by slug | `bun run 0:publish <slug>` (`--no-push` to skip git push) |
+| Unpublish by slug | `bun run 0:unpublish <slug>` |
+| Delete content | `bun run 0:delete <slug>` |
+| List all commands | `bun run 0:help` |
+| Generate OG image | `bun run 0:og-image` (requires Playwright Chromium) |
+| Preview prod build | `bun run preview` |
 
 ## Code Quality
 
 - **Clean & Concise**: Write minimal, efficient code.
 - **DRY**: Extract common logic into `src/utils/content.ts`. Use `getFeedItems()` for the mixed feed. Render entries using the unified `EntryCard.astro`.
-- **Layout Logic**: Use `<BaseHead>` in all layouts to share theme init, fonts, and meta logic.
+- **Layout Logic**: Use `<BaseHead>` in all layouts to share theme init, fonts, and meta logic. Two layouts exist: `Layout.astro` (standard pages with ScrollToTop, Analytics) and `AppShell.astro` (full-viewport interactive apps — no ScrollToTop, no Analytics).
 - **CSS**: Targeted, token-driven, and responsive. Use **Container Queries** (`cqi`) for component-level responsiveness.
 
 ---
@@ -107,7 +119,7 @@ Line heights are inversely proportional to font size: `--line-height-tight` (1.1
 
 All pages must utilize the `<BaseHead>` component to ensure consistent:
 1. **Theme Flash Prevention**: Critical inline script reading `localStorage`.
-2. **Safari Browser Chrome**: `<meta name="theme-color">` tags with `media` queries for light/dark, synced by `theme-init.inline.js` and `theme-toggle.inline.js`. Hex values (`#faf5ea` light, `#17100e` dark) are hardcoded in 3 places: `BaseHead.astro`, `theme-init.inline.js`, `theme-toggle.inline.js` — update all three if `--color-bg` tokens change. Meta tags **must** precede the theme-init script in the `<head>` so the script can override them before paint. The `astro:before-swap` handler also syncs meta tags on the new document to prevent flash during View Transitions.
+2. **Safari Browser Chrome**: `<meta name="theme-color">` tags with `media` queries for light/dark, synced by `theme-init.inline.js` and `theme-toggle.inline.js`. Hex values (`#faf5ea` light, `#17100e` dark) are hardcoded in 4 places: `src/config/theme.ts`, `BaseHead.astro`, `theme-init.inline.js`, `theme-toggle.inline.js` — update all four if `--color-bg` tokens change. Meta tags **must** precede the theme-init script in the `<head>` so the script can override them before paint. The `astro:before-swap` handler also syncs meta tags on the new document to prevent flash during View Transitions.
 3. **Font Preloading**: `font-display: block` for zero-flicker rendering.
 4. **CSP Headers**: Standardized security policy.
 5. **View Transitions**: Shared `ClientRouter` behavior.
@@ -162,8 +174,10 @@ That's it — `csp.ts` automatically picks up, hashes, and adds it to the CSP. N
 
 **Rules:**
 - **NEVER write inline JS directly inside `<script is:inline>` tags.** Always use a co-located `*.inline.js` file with `?raw` import + `set:html`. Direct inline scripts will be blocked by CSP.
+- **Exception**: `<script is:inline type="application/ld+json">` for JSON-LD structured data is fine — it's data, not executable JS. Used by `BlogPostSchema.astro`, `AppSchema.astro`, `PersonSchema.astro`, `WebSiteSchema.astro`.
 - **NEVER add `'unsafe-inline'` or `'unsafe-eval'` to `script-src`.** The hash-based approach makes them unnecessary.
 - `style-src` retains `'unsafe-inline'` (required by Shiki's inline style attributes).
+- `platform-detect.inline.js`: Sets `data-platform="other"` on non-Mac devices for keyboard shortcut hints (Cmd vs Ctrl).
 
 ### Content Logic
 
@@ -172,6 +186,8 @@ Single source of truth in `src/utils/content.ts`:
 - `getPublishedApps()`: Filtered/Sorted apps.
 - `getFeedItems()`: Unified chronological feed.
 - `getReadingTime(content)`: Estimator (200 WPM).
+- `getTagMap()`: `Map<string, FeedItem[]>` for tag pages.
+- `getTagCounts()`: `Map<string, number>` for tag cloud rendering.
 
 ## Common Pitfalls
 

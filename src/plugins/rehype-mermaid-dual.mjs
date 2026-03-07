@@ -227,7 +227,7 @@ export default function rehypeMermaidDual() {
 
       const html = [
         '<div class="mermaid-container">',
-        '  <button class="mermaid-toggle" aria-label="View diagram source">source</button>',
+        '  <button type="button" class="mermaid-toggle" aria-label="View diagram source">source</button>',
         `  <div class="mermaid-rendered mermaid-light">${lightSvg}</div>`,
         `  <div class="mermaid-rendered mermaid-dark">${darkSvg}</div>`,
         `  <pre class="mermaid-source code-processed" hidden><code>${escapeHtml(source)}</code></pre>`,

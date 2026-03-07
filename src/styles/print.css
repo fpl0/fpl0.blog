@@ -24,8 +24,8 @@
 
   /* Reset page layout */
   body {
-    background: oklch(1 0 0) !important;
-    color: oklch(0 0 0) !important;
+    background: oklch(1 0 0) !important; /* token-exempt: print requires achromatic white */
+    color: oklch(0 0 0) !important; /* token-exempt: print requires achromatic black */
     font-size: 12pt;
     max-width: 100%;
     padding: 0;
@@ -34,30 +34,30 @@
 
   /* Clean typography */
   .content {
-    color: oklch(0 0 0) !important;
+    color: oklch(0 0 0) !important; /* token-exempt: print requires achromatic black */
     font-size: 12pt;
     line-height: 1.5;
   }
 
   .content h2,
   .content h3 {
-    color: oklch(0 0 0) !important;
+    color: oklch(0 0 0) !important; /* token-exempt: print requires achromatic black */
   }
 
   .post-header h1 {
-    color: oklch(0 0 0) !important;
+    color: oklch(0 0 0) !important; /* token-exempt: print requires achromatic black */
     font-size: 18pt;
   }
 
   .post-meta {
-    color: oklch(0.42 0 0) !important;
+    color: oklch(0.42 0 0) !important; /* token-exempt: print achromatic gray */
   }
 
   /* Show URLs after external links */
   .content a[href^="http"]::after {
     content: " (" attr(href) ")";
     font-size: 0.8em;
-    color: oklch(0.42 0 0);
+    color: oklch(0.42 0 0); /* token-exempt: print achromatic gray */
     font-family: sans-serif;
   }
 
@@ -89,8 +89,8 @@
 
   /* Code blocks for print */
   .content pre {
-    background: oklch(0.97 0 0) !important;
-    border: 1px solid oklch(0.88 0 0) !important;
+    background: oklch(0.97 0 0) !important; /* token-exempt: print achromatic light gray */
+    border: 1px solid oklch(0.88 0 0) !important; /* token-exempt: print achromatic border */
     font-size: 9pt;
     overflow-x: visible;
     white-space: pre-wrap;
@@ -99,7 +99,7 @@
 
   /* Links */
   a {
-    color: oklch(0 0 0) !important;
+    color: oklch(0 0 0) !important; /* token-exempt: print requires achromatic black */
     text-decoration: underline;
   }
 }

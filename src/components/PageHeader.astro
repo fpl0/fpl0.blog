@@ -31,13 +31,13 @@ const isTags = pathname.startsWith("/tags");
         aria-current={isAbout ? "page" : undefined}
         variant="muted">about</Link
       >
-      <span class="site-nav-sep">/</span>
+      <span class="site-nav-sep" aria-hidden="true">/</span>
       <Link
         href="/tags/"
         aria-current={isTags ? "page" : undefined}
         variant="muted">tags</Link
       >
-      <span class="site-nav-sep">/</span>
+      <span class="site-nav-sep" aria-hidden="true">/</span>
       <button
         class="site-nav-search"
         id="site-nav-search"

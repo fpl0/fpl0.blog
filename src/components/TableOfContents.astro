@@ -29,7 +29,7 @@ const tocHeadings = headings.filter((h) => h.depth === 2 || h.depth === 3);
 {
   tocHeadings.length > 0 && (
     <aside class="toc-sidebar" aria-label="Table of contents">
-      <nav class="toc">
+      <nav class="toc" aria-label="Table of contents">
         <ul class="toc-list">
           {tocHeadings.map((heading) => (
             <li

@@ -126,12 +126,18 @@ const videoPoster = tweet?.video?.poster;
       )}
 
       {videoPoster && (
-        <div class="tweet-media">
-          <img src={videoPoster} alt="Video thumbnail" class="video-poster" loading="lazy" decoding="async" />
-          <div class="video-overlay">
-            <button class="play-button" aria-label="Play video">&#9654;</button>
+        <Link
+          href={`https://twitter.com/${user.screen_name}/status/${id}`}
+          class="tweet-media-link"
+          aria-label="Play video on Twitter"
+        >
+          <div class="tweet-media">
+            <img src={videoPoster} alt="Video thumbnail" class="video-poster" loading="lazy" decoding="async" />
+            <div class="video-overlay">
+              <span class="play-button" aria-hidden="true">&#9654;</span>
+            </div>
           </div>
-        </div>
+        </Link>
       )}
 
       <div class="tweet-footer">
@@ -305,11 +311,8 @@ const videoPoster = tweet?.video?.poster;
   }
 
   .play-button {
-    background: none;
-    border: none;
     color: var(--color-overlay-text);
     font-size: var(--font-size-h1);
-    cursor: pointer;
     padding: var(--space-2);
   }
 
