@@ -6,7 +6,6 @@
 import Layout from "../layouts/Layout.astro";
 import "../styles/home.css";
 
-import EndOrnament from "../components/EndOrnament.astro";
 import PageHeader from "../components/PageHeader.astro";
 import EntryCard from "../components/EntryCard.astro";
 import WebSiteSchema from "../components/WebSiteSchema.astro";
@@ -36,6 +35,5 @@ const feedItems = await getFeedItems();
         <p class="empty-state">Nothing here yet.</p>
       )
     }
-    <EndOrnament />
   </main>
 </Layout>
