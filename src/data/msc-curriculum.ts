@@ -1287,4 +1287,4 @@ export const completedWeeks: number[] = [];
  * Rendered with a distinct "in progress" treatment in the heatmap,
  * curriculum list, and dashboard counter.
  */
-export const inProgressWeek: number | null = null;
+export const inProgressWeek: number | null = 1;
