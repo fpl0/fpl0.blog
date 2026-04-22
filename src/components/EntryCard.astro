@@ -17,7 +17,9 @@ interface Props {
 
 const { entry } = Astro.props;
 const collection = entry.collection;
-const url = `/${collection}/${entry.slug}/`;
+// Blog (legacy loader) uses entry.slug; apps (glob loader) uses entry.id.
+const entryKey = collection === "apps" ? entry.id : entry.slug;
+const url = `/${collection}/${entryKey}/`;
 const readingTime = collection === "blog" && entry.body ? getReadingTime(entry.body) : null;
 const isPinned = entry.data.isPinned === true;
 ---

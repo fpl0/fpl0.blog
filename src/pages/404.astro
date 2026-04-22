@@ -26,14 +26,17 @@ const recent = feed.slice(0, 3);
       <section class="not-found-recent">
         <h2 class="not-found-section-title">Recent</h2>
         <ul class="not-found-list">
-          {recent.map((item) => (
-            <li class="not-found-item">
-              <Link href={`/${item.entry.collection}/${item.entry.slug}/`} class="not-found-item-link">
-                {item.entry.data.title}
-              </Link>
-              <FormattedDate date={item.entry.data.date} variant="system" className="not-found-item-date" />
-            </li>
-          ))}
+          {recent.map((item) => {
+            const key = item.type === "app" ? item.entry.id : item.entry.slug;
+            return (
+              <li class="not-found-item">
+                <Link href={`/${item.entry.collection}/${key}/`} class="not-found-item-link">
+                  {item.entry.data.title}
+                </Link>
+                <FormattedDate date={item.entry.data.date} variant="system" className="not-found-item-date" />
+              </li>
+            );
+          })}
         </ul>
         <Link href="/tags/" class="not-found-home" variant="muted">Browse tags</Link>
       </section>

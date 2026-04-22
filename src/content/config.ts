@@ -5,6 +5,8 @@
  * The `date` field is computed from publicationDate or createdDate.
  */
 
+import { glob } from "astro/loaders";
+
 import { defineCollection, z } from "astro:content";
 import { SUMMARY_MAX, SUMMARY_MIN } from "../../scripts/constants";
 
@@ -52,8 +54,20 @@ const blog = defineCollection({
     .transform(computeDate),
 });
 
+/**
+ * Apps are co-located directories under src/content/apps/<slug>/ containing
+ * App.astro + index.md. The glob pattern matches ONLY index.md/mdx, so
+ * stray files (e.g. a .claude/settings.local.json that Claude Code's
+ * permission system may drop into the working directory) are never picked
+ * up by the content collection. generateId strips the "/index.md" suffix
+ * so the entry id equals the directory slug (e.g. "msc-cogsci").
+ */
 const apps = defineCollection({
-  type: "content",
+  loader: glob({
+    pattern: "**/index.{md,mdx}",
+    base: "./src/content/apps",
+    generateId: ({ entry }) => entry.replace(/\/index\.(md|mdx)$/, ""),
+  }),
   schema: z
     .object({
       ...baseFields,

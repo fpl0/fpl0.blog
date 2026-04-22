@@ -22,7 +22,7 @@ export const GET: APIRoute = async () => {
       title: app.data.title,
       summary: app.data.summary,
       tags: app.data.tags,
-      slug: app.slug,
+      slug: app.id,
       date: app.data.date.toISOString(),
       type: "app" as const,
     })),

@@ -31,7 +31,7 @@ export async function GET(context: APIContext) {
     title: app.data.title,
     pubDate: app.data.date,
     description: app.data.summary,
-    link: `/apps/${app.slug}/`,
+    link: `/apps/${app.id}/`,
   }));
 
   // Merge and sort by date descending

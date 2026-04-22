@@ -18,7 +18,9 @@ export type FeedItem =
 
 /**
  * Common sort comparator. Pinned entries float to the top; the rest sort
- * date-descending with slug as a stable tiebreaker.
+ * date-descending with title as a stable tiebreaker. Title is used instead
+ * of slug/id so the comparator works uniformly across the legacy blog
+ * collection and the glob-loader apps collection.
  */
 function compareEntries(
   a: CollectionEntry<"blog" | "apps">,
@@ -27,7 +29,7 @@ function compareEntries(
   const pinDiff = Number(b.data.isPinned) - Number(a.data.isPinned);
   if (pinDiff !== 0) return pinDiff;
   const dateDiff = b.data.date.valueOf() - a.data.date.valueOf();
-  return dateDiff !== 0 ? dateDiff : a.slug.localeCompare(b.slug);
+  return dateDiff !== 0 ? dateDiff : a.data.title.localeCompare(b.data.title);
 }
 
 /**

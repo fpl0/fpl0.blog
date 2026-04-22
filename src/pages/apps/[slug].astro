@@ -24,14 +24,14 @@ const appModules = import.meta.glob<{ default: astroHTML.JSX.Element }>(
 export async function getStaticPaths() {
   const published = await getPublishedApps();
   return published.map((app) => ({
-    params: { slug: app.slug },
+    params: { slug: app.id },
     props: { app },
   }));
 }
 
 const { app } = Astro.props;
-const mod = appModules[`../../content/apps/${app.slug}/App.astro`];
-if (!mod) throw new Error(`Missing App.astro for app "${app.slug}"`);
+const mod = appModules[`../../content/apps/${app.id}/App.astro`];
+if (!mod) throw new Error(`Missing App.astro for app "${app.id}"`);
 const AppComponent = mod.default;
 ---
 
@@ -41,7 +41,7 @@ const AppComponent = mod.default;
     description={app.data.summary}
     datePublished={app.data.createdDate}
     dateModified={app.data.publicationDate}
-    url={new URL(`/apps/${app.slug}/`, Astro.site).toString()}
+    url={new URL(`/apps/${app.id}/`, Astro.site).toString()}
   />
   <AppComponent />
 </AppShell>
