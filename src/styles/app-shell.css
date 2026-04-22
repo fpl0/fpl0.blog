@@ -141,6 +141,22 @@
   overflow: hidden;
 }
 
+/* Document mode — content sits in normal flow below the fixed bar and scrolls. */
+.app-shell-content--scrollable {
+  position: static;
+  top: auto;
+  left: auto;
+  right: auto;
+  bottom: auto;
+  overflow: visible;
+  padding-top: var(--space-12);
+  max-width: var(--content-width);
+  margin: 0 auto;
+  padding-left: clamp(var(--space-4), 5vw, var(--space-6));
+  padding-right: clamp(var(--space-4), 5vw, var(--space-6));
+  padding-bottom: clamp(var(--space-6), 8vh, var(--space-16));
+}
+
 /* --- Mobile adjustments --- */
 
 @media (max-width: 600px) {

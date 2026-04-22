@@ -1,12 +1,14 @@
 ---
 /**
- * AppShell - Minimal standalone layout for full-viewport apps
+ * AppShell - Minimal standalone layout for apps.
  *
- * Unlike the blog Layout, this provides only:
- * - Common BaseHead (Theme, Fonts, Meta, Transitions)
- * - A thin top bar with back link to home + search hint
- * - Theme toggle + SearchModal (Cmd+K)
- * - Full-viewport content area via <slot />
+ * Two modes:
+ * - Default (full-viewport): fixed body, no scroll — for canvases / spatial tools.
+ * - scrollable: long-form document mode — for apps that are primarily content
+ *   with light interactivity (progress trackers, dashboards, reference docs).
+ *
+ * Both modes share the same thin top bar (back link, title, search, theme toggle)
+ * and the BaseHead (theme init, fonts, meta, View Transitions).
  *
  * No ScrollToTop or Analytics — apps are standalone.
  */
@@ -22,9 +24,19 @@ import ThemeToggle from "../components/ThemeToggle.astro";
 interface Props {
   title: string;
   description?: string;
+  scrollable?: boolean;
 }
 
-const { title, description = "An interactive app on fpl0's blog." } = Astro.props;
+const {
+  title,
+  description = "An interactive app on fpl0's blog.",
+  scrollable = false,
+} = Astro.props;
+
+const bodyClass = scrollable ? "app-shell-body app-shell-body--scrollable" : "app-shell-body";
+const contentClass = scrollable
+  ? "app-shell-content app-shell-content--scrollable"
+  : "app-shell-content";
 ---
 
 <!doctype html>
@@ -32,7 +44,7 @@ const { title, description = "An interactive app on fpl0's blog." } = Astro.prop
 	<head>
 		<BaseHead {title} {description} />
 	</head>
-	<body class="app-shell-body">
+	<body class={bodyClass}>
 		<a href="#main-content" class="skip-link">Skip to content</a>
 		<header class="app-shell-bar">
 			<nav class="app-shell-nav" aria-label="App navigation">
@@ -62,20 +74,31 @@ const { title, description = "An interactive app on fpl0's blog." } = Astro.prop
 			</div>
 		</header>
 		<SearchModal />
-		<main class="app-shell-content" id="main-content">
+		<main class={contentClass} id="main-content">
 			<slot />
 		</main>
 	</body>
 </html>
 
 <style>
-	/* Override blog body constraints — apps need full viewport */
+	/* Override blog body constraints — full-viewport apps fix the body */
 	.app-shell-body {
 		max-width: none;
 		margin: 0;
 		padding: 0;
 		overflow: hidden;
 		height: 100vh;
+	}
+
+	/* Document mode — long-form content that scrolls naturally.
+	   Keeps the fixed app bar but lets the body flow past the viewport. */
+	.app-shell-body--scrollable {
+		max-width: none;
+		margin: 0;
+		padding: 0;
+		overflow: visible;
+		height: auto;
+		min-height: 100vh;
 	}
 
 	/* Size theme toggle to match app-shell bar */

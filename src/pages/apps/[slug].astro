@@ -35,7 +35,7 @@ if (!mod) throw new Error(`Missing App.astro for app "${app.slug}"`);
 const AppComponent = mod.default;
 ---
 
-<AppShell title={app.data.title} description={app.data.summary}>
+<AppShell title={app.data.title} description={app.data.summary} scrollable={app.data.scrollable}>
   <AppSchema
     title={app.data.title}
     description={app.data.summary}

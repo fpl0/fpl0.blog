@@ -19,7 +19,8 @@
     "0:delete": "bun run scripts/delete.ts",
     "0:unpublish": "bun run scripts/unpublish.ts",
     "0:help": "bun run scripts/help.ts",
-    "0:og-image": "bun run scripts/generate-og-image.ts"
+    "0:og-image": "bun run scripts/generate-og-image.ts",
+    "0:msc-pdf": "bun run scripts/generate-msc-pdf.ts"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.3.13",
