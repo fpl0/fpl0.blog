@@ -20,6 +20,7 @@ const baseFields = {
     .max(SUMMARY_MAX, `Summary must be ${SUMMARY_MAX} characters or less`),
   tags: z.array(z.string()).default([]),
   isDraft: z.boolean().default(true),
+  isPinned: z.boolean().default(false),
   createdDate: z.coerce.date(),
   publicationDate: z.coerce.date().optional(),
 } as const;
@@ -39,14 +40,6 @@ function computeDate<T extends { createdDate: Date; publicationDate?: Date }>(da
   return { ...data, date: data.publicationDate ?? data.createdDate };
 }
 
-/**
- * Shared schema for publishable content (used by apps collection).
- */
-const publishableSchema = z
-  .object(baseFields)
-  .refine(refinePublicationDate, publicationDateError)
-  .transform(computeDate);
-
 const blog = defineCollection({
   type: "content",
   schema: z
@@ -61,10 +54,22 @@ const blog = defineCollection({
 
 const apps = defineCollection({
   type: "content",
-  schema: publishableSchema.transform((data) => ({
-    ...data,
-    tags: data.tags.includes("app") ? data.tags : ["app", ...data.tags],
-  })),
+  schema: z
+    .object({
+      ...baseFields,
+      /**
+       * When true, the app renders in document mode — the AppShell bar stays
+       * fixed, but the body scrolls naturally instead of being clamped to
+       * 100vh. Use for content-heavy apps (progress trackers, dashboards).
+       */
+      scrollable: z.boolean().default(false),
+    })
+    .refine(refinePublicationDate, publicationDateError)
+    .transform(computeDate)
+    .transform((data) => ({
+      ...data,
+      tags: data.tags.includes("app") ? data.tags : ["app", ...data.tags],
+    })),
 });
 
 export const collections = { blog, apps } as const;
