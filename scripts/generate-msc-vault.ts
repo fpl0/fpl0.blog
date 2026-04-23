@@ -13,15 +13,14 @@
  * `~/Library/Mobile Documents/iCloud~md~obsidian/Documents/fpl0-msc-cogsci`.
  *
  * What this writes:
- *   Home.md, README.md, Milestones.md
+ *   Home.md, Milestones.md
  *   Semesters/            S1–S5 MOCs
  *   Modules/              21 module notes
  *   Weeks/                80 week notes (one per week, with readings as checkboxes)
- *   Artifacts/            21 artifact trackers (status + published link field)
- *   Library/              Books, Papers, Courses — aggregated reading lists
- *   Concepts/             empty Zettelkasten index
- *   Journal/              weekly-review index
- *   _Templates/           templates for new Paper/Book/Concept/Weekly-Review notes
+ *   Library/              reading room — Books, Papers, Courses, Files (attachments),
+ *                         Artifacts (21 trackers), Assignments
+ *   Notes/                empty Zettelkasten index
+ *   _Templates/           templates for new Paper/Book/Concept notes
  *
  * Rerun with --force after editing the curriculum to regenerate MOCs
  * without touching your personal notes (skip-if-exists is the default).
@@ -34,6 +33,7 @@ import { dirname, join } from "node:path";
 
 import {
   artifactWeeks,
+  completedWeeks,
   type ItemKind,
   type Module,
   milestones,
@@ -79,6 +79,13 @@ function weekFilename(w: Week): string {
 }
 function weekLinkBase(w: Week): string {
   return weekFilename(w).replace(/\.md$/, "");
+}
+
+// Assignment filename matches what `generate-assignment` writes. The live file
+// is `Library/Assignments/W{NN} — {title} — Assignment.md`; bare wikilinks
+// resolve by basename in Obsidian, so we only need the base.
+function assignmentFilenameBase(w: Week): string {
+  return `W${pad2(w.n)} — ${safe(w.title)} — Assignment`;
 }
 
 function moduleFilename(m: Module): string {
@@ -675,10 +682,13 @@ function renderWeek(fw: FlatWeek): string {
     .filter(Boolean)
     .join(" ");
 
-  const items =
+  const assignmentLink = `[[${assignmentFilenameBase(week)}\\|W${pad2(week.n)} Assignment]]`;
+  const assessItem = `- [ ] **Assess** — ${assignmentLink}`;
+
+  const itemsWithAssess =
     week.items.length > 0
-      ? week.items.map((it) => renderItem(it, week.n)).join("\n")
-      : "_No items listed for this week in the curriculum._";
+      ? [...week.items.map((it) => renderItem(it, week.n)), assessItem].join("\n")
+      : assessItem;
 
   const art = week.artifact;
   const artifactBlock =
@@ -701,7 +711,7 @@ function renderWeek(fw: FlatWeek): string {
     "",
     "## Readings & activities",
     "",
-    items,
+    itemsWithAssess,
     artifactBlock,
     "",
     "## Notes",
@@ -720,11 +730,14 @@ function renderWeek(fw: FlatWeek): string {
 function renderModule(mod: Module, semester: Semester): string {
   const weekLinks = mod.weekDetails.map((w) => `- ${link(weekLinkBase(w))}`).join("\n");
 
+  const assignmentLinks = mod.weekDetails
+    .map((w) => `- [[${assignmentFilenameBase(w)}\\|W${pad2(w.n)} Assignment]] — ${w.title}`)
+    .join("\n");
+
   const artifactWeek = mod.weekDetails.find((w) => w.artifact);
-  const artifactLine =
-    artifactWeek && artifactWeek.artifact
-      ? `- ${link(artifactLinkBase(artifactWeek.n, artifactWeek.artifact.title))} · due W${pad2(artifactWeek.n)}`
-      : "_No artifact._";
+  const artifactLine = artifactWeek?.artifact
+    ? `- ${link(artifactLinkBase(artifactWeek.n, artifactWeek.artifact.title))} · due W${pad2(artifactWeek.n)}`
+    : "_No artifact._";
 
   const header = fm({
     type: "module",
@@ -748,6 +761,10 @@ function renderModule(mod: Module, semester: Semester): string {
     "## Weeks",
     "",
     weekLinks,
+    "",
+    "## Assessments",
+    "",
+    assignmentLinks,
     "",
     "## Artifact",
     "",
@@ -780,6 +797,7 @@ function renderArtifact(fw: FlatWeek): string {
     status: "not-started",
     link: "",
     shipped: "",
+    grade: "",
   });
 
   return [
@@ -815,6 +833,10 @@ function renderArtifact(fw: FlatWeek): string {
     "- [ ] `completedWeeks` updated in `src/data/msc-curriculum.ts`",
     "- [ ] `artifact.link` set and committed",
     "",
+    "## Grade",
+    "",
+    "_Self-assessed /100 once shipped — scope, clarity, rigour, brief fulfilled. `ship-artifact` writes the entry as `**Grade: <n>/100 · <date>** — <rationale>`. Append fresh entries if you re-grade later; don't overwrite._",
+    "",
     "## Post-mortem",
     "",
     "_What worked, what I'd do differently, what this unlocked._",
@@ -828,10 +850,9 @@ function renderSemester(s: Semester): string {
   const moduleLines = s.modules
     .map((m) => {
       const art = m.weekDetails.find((w) => w.artifact);
-      const artPart =
-        art && art.artifact
-          ? ` · ${link(artifactLinkBase(art.n, art.artifact.title), `A${pad2(artifactNumberFor(art.n))}`)}`
-          : "";
+      const artPart = art?.artifact
+        ? ` · ${link(artifactLinkBase(art.n, art.artifact.title), `A${pad2(artifactNumberFor(art.n))}`)}`
+        : "";
       return `- ${link(moduleLinkBase(m))} · Weeks ${m.weeks[0]}–${m.weeks[1]}${artPart}`;
     })
     .join("\n");
@@ -893,12 +914,21 @@ function renderHome(): string {
     .map((s) => link(semesterLinkBase(s), `S${s.n} ${s.shortTitle}`))
     .join(" · ");
 
-  const milestoneLines = milestones
-    .map(
-      (m) =>
-        `- ${m.major ? "**" : ""}W${pad2(m.week)} — ${m.label}${m.major ? "**" : ""} _(${m.artifactsCompleted}/${programme.totalArtifacts} artifacts)_`,
-    )
-    .join("\n");
+  // Next milestone = first waypoint past the furthest completed week.
+  // Falls back to the final milestone once the programme is finished.
+  const maxDone = completedWeeks.length > 0 ? Math.max(...completedWeeks) : 0;
+  const nextMilestone =
+    milestones.find((m) => m.week > maxDone) ?? milestones[milestones.length - 1];
+  const nextFw = nextMilestone ? weekById(nextMilestone.week) : undefined;
+  const nextWeekLink =
+    nextFw && nextMilestone
+      ? link(weekLinkBase(nextFw.week), `W${pad2(nextMilestone.week)}`)
+      : nextMilestone
+        ? `W${pad2(nextMilestone.week)}`
+        : "—";
+  const nextMilestoneLine = nextMilestone
+    ? `- **Next milestone** — ${nextWeekLink} — ${nextMilestone.label} _(${nextMilestone.artifactsCompleted}/${programme.totalArtifacts})_`
+    : "- **Next milestone** — _(programme complete)_";
 
   return [
     fm({ type: "home" }),
@@ -912,7 +942,7 @@ function renderHome(): string {
     "",
     "- **Current week** — _(link the week you're working, e.g. `[[W01 — The Landscape]]`)_",
     "- **Current module** — _(e.g. `[[1.1 — Introduction to Cognitive Science]]`)_",
-    "- **Next artifact** — _(e.g. `[[A01 — Paradigm Map Essay]]`)_",
+    nextMilestoneLine,
     "",
     "> Update these three links each time you start a new week. Keep statuses honest in the frontmatter of each week / artifact note.",
     "",
@@ -923,18 +953,8 @@ function renderHome(): string {
     "## Navigation",
     "",
     "- [[Milestones]] — the 21 waypoints",
-    "- Library — [[Books]] · [[Papers]] · [[Courses]] · [[msc-curriculum.pdf|Curriculum PDF]]",
-    "- [[Journal]] — weekly reviews",
-    "- [[Concepts]] — atomic notes, Zettelkasten-style",
-    "- [[README]] — how this vault works",
-    "",
-    "## Milestones",
-    "",
-    milestoneLines,
-    "",
-    "## Rhythm",
-    "",
-    `> ${programme.rhythm}`,
+    "- Library — [[Books]] · [[Papers]] · [[Courses]] · [[Curriculum.pdf|Curriculum PDF]]",
+    "- [[Notes]] — atomic notes, Zettelkasten-style",
     "",
     "### Weekly budget",
     "",
@@ -943,57 +963,65 @@ function renderHome(): string {
   ].join("\n");
 }
 
-// ---- README ----------------------------------------------------------------
+// ---- Grades page -----------------------------------------------------------
 
-function renderReadme(): string {
-  return [
-    fm({ type: "meta" }),
-    "# How this vault works",
+// Initial empty grade sheet: one row per module, pre-populated with a cell for
+// each week's assignment + a cell for the module's artifact. `finish-week` fills
+// weekly scores in-place; `ship-artifact` fills artifact grades. The module cell
+// is the unweighted mean of every filled score in its row.
+// biome-ignore lint/complexity/noExcessiveCognitiveComplexity: aggregating grades across semesters/modules/weeks is inherently nested; flattening hurts readability.
+function renderGrades(): string {
+  const parts: string[] = [
+    fm({ type: "grades" }),
+    "# Grades",
     "",
-    "This vault is the _working brain_ for my self-directed MSc. The public curriculum lives in the blog repo (`src/data/msc-curriculum.ts`) — the vault is the workshop where reading, thinking, and writing actually happen.",
+    "> One grade per module, aggregated from every activity in that module — each week's self-assessment score plus the module's artifact. Updated by `finish-week` (records the week's assignment score) and `ship-artifact` (records the artifact grade); hand-edit cells to override.",
     "",
-    "## Structure",
+    "**Scale.** Assignments are marked /100 against the Parts-A–D rubric (pass bar 70, ≥60 per section). Artifacts are self-graded /100 in each artifact note's `## Grade` section. A module grade is the unweighted mean of every filled cell in its row.",
     "",
-    "- **`Home.md`** — pin this. Jumping-off point for current work.",
-    "- **`Semesters/`** — one Map-of-Content per semester (S1–S5).",
-    "- **`Modules/`** — 21 module notes, one per module. Cross-week synthesis goes here.",
-    "- **`Weeks/`** — 80 week notes. Readings are checkboxes. Tick them as you go.",
-    "- **`Artifacts/`** — 21 artifact trackers. Status, outline, draft, post-mortem.",
-    "- **`Library/`** — reading list aggregated across the whole programme.",
-    "  - `Books.md` — textbooks, grouped by module",
-    "  - `Papers.md` — primary papers, grouped by week",
-    "  - `Courses.md` — lecture series, grouped by module",
-    "  - `msc-curriculum.pdf` — the full curriculum as a single PDF (copy of the one published on the blog).",
-    "  - Create a stub (e.g. `Library/Papers/Turing 1950.md`) from the `Paper` template when you want to take deep notes on one.",
-    "- **`Concepts/`** — atomic Zettelkasten-style notes. One concept per file. Link densely.",
-    "- **`Journal/`** — weekly reviews. Use the `Weekly Review` template each Sunday.",
-    "- **`_Templates/`** — attached to Obsidian's Templates core plugin. Use _Insert template_ (Cmd-P → _Templates: Insert template_) to create new papers/books/concepts/weekly reviews.",
+    "**Cell notation.** `— (0/N)` = nothing recorded, `N` activities still to assess. `82 (3/4)` = running mean of 82 across 3 recorded activities out of 4.",
     "",
-    "## Status conventions",
-    "",
-    "Each week, module, and artifact note has a `status` field in its frontmatter:",
-    "",
-    "- `not-started` — nothing touched yet",
-    "- `in-progress` — actively working this",
-    "- `done` — readings complete, reflection written (for weeks); draft complete (for artifacts)",
-    "- `shipped` — artifact only, once `link` is populated and the post/repo is published",
-    "",
-    "The blog's public progress (`completedWeeks` in `msc-curriculum.ts`) lags the vault by design: a week isn't _shipped_ until the artifact link exists. Use the vault status to track what's actually done, and update the TS file + commit when an artifact goes live.",
-    "",
-    "## How to work a week",
-    "",
-    "1. Open the current week note. Set `status: in-progress` and `started` to today's date.",
-    "2. Work through the checkbox list — readings, papers, videos, code.",
-    "3. Drop running thoughts in `## Notes`. When a paper deserves deep notes, create a stub in `Library/Papers/` from the `Paper` template and link to it.",
-    "4. End of week: write the `## Reflection`, set `status: done`, `finished: today`.",
-    "5. Sunday: fill in a `Journal/` weekly review.",
-    "6. When a week has an artifact, use the linked artifact note as the workspace; ship before moving on.",
-    "",
-    "## How to regenerate this vault",
-    "",
-    "The structure was generated by `scripts/generate-msc-vault.ts` in the blog repo. Rerun with `bun run scripts/generate-msc-vault.ts` to add new files after a curriculum change (existing files are skipped). Rerun with `--force` to overwrite — **this will clobber your notes**, so commit/snapshot first.",
-    "",
-  ].join("\n");
+  ];
+
+  for (const s of semesters) {
+    parts.push(`## Semester ${s.n} — ${s.title}`, "");
+    parts.push("| Module | Title | Weeks | Assignments | Artifact | **Module** |");
+    parts.push("|--------|-------|-------|-------------|----------|------------|");
+    for (const m of s.modules) {
+      const weeks = m.weekDetails;
+      const nWeeks = weeks.length;
+      const firstWeek = weeks[0];
+      const lastWeek = weeks[nWeeks - 1];
+      if (!(firstWeek && lastWeek)) continue;
+      const artifactWeek = weeks.find((w) => w.artifact);
+      const aNum = artifactWeek ? artifactNumberFor(artifactWeek.n) : null;
+      const aTitle = artifactWeek?.artifact ? shortArtifactTitle(artifactWeek.artifact.title) : "";
+      const artifactLink =
+        artifactWeek?.artifact && aNum !== null
+          ? `[[${artifactLinkBase(artifactWeek.n, artifactWeek.artifact.title)}\\|A${pad2(aNum)}]]`
+          : "—";
+      const weekRange = `W${pad2(firstWeek.n)}–W${pad2(lastWeek.n)}`;
+      const totalActivities = nWeeks + (artifactWeek ? 1 : 0);
+      const moduleTitleLink = `[[${moduleLinkBase(m)}\\|${m.title}]]`;
+      const assignmentsCell = `— (0/${nWeeks})`;
+      const artifactCell = artifactWeek ? `${artifactLink} —` : "—";
+      const moduleCell = `**— (0/${totalActivities})**`;
+      void aTitle; // available if we ever want the artifact short-title in the cell
+      parts.push(
+        `| **${m.code}** | ${moduleTitleLink} | ${weekRange} | ${assignmentsCell} | ${artifactCell} | ${moduleCell} |`,
+      );
+    }
+    parts.push("");
+  }
+
+  parts.push("## Summary", "");
+  parts.push(`- **Programme mean:** — /100 _(across 0 modules with any activity recorded)_`);
+  parts.push(`- **Modules at pass bar (≥70):** 0 / ${semesters.flatMap((s) => s.modules).length}`);
+  parts.push(`- **Weeks assessed:** 0 / ${programme.totalWeeks}`);
+  parts.push(`- **Artifacts graded:** 0 / ${programme.totalArtifacts}`);
+  parts.push("");
+
+  return parts.join("\n");
 }
 
 // ---- Milestones page -------------------------------------------------------
@@ -1258,43 +1286,27 @@ function renderPaperStub(p: ParsedPaper): string {
   ].join("\n");
 }
 
-// ---- Concepts / Journal indexes --------------------------------------------
+// ---- Notes index -----------------------------------------------------------
 
-function renderConceptsIndex(): string {
+function renderNotesIndex(): string {
   return [
-    fm({ type: "concepts-index" }),
-    "# Concepts",
+    fm({ type: "notes-index" }),
+    "# Notes",
     "",
     "> Atomic, Zettelkasten-style notes — one concept per file, densely linked.",
     "",
-    "A good concept note:",
+    "A good note:",
     "",
     "- is small (a paragraph or two) and self-contained",
     "- is _titled as a claim_ when possible (e.g. `Dopamine encodes reward prediction error`) rather than a generic noun (`Dopamine`)",
     "- links to the weeks, papers, and other concepts it touches",
     "- is something you'd want to reach for in a year, not a dump of lecture notes",
     "",
-    "Create a new concept with the `Concept` template (Cmd-P → _Templates: Insert template_).",
+    "Create a new note with the `Concept` template (Cmd-P → _Templates: Insert template_).",
     "",
     "## Index",
     "",
-    "_This page is intentionally thin — use backlinks and the graph view to navigate concept notes._",
-    "",
-  ].join("\n");
-}
-
-function renderJournalIndex(): string {
-  return [
-    fm({ type: "journal-index" }),
-    "# Journal",
-    "",
-    "> Weekly reviews. Write one each Sunday — 15 minutes, honest.",
-    "",
-    "Use the `Weekly Review` template (Cmd-P → _Templates: Insert template_) and save the file as `YYYY-WW.md` (e.g. `2026-17.md` for the 17th ISO week of 2026).",
-    "",
-    "## Reviews",
-    "",
-    "_List populates via backlinks once you start writing reviews. The most recent ones will also show up in the graph._",
+    "_This page is intentionally thin — use backlinks and the graph view to navigate._",
     "",
   ].join("\n");
 }
@@ -1402,40 +1414,6 @@ function tplConcept(): string {
   ].join("\n");
 }
 
-function tplWeeklyReview(): string {
-  return [
-    "---",
-    "type: weekly-review",
-    'week: ""     # which programme week (W01..W80)',
-    'iso-week: "" # ISO year-week, e.g. 2026-17',
-    'date: ""',
-    "---",
-    "",
-    "# Weekly review — {{title}}",
-    "",
-    "## What I read / watched / did",
-    "",
-    "## What I actually learned",
-    "",
-    "_One or two ideas that moved. Not a summary — a distillation._",
-    "",
-    "## What confused me",
-    "",
-    "## What I'd do differently next week",
-    "",
-    "## Hours on task",
-    "",
-    "- Reading:",
-    "- Lectures:",
-    "- Coding / stats:",
-    "- Writing:",
-    "- Total:",
-    "",
-    "## Mood / friction",
-    "",
-  ].join("\n");
-}
-
 // ---------------------------------------------------------------- main
 
 async function main(): Promise<void> {
@@ -1450,8 +1428,8 @@ async function main(): Promise<void> {
 
   // Root pages
   await write("Home.md", renderHome());
-  await write("README.md", renderReadme());
   await write("Milestones.md", renderMilestones());
+  await write("Grades.md", renderGrades());
 
   // Semester MOCs
   for (const s of semesters) {
@@ -1465,12 +1443,12 @@ async function main(): Promise<void> {
     }
   }
 
-  // Weeks + artifacts
+  // Weeks + artifacts (artifacts live under Library/Artifacts/)
   for (const fw of flatWeeks) {
     await write(`Weeks/${weekFilename(fw.week)}`, renderWeek(fw));
     if (fw.week.artifact) {
       await write(
-        `Artifacts/${artifactFilename(fw.week.n, fw.week.artifact.title)}`,
+        `Library/Artifacts/${artifactFilename(fw.week.n, fw.week.artifact.title)}`,
         renderArtifact(fw),
       );
     }
@@ -1482,7 +1460,7 @@ async function main(): Promise<void> {
   await write("Library/Books.md", renderBooks());
   await write("Library/Courses.md", renderCourses());
   // Curriculum PDF — source of truth lives in blog repo, copy here for offline use.
-  await copy(join(process.cwd(), "public/msc-curriculum.pdf"), "Library/msc-curriculum.pdf");
+  await copy(join(process.cwd(), "public/msc-curriculum.pdf"), "Library/Curriculum.pdf");
 
   // Per-item stubs. Skip-if-exists by default preserves user-written reading
   // notes; --force regenerates. Week notes cross-link into these files.
@@ -1496,15 +1474,13 @@ async function main(): Promise<void> {
     await write(`Library/Papers/${paperLinkBase(p)}.md`, renderPaperStub(p));
   }
 
-  // Concepts / Journal
-  await write("Concepts/Concepts.md", renderConceptsIndex());
-  await write("Journal/Journal.md", renderJournalIndex());
+  // Notes (Zettelkasten) index
+  await write("Notes/Notes.md", renderNotesIndex());
 
   // Templates
   await write("_Templates/Paper.md", tplPaper());
   await write("_Templates/Book.md", tplBook());
   await write("_Templates/Concept.md", tplConcept());
-  await write("_Templates/Weekly Review.md", tplWeeklyReview());
 
   console.log("");
   success(`wrote ${wrote} files · skipped ${skipped}`);

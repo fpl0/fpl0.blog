@@ -7,7 +7,8 @@
       "!**/.astro",
       "!**/node_modules",
       "!**/public",
-      "!**/test-results"
+      "!**/test-results",
+      "!vault"
     ]
   },
   "formatter": {

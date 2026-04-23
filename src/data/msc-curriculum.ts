@@ -17,6 +17,12 @@ export interface Artifact {
   length: string;
   kind: "Written" | "Code + Report" | "Visual" | "Written + Code" | "Dissertation";
   /**
+   * Supervisor-style description of the artifact: what it is, the question
+   * it answers or position it defends, what counts as success, and scope
+   * cues. 2–4 sentences, rendered publicly alongside the title and kind.
+   */
+  description?: string;
+  /**
    * URL to the published artifact (blog post, repo, PDF, etc.).
    * An artifact week is only treated as complete once this field is set —
    * a week can be listed in `completedWeeks` but won't count toward progress
@@ -69,20 +75,18 @@ export const programme = {
   totalModules: 21,
   totalSemesters: 5,
   pace: "12–14 hrs/week",
-  rhythm:
-    "1–2 hours on weekday evenings for reading and lectures; 4–6 hours on weekends for writing, coding, and deep thinking.",
   methodology: [
     {
       heading: "Each module contains",
-      body: "Core readings (textbooks + primary papers), lectures (free online courses and video series), and an artifact — the same kind of submission a masters student would turn in.",
+      body: "A set textbook and a bundle of primary papers, paired with a free online lecture series, a running set of short exercises (derivations, minimal re-implementations, reconstructions of an argument on a fresh example), a Parts-A–D self-assessment, and an artifact — an essay, model report, or repo pitched at MSc level. The exercises and self-assessment are the formative layer; the artifact is the summative one.",
     },
     {
       heading: "Pacing",
-      body: "One module every 3–4 weeks. Heavier modules (10 ECTS equivalent) get 4 weeks; lighter ones get 3. The capstone gets 10 weeks. Expect the 80-week schedule to slip to 90–100 weeks in practice — that is normal and accounted for.",
+      body: "One module every 3–4 weeks — 3 for lighter modules, 4 for heavier, 10 for the capstone. Nominal total: 80 weeks. Part-time study routinely runs longer, so plan for 90–100.",
     },
     {
       heading: "Assessment",
-      body: "Every artifact is written to publishable or submission-ready quality. Share with peers, online communities (LessWrong, PhilPapers discussions, r/CogSci), or use AI-assisted review. For the capstone: budgeted paid reads from two PhD students in the field — the single change that most narrows the gap to an accredited programme.",
+      body: "Each week closes with a Parts-A–D written self-assessment — recall, short explanation, essay, applied problem — marked against a rubric. Each module ends with an artifact: an essay, model report, paper, or repo. AI-assisted review sits alongside as a formative layer during drafting.",
     },
   ],
   weeklyBudget: [
@@ -92,13 +96,48 @@ export const programme = {
     { activity: "Writing", hours: "2–4 hrs", note: "Notes, drafts, artifacts" },
   ],
   sources: [
-    "MIT Brain and Cognitive Sciences",
-    "Carnegie Mellon Psychology (Cognitive Science track)",
-    "Stanford Symbolic Systems",
-    "University of Edinburgh Informatics",
-    "UC San Diego Cognitive Science",
-    "Indiana University Cognitive Science",
-    "University of Sussex Centre for Cognitive Science",
+    {
+      code: "MIT",
+      institution: "Massachusetts Institute of Technology",
+      name: "Brain and Cognitive Sciences",
+      url: "https://bcs.mit.edu/",
+    },
+    {
+      code: "CMU",
+      institution: "Carnegie Mellon",
+      name: "Psychology — Cognitive Science track",
+      url: "https://www.cmu.edu/dietrich/psychology/undergraduate/prospective-students/academics/cognitive-science/index.html",
+    },
+    {
+      code: "SSP",
+      institution: "Stanford",
+      name: "Symbolic Systems",
+      url: "https://symsys.stanford.edu/",
+    },
+    {
+      code: "EDI",
+      institution: "University of Edinburgh",
+      name: "School of Informatics — MSc Cognitive Science",
+      url: "https://study.ed.ac.uk/programmes/postgraduate-taught/108-cognitive-science",
+    },
+    {
+      code: "UCSD",
+      institution: "UC San Diego",
+      name: "Cognitive Science",
+      url: "https://cogsci.ucsd.edu/",
+    },
+    {
+      code: "IU",
+      institution: "Indiana University Bloomington",
+      name: "Cognitive Science Program",
+      url: "https://cogs.indiana.edu/",
+    },
+    {
+      code: "SUS",
+      institution: "University of Sussex",
+      name: "Centre for Cognitive Science (COGS)",
+      url: "https://www.sussex.ac.uk/cogs/",
+    },
   ],
 } as const;
 
@@ -211,6 +250,8 @@ export const semesters: Semester[] = [
                 title: "Paradigm Map Essay",
                 length: "3,000 words",
                 kind: "Written",
+                description:
+                  "A 3,000-word essay mapping the four live paradigms of cognitive science — classical symbolic computation, connectionism, dynamical systems, probabilistic/Bayesian — and arguing which of the disputes between them are real and which are terminological. Trace the lineage: Turing 1950, McCulloch & Pitts 1943, Newell & Simon's PSSH, Rumelhart & McClelland, van Gelder 1995, Tenenbaum and the Bayesian turn. Take a position on the axes (representation, learning, grain) on which the paradigms actually differ; watch for the PSSH/LOT conflation and the treatment of 'symbolic vs connectionist' as a single axis. The essay should read as a conceptual geography rather than a survey.",
               },
               hours: "12–14",
             },
@@ -248,6 +289,8 @@ export const semesters: Semester[] = [
               title: "Critical Essay on the Computational Theory of Mind",
               length: "4,000 words",
               kind: "Written",
+              description:
+                "A 4,000-word essay defending a thesis on whether the mind is non-trivially computational. The canonical arguments — Putnam 1967 on functionalism, Fodor on LOT, Searle 1980 on the Chinese Room, Nagel 1974 and Jackson 1982 on qualia — must be answered, not surveyed. The essay has to specify which Marr level the computational claim is pitched at, because Searle's semantic objection and the qualia arguments target different levels and miss the claim if that isn't fixed. Syntax vs semantics, implementation vs realisation, access vs phenomenal — these distinctions have to do real work. Consciousness theories proper are held back for Module 4.3.",
             },
             hours: "14–16",
           }),
@@ -295,6 +338,8 @@ export const semesters: Semester[] = [
                 title: "Experiment Design Document (pre-registration style)",
                 length: "~2,000 words",
                 kind: "Written",
+                description:
+                  "A ~2,000-word OSF-style pre-registration for a behavioural experiment on a canonical phenomenon — anchoring (Tversky & Kahneman 1974), Stroop, false memory, or a heuristics-and-biases replication. Every degree of freedom is locked down before any data would be collected: background, hypothesis, operationalised IVs and DVs, sampling and exclusion rules, analysis plan, power justification. Simmons, Nelson & Simonsohn 2011 and Gelman & Loken 2013 on the garden of forking paths are the standards a sceptical reader will apply. The statistics are held to a first-pass standard here and are tightened in Module 1.5.",
               },
               hours: "10–12",
             },
@@ -358,6 +403,8 @@ export const semesters: Semester[] = [
                   "Brain–Cognition–Methods Map — annotated diagram linking brain structures to cognitive functions AND to the imaging modality that licenses each claim",
                 length: "Annotated diagram + ~1,500 word methods commentary",
                 kind: "Visual",
+                description:
+                  "An annotated map linking major brain structures to cognitive functions — FFA to face processing, hippocampus to episodic memory, dlPFC to working memory, rTPJ to mentalising — paired with a ~1,500-word methods commentary specifying which modality licenses each claim. fMRI/BOLD, ERP components (N400 per Kutas & Federmeier 2011, P300, MMN), MEG, single-unit recording, lesion data (Sperry 1968). Every arrow carries an epistemic tag: temporal vs spatial resolution, Poldrack's reverse-inference caveat, hemodynamic lag, volume conduction in EEG. The bar is that a cog-neuro examiner would grant the diagram as honest about what each method can and cannot show.",
               },
               hours: "12–14",
             },
@@ -418,6 +465,8 @@ export const semesters: Semester[] = [
                   "Reanalysis of a Published Dataset — Bayesian hierarchical model + multiverse analysis + write-up with pre-registered analytic choices",
                 length: "3,500 words + code + figures",
                 kind: "Code + Report",
+                description:
+                  "A 3,500-word reanalysis of a published behavioural dataset using a Bayesian hierarchical model (PyMC or brms), a pre-registered analytic workflow, and a multiverse analysis in the Steegen, Tuerlinckx, Gelman & Vanpaemel (2016) sense over defensible alternative specifications. Posterior distributions, not point estimates. Posterior predictive checks. Keep-it-maximal random-effects structure (Barr, Levy, Scheepers & Tily 2013). The test: a reviewer runs the notebook and sees where the original conclusion is robust, where it survives only a narrow path, and where the multiverse forces a different reading.",
               },
               hours: "14–16",
             },
@@ -480,6 +529,8 @@ export const semesters: Semester[] = [
                 title: "Three-Level Model Analysis",
                 length: "3,000 words + code",
                 kind: "Written + Code",
+                description:
+                  "A 3,000-word report plus code taking one cognitive phenomenon — visual search, serial recall, categorisation, change blindness — and analysing it across Marr's (1977, 1982) three levels. Computational: what problem is being solved, in what environment. Algorithmic: what representations and procedures. Implementational: what would realise this in neural hardware. Fit the algorithmic model to behavioural data with parameter posteriors, per the Module 1.5 standard. The three levels must constrain each other; the implementational story cannot be hand-waved. The standard failure mode to avoid: treating the 'algorithmic level' as the Python implementation rather than as an abstract specification of representations and procedures.",
               },
               hours: "14–16",
             },
@@ -529,6 +580,8 @@ export const semesters: Semester[] = [
                 title: "Bayesian Cognitive Model Report",
                 length: "3,000 words + Python code + figures",
                 kind: "Code + Report",
+                description:
+                  "A 3,000-word report plus Python code fitting a hierarchical Bayesian model of a learning or reasoning task — the number game (Tenenbaum 1999), causal induction (Griffiths & Tenenbaum 2005), or a categorisation task — to published human data. Full posterior distributions, posterior predictive checks against the behavioural distribution, model comparison (LOO/WAIC or Bayes factors) against a credible non-Bayesian competitor. The priors have to be defensible on task-structural grounds; a fit with indefensible priors is just curve-fitting in Bayesian clothing. The question that must be answered explicitly: at which Marr level is the 'mind as Bayesian' claim pitched — is the brain approximating this posterior, or is this rational analysis in Anderson's (1990) sense at the computational level only?",
               },
               hours: "14–16",
             },
@@ -582,6 +635,8 @@ export const semesters: Semester[] = [
                 title: "PDP Modeling Project — includes response to Fodor & Pylyshyn",
                 length: "3,000 words + code",
                 kind: "Code + Report",
+                description:
+                  "A 3,000-word report plus code building a connectionist model of a cognitive task — past-tense morphology in the Rumelhart & McClelland 1986 lineage, interactive-activation word recognition (McClelland & Rumelhart 1981), or a small categorisation net — trained to reproduce human behavioural patterns, with representational analysis of hidden-unit structure (RSA, clustering, or linear probing). Fodor & Pylyshyn 1988 must be answered directly: does the model exhibit systematicity, compositionality, and productivity, and if not, what does that cost the connectionist programme? The empirical and philosophical claims constrain each other; fitting the data while sidestepping F&P is not a response. The network must be theoretically motivated and analysed honestly across seeds.",
               },
               hours: "14–16",
             },
@@ -628,6 +683,8 @@ export const semesters: Semester[] = [
                 title: "Neural Circuit Model Report",
                 length: "2,500 words + code + figures",
                 kind: "Code + Report",
+                description:
+                  "A 2,500-word report plus code implementing a biologically-motivated circuit model — a drift-diffusion or race model of perceptual decision (Gold & Shadlen 2007), a Hopfield attractor for associative memory, a winner-take-all for attention, or a population-coding model with a Bayesian decoder. Produce phase portraits, fixed points, and bifurcations under parameter variation, and map circuit variables to the behavioural or neural observables they explain. The circuit must do explanatory work a purely algorithmic model could not: predict a specific shape in the RT distribution, a specific tuning-curve property, a specific capacity limit. Scope is circuit-level mechanism; fMRI-scale modelling is out of scope.",
               },
               hours: "14–16",
             },
@@ -683,6 +740,8 @@ export const semesters: Semester[] = [
                   "Memory Systems Essay — standard model of consolidation vs. reconsolidation: where each is right, where the evidence forces revision",
                 length: "3,500 words",
                 kind: "Written",
+                description:
+                  "A 3,500-word essay arguing for or against the standard model of systems consolidation — Squire 1992, hippocampal-to-neocortical transfer — against the reconsolidation literature (Nader, Schafe & LeDoux 2000; Dudai 2012 on the restless engram) and the multiple-trace and trace-transformation alternatives (Nadel & Moscovitch; Winocur). Cellular consolidation must not be conflated with systems consolidation. The position has to take a stand on whether any memory is ever 'fixed' or whether every retrieval is reconstruction, and read Tulving's (1972) episodic/semantic taxonomy against what the hippocampal-lesion and reconsolidation evidence will actually support. The essay is a targeted argument, scoped tightly enough that the counter-evidence can actually be weighed.",
               },
               hours: "12–14",
             },
@@ -731,6 +790,8 @@ export const semesters: Semester[] = [
                 title: "Two-Step Task Implementation + Hybrid MB/MF Analysis",
                 length: "3,000 words + code + figures",
                 kind: "Code + Report",
+                description:
+                  "A 3,000-word report plus code reimplementing the two-step task of Daw, Gershman, Seymour, Dayan & Dolan 2011 and fitting a hybrid model-based / model-free RL agent to published human choice data, with the mixing weight w estimated per subject under a hierarchical prior (Barr et al. 2013 keep-it-maximal). The stay/switch analysis that dissociates the two strategies must be reproduced; a manipulation that taxes cognitive control — load, stress, or drift across blocks — should shift w. Situate the result against the dopamine-as-TD-error lineage (Rescorla & Wagner 1972; Schultz, Dayan & Montague 1997; Niv 2009) and Gershman's computational-rationality account. The fitted w should recover the published qualitative pattern and license a defensible claim about when humans are and are not model-based.",
               },
               hours: "14–16",
             },
@@ -798,6 +859,8 @@ export const semesters: Semester[] = [
                   "Uniquely-Human Cognition Essay — what (if anything) is uniquely human? Argue across core-knowledge, comparative, ToM, and cultural evolution evidence",
                 length: "5,000 words",
                 kind: "Written",
+                description:
+                  "A 5,000-word essay defending a specific answer to: what, if anything, is cognitively unique to humans? The argument must travel across four evidential fronts — core knowledge (Spelke & Kinzler 2007; Carey on conceptual bootstrapping), comparative cognition (Call & Tomasello 2008 on theory of mind at thirty years; Hauser, Chomsky & Fitch 2002 on the language faculty), developmental ToM (Baron-Cohen, Leslie & Frith 1985; Wellman, Cross & Watson 2001; Apperly & Butterfill 2009 on two systems), and cultural evolution (Henrich, Heine & Norenzayan 2010 on WEIRD; Sperber & Mercier 2011 on argumentative reasoning). The thesis must survive the strongest continuity objection and avoid collapsing into either 'language does it all' or 'nothing is unique'. Scope is cognitive architecture; evolutionary-anthropological deep history is out of scope.",
               },
               hours: "16–18",
             },
@@ -840,6 +903,8 @@ export const semesters: Semester[] = [
                   "Language & Embodiment Analysis — embodied simulation, dialogic alignment, and the Chomskyan/Tomasello debate through computational + phenomenological lenses",
                 length: "3,500 words",
                 kind: "Written",
+                description:
+                  "A 3,500-word essay on the architecture of the language faculty, read against three rival traditions: the Chomskyan / Pinker & Jackendoff 2005 position on a language-specific faculty, Tomasello's usage-based construction-grammar account of acquisition, and the embodied-simulation / conceptual-metaphor programme (Bergen; Lakoff & Johnson). Pickering & Garrod 2004 on interactive alignment enters as a fourth angle — language as coordination, not just computation. Take a position on what in the faculty is modular vs usage-derived, and where embodied simulation does explanatory work rather than redescription. Scope is architectural; syntax in technical depth is out of scope.",
               },
               hours: "12–14",
             },
@@ -887,6 +952,8 @@ export const semesters: Semester[] = [
               title: "Comparative Framework Essay — computationalism vs embodied vs enactive",
               length: "5,000 words",
               kind: "Written",
+              description:
+                "A 5,000-word comparative essay on three live framings of cognition: classical computationalism (the Semester 1–2 default), embodied/situated cognition (Clark, Being There; Brooks 1991 on intelligence without representation; Clark & Chalmers 1998 on the extended mind), and deep enactivism (Varela, Thompson & Rosch 1991; Thompson, Mind in Life; Di Paolo, Buhrmann & Barandiaran on sensorimotor life). The load-bearing distinction the essay must draw cleanly: weak embodiment (bodies matter causally) versus strong enactivism (cognition is constituted by sense-making in a living autonomous system). These get conflated routinely and the conflation matters. Take a position on where the three frameworks are genuinely incompatible and where they describe different levels. The parity-principle dispute over extended mind is treated as a live argument, not rhetoric. Consciousness proper is held back for Module 4.3.",
             },
             hours: "16–18",
           }),
@@ -926,6 +993,8 @@ export const semesters: Semester[] = [
                 "Phenomenological Analysis — first-person description of a cognitive phenomenon + constraints on computational models, with Dreyfusian critique",
               length: "4,000 words",
               kind: "Written",
+              description:
+                "A 4,000-word essay in two movements. First: a disciplined first-person phenomenological description of a specific cognitive phenomenon — absorbed skilful coping, body schema in motor action, the tacit horizon of perception, the lived structure of time — using Merleau-Ponty (Phenomenology of Perception), Gallagher & Zahavi, and Noë's Action in Perception. Second: a constraint-derivation. What does the first-person structure imply about the kind of model that could explain it, and where does Dreyfus (What Computers Still Can't Do; Dreyfus 2007 on Heideggerian AI) force classical computationalism to concede? The phenomenology has to do work: name structural features (figure/ground horizon, motor intentionality, protentional anticipation) that a representationalist model must either capture or explain away. The aim is to deploy the phenomenological method, not to rehearse Husserl.",
             },
             hours: "14–16",
           }),
@@ -973,6 +1042,8 @@ export const semesters: Semester[] = [
                 "Consciousness Theory Evaluation — contrast GWT, IIT, HOT, PP on empirical and conceptual grounds; does any solve the hard problem?",
               length: "4,500 words",
               kind: "Written",
+              description:
+                "A 4,500-word evaluation of the four main contemporary theories of consciousness — Global Workspace / Global Neuronal Workspace (Baars; Dehaene & Changeux 2011), Integrated Information (Tononi; Koch), Higher-Order (Rosenthal; Lau & Rosenthal 2011), and predictive-processing accounts (Hohwy) — against empirical adequacy (NCCs, signatures of conscious access, lesion and disorder data) and against the conceptual bar set by Chalmers 1995 on the hard problem and Block 1995, 2007 on the access/phenomenal distinction. The discipline the essay must enforce: a theory that explains conscious access beautifully may not touch phenomenal consciousness at all. Name which problem each theory is actually solving. Take a position on whether any current theory even addresses the hard problem, or whether Dennett's deflation is the honest move.",
             },
             hours: "14–16",
           }),
@@ -1020,6 +1091,8 @@ export const semesters: Semester[] = [
                   "Predictive Coding Model + Paper — connect computation to philosophy of perception and agency",
                 length: "3,000 words + code",
                 kind: "Code + Report",
+                description:
+                  "A 3,000-word paper plus working code implementing a hierarchical predictive-coding model (2–3 layers, message-passing between prediction and prediction-error units) on a toy perceptual task, with a precision-weighting manipulation that reproduces an attention-like effect. The paper must connect the implementation to Clark (Surfing Uncertainty; Clark 2013) and Hohwy on perception as controlled hallucination, and to Friston 2010 on the Free Energy Principle — stating explicitly whether the claim being defended is narrow predictive coding, broader active inference, or the full FEP, and what each commits to. The code should demonstrate how precision weighting changes behaviour in a way that bears on a specific phenomenological claim, so the argument is anchored to what the model actually does. The wider FEP-as-metaphysics literature is out of scope.",
               },
               hours: "14–16",
             },
@@ -1079,6 +1152,8 @@ export const semesters: Semester[] = [
                   "Contemporary Computational Cog-Sci Essay — are LLMs cognitive models? What counts as understanding in 2026? (with reproducibility notebook)",
                 length: "4,000 words + code",
                 kind: "Code + Report",
+                description:
+                  "A 4,000-word essay plus a reproducibility notebook taking a position on whether large language models are cognitive models in any non-trivial sense — or statistical engines whose competence is orthogonal to human cognition. Answer Lake, Ullman, Tenenbaum & Gershman 2017 on the gap between machine and child learning; Marcus 2018 on deep learning's limits; Binz & Schulz 2023 on treating LLMs as subjects of cognitive psychology; and at least one mechanistic-interpretability result that you reproduce (induction heads, a toy-models-of-superposition replication, or a monosemanticity probe via TransformerLens). The discipline: three questions that get confused must be pulled apart — do LLMs implement human-like algorithms, do they exhibit human-like competence, and are they useful cognitive models regardless of either. Alignment and safety proper are out of scope.",
               },
               hours: "14–16",
             },
@@ -1119,6 +1194,8 @@ export const semesters: Semester[] = [
                   "Cognitive Architectures Analysis — classical (ACT-R, Soar), connectionist, Bayesian, predictive processing, enactive, LLM-as-architecture. Propose criteria for a complete theory of mind.",
                 length: "5,000 words",
                 kind: "Written",
+                description:
+                  "A 5,000-word synthetic essay evaluating six candidates for a unified cognitive architecture against explicit criteria the essay must derive and defend: Soar and ACT-R (Newell; Anderson), PDP/connectionist, Bayesian probabilistic language-of-thought, predictive processing / active inference, enactive (Varela/Thompson), and LLM-as-architecture. Newell's Unified Theories of Cognition is the reference point: what would Newell require of any of these, and which of his constraints have aged well? The task is not to rank the architectures but to articulate the criteria a complete theory of mind must satisfy — systematicity, embodiment, development, consciousness, efficiency, and coherence across Marr's levels — and show honestly where each architecture succeeds and where it breaks. This is the synthetic essay in which the arguments from the first four semesters have to cohere, and it sets the groundwork for the dissertation.",
               },
               hours: "16–18",
             },
@@ -1156,6 +1233,8 @@ export const semesters: Semester[] = [
               title: "Dynamical Systems Model + Report",
               length: "2,500 words + code + phase space plots",
               kind: "Code + Report",
+              description:
+                "A 2,500-word report plus code implementing a dynamical-systems model of a cognitive phenomenon — the HKB coupled-oscillator model of bimanual coordination (Kelso), Thelen & Smith's A-not-B as a dynamic field, a drift-diffusion with collapsing bounds, or a coordination-dynamics account of joint action. Produce phase portraits, identify attractors and bifurcations, and show an explanatory payoff the dynamical framing delivers that a step-wise computational model cannot — hysteresis, metastability, order-parameter reorganisation under perturbation. The report must take a position on the dynamical hypothesis (van Gelder 1995; Beer 2000): is this a rival to computational explanation, or a complementary level of description? The nonlinear-dynamics mathematics is a working tool here, not a subject of exposition.",
             },
             hours: "12–14",
           }),
@@ -1253,6 +1332,8 @@ export const semesters: Semester[] = [
                 title: "Masters Research Project",
                 length: "10,000–20,000 words (format-dependent)",
                 kind: "Dissertation",
+                description:
+                  "A 10,000–20,000 word dissertation (Edinburgh-style) or qualifying paper (Stanford-style) of original research that synthesises rather than surveys. A suggested topic — a predictive-processing and enactive account of cognitive architecture with implications for AI agent design — is offered but not binding. The work must open with a defensible research question, develop a literature review that identifies the specific gap it addresses, and deliver a theoretical or empirical contribution, pre-registered where empirical. The standard is that of a piece of work an MSc examiner in cognitive science would accept: a specific claim, defended, situated in the current literature, and honest about its limits.",
               },
             },
           ),
