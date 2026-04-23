@@ -4,8 +4,21 @@ import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 import { defineConfig } from "astro/config";
 import remarkGfm from "remark-gfm";
+import remarkWikiLink from "remark-wiki-link";
 
 import rehypeMermaidDual from "./src/plugins/rehype-mermaid-dual.mjs";
+
+// Inline copy of src/utils/vault.ts slugifyNoteName — astro.config.mjs is plain
+// JS and cannot import TypeScript directly. Keep in sync with vault.ts.
+const slugifyNoteName = (name) =>
+  name
+    .replace(/\.md$/, "")
+    .toLowerCase()
+    .replace(/ — /g, "--")
+    .replace(/\s+/g, "-")
+    .replace(/[^\w-]/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
 
 // https://astro.build/config
 export default defineConfig({
@@ -38,7 +51,19 @@ export default defineConfig({
     },
   },
   markdown: {
-    remarkPlugins: [remarkGfm],
+    remarkPlugins: [
+      remarkGfm,
+      [
+        remarkWikiLink,
+        {
+          pageResolver: (name) => [slugifyNoteName(name)],
+          hrefTemplate: (permalink) => `/apps/msc-cogsci/notes/${permalink}`,
+          aliasDivider: "|",
+          wikiLinkClassName: "wiki-link",
+          newClassName: "wiki-link-new",
+        },
+      ],
+    ],
     rehypePlugins: [rehypeMermaidDual],
     syntaxHighlight: {
       type: "shiki",

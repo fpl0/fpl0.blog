@@ -1,0 +1,335 @@
+---
+import { getCollection } from "astro:content";
+import AppShell from "../../../../layouts/AppShell.astro";
+import { semesters } from "../../../../data/msc-curriculum";
+
+const allNotes = await getCollection("vaultNotes");
+
+// Map module code → vault note id for linking
+const moduleNoteById = new Map(
+  allNotes
+    .filter((n) => n.data.type === "module" && n.data.module)
+    .map((n) => [n.data.module as string, n.id]),
+);
+
+// Map semester number → vault note id for linking
+const semesterNoteById = new Map(
+  allNotes
+    .filter((n) => n.data.type === "semester" && n.data.semester)
+    .map((n) => [n.data.semester as number, n.id]),
+);
+
+// Reference section counts
+const refCounts = {
+  papers: allNotes.filter((n) => n.data.type === "paper").length,
+  books: allNotes.filter((n) => n.data.type === "book").length,
+  courses: allNotes.filter((n) => n.data.type === "course").length,
+  artifacts: allNotes.filter((n) => n.data.type === "artifact").length,
+};
+---
+
+<AppShell title="MSc Notes" description="Notes from the MSc Cognitive Science vault." scrollable={true}>
+  <div class="index-wrapper">
+    <nav class="breadcrumb">
+      <a href="/apps/msc-cogsci/">curriculum</a>
+      <span aria-hidden="true">/</span>
+      <span>notes</span>
+    </nav>
+
+    <header class="index-header">
+      <h1>MSc Notes</h1>
+      <p class="index-subtitle">{allNotes.length} notes · browse by programme or reference material below</p>
+    </header>
+
+    <!-- ─── Programme ─────────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-title">Programme</h2>
+      <div class="programme">
+        {semesters.map((sem) => {
+          const semNoteId = semesterNoteById.get(sem.n);
+          const semHref = semNoteId ? `/apps/msc-cogsci/notes/${semNoteId}` : undefined;
+          return (
+          <div class="semester">
+            {semHref ? (
+              <a href={semHref} class="semester-heading semester-heading--link">
+                <span class="semester-label">S{sem.n}</span>
+                <span class="semester-title">{sem.title}</span>
+                <span class="semester-meta">{sem.modules.length} modules · W{sem.weeks[0]}–W{sem.weeks[1]}</span>
+              </a>
+            ) : (
+              <div class="semester-heading">
+                <span class="semester-label">S{sem.n}</span>
+                <span class="semester-title">{sem.title}</span>
+                <span class="semester-meta">{sem.modules.length} modules · W{sem.weeks[0]}–W{sem.weeks[1]}</span>
+              </div>
+            )}
+            <ul class="module-list">
+              {sem.modules.map((mod) => {
+                const noteId = moduleNoteById.get(mod.code);
+                const href = noteId
+                  ? `/apps/msc-cogsci/notes/${noteId}`
+                  : undefined;
+                return (
+                  <li class="module-item">
+                    {href ? (
+                      <a href={href} class="module-link">
+                        <span class="module-code">{mod.code}</span>
+                        <span class="module-title">{mod.title}</span>
+                        <span class="module-weeks">W{mod.weeks[0]}–{mod.weeks[1]}</span>
+                      </a>
+                    ) : (
+                      <span class="module-link module-link--unlinked">
+                        <span class="module-code">{mod.code}</span>
+                        <span class="module-title">{mod.title}</span>
+                        <span class="module-weeks">W{mod.weeks[0]}–{mod.weeks[1]}</span>
+                      </span>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+          );
+        })}
+      </div>
+    </section>
+
+    <!-- ─── Reference ─────────────────────────────────────── -->
+    <section class="section">
+      <h2 class="section-title">Reference</h2>
+      <div class="ref-grid">
+        <a href="/apps/msc-cogsci/notes/papers/" class="ref-card">
+          <span class="ref-card-label">Papers</span>
+          <span class="ref-card-count">{refCounts.papers}</span>
+          <span class="ref-card-arrow" aria-hidden="true">→</span>
+        </a>
+        <a href="/apps/msc-cogsci/notes/books/" class="ref-card">
+          <span class="ref-card-label">Books</span>
+          <span class="ref-card-count">{refCounts.books}</span>
+          <span class="ref-card-arrow" aria-hidden="true">→</span>
+        </a>
+        <a href="/apps/msc-cogsci/notes/courses/" class="ref-card">
+          <span class="ref-card-label">Courses</span>
+          <span class="ref-card-count">{refCounts.courses}</span>
+          <span class="ref-card-arrow" aria-hidden="true">→</span>
+        </a>
+        <a href="/apps/msc-cogsci/notes/artifacts/" class="ref-card">
+          <span class="ref-card-label">Artifacts</span>
+          <span class="ref-card-count">{refCounts.artifacts}</span>
+          <span class="ref-card-arrow" aria-hidden="true">→</span>
+        </a>
+      </div>
+    </section>
+  </div>
+</AppShell>
+
+<style>
+  .index-wrapper {
+    max-width: 72ch;
+    margin: 0 auto;
+    padding: var(--space-8) var(--space-6) var(--space-16);
+  }
+
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-8);
+  }
+
+  .breadcrumb a {
+    color: var(--color-text-muted);
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .breadcrumb a:hover {
+    color: var(--color-text);
+    text-decoration: underline;
+  }
+
+  .index-header {
+    margin-bottom: var(--space-10);
+  }
+
+  .index-header h1 {
+    font-size: var(--text-3xl, 1.875rem);
+    font-weight: 700;
+    color: var(--color-text);
+    margin: 0 0 var(--space-2);
+  }
+
+  .index-subtitle {
+    color: var(--color-text-muted);
+    font-size: var(--text-sm);
+    margin: 0;
+  }
+
+  .section {
+    margin-bottom: var(--space-12);
+  }
+
+  .section-title {
+    font-size: var(--text-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-text-muted);
+    margin: 0 0 var(--space-4);
+    padding-bottom: var(--space-2);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  /* Programme */
+  .programme {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  .semester {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .semester-heading {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    padding: var(--space-1) 0;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .semester-heading--link {
+    cursor: pointer;
+    border-radius: var(--radius-md, 0.375rem);
+    padding: var(--space-1) var(--space-2);
+    margin-left: calc(-1 * var(--space-2));
+    transition: background 0.1s;
+  }
+
+  .semester-heading--link:hover {
+    background: var(--color-surface-2, rgba(127,127,127,0.08));
+  }
+
+  .semester-label {
+    font-size: var(--text-xs);
+    font-weight: 700;
+    color: var(--color-text-muted);
+    width: 2ch;
+    flex-shrink: 0;
+  }
+
+  .semester-title {
+    font-weight: 600;
+    font-size: var(--text-sm);
+    color: var(--color-text);
+  }
+
+  .semester-meta {
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+    margin-left: auto;
+  }
+
+  .module-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-1);
+    padding-left: calc(2ch + var(--space-2));
+  }
+
+  .module-link {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-md, 0.375rem);
+    text-decoration: none;
+    color: var(--color-text);
+    font-size: var(--text-sm);
+    transition: background 0.1s;
+    cursor: pointer;
+  }
+
+  .module-link:hover {
+    background: var(--color-surface-2, rgba(127,127,127,0.08));
+  }
+
+  .module-link--unlinked {
+    opacity: 0.5;
+    cursor: default;
+  }
+
+  .module-code {
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+    font-variant-numeric: tabular-nums;
+    width: 2.5ch;
+    flex-shrink: 0;
+  }
+
+  .module-title {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .module-weeks {
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+    flex-shrink: 0;
+  }
+
+  /* Reference grid */
+  .ref-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-3);
+  }
+
+  @media (min-width: 480px) {
+    .ref-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .ref-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding: var(--space-4) var(--space-4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md, 0.375rem);
+    text-decoration: none;
+    color: var(--color-text);
+    transition: background 0.1s, border-color 0.1s;
+    cursor: pointer;
+  }
+
+  .ref-card:hover {
+    background: var(--color-surface-2, rgba(127,127,127,0.08));
+    border-color: var(--color-text-muted);
+  }
+
+  .ref-card-label {
+    font-size: var(--text-sm);
+    font-weight: 500;
+  }
+
+  .ref-card-count {
+    font-size: var(--text-2xl, 1.5rem);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+
+  .ref-card-arrow {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    margin-top: auto;
+  }
+</style>

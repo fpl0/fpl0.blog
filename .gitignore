@@ -22,3 +22,6 @@ package-lock.json
 # Playwright
 test-results/
 playwright-report/
+
+# Obsidian vault symlink (local machine only)
+vault

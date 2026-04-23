@@ -9,6 +9,7 @@ import { glob } from "astro/loaders";
 
 import { defineCollection, z } from "astro:content";
 import { SUMMARY_MAX, SUMMARY_MIN } from "../../scripts/constants";
+import { slugifyNoteName } from "../utils/vault";
 
 /**
  * Base fields shared by all publishable content.
@@ -86,4 +87,33 @@ const apps = defineCollection({
     })),
 });
 
-export const collections = { blog, apps } as const;
+/**
+ * Vault notes — all markdown from the Obsidian MSc vault, excluding
+ * templates, raw file attachments, and private notes.
+ * Requires a symlink: fpl0.blog/vault → the iCloud-synced vault directory.
+ */
+const vaultNotes = defineCollection({
+  loader: glob({
+    pattern: ["**/*.md", "!_Templates/**", "!Library/Files/**", "!Notes/private/**", "!CLAUDE.md"],
+    base: "./vault",
+    generateId: ({ entry }) => {
+      const basename = entry.split("/").pop() ?? entry;
+      return slugifyNoteName(basename);
+    },
+  }),
+  schema: z
+    .object({
+      type: z.string().optional(),
+      title: z.string().optional(),
+      status: z.string().optional(),
+      week: z.number().optional(),
+      module: z.string().optional(),
+      semester: z.number().optional(),
+      artifact: z.number().optional(),
+      authorYear: z.string().optional(),
+      url: z.string().optional(),
+    })
+    .passthrough(),
+});
+
+export const collections = { blog, apps, vaultNotes } as const;
