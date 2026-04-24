@@ -639,6 +639,7 @@ a[target="_blank"]:not(
     .lyt-playbtn,
     .search-result a,
     .post-title,
+    .bio-text a,
     .msc-hero-lineage
   )::after {
   content: " \2197";

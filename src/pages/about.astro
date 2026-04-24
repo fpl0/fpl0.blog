@@ -10,7 +10,7 @@ import Layout from "../layouts/Layout.astro";
 import { getPublishedPosts, getPublishedApps } from "../utils/content";
 import "../styles/about.css";
 
-const description = "Engineering lead based in Dublin, endlessly curious.";
+const description = "Software Engineering Manager at Clio, based in Dublin, endlessly curious.";
 
 const [posts, apps] = await Promise.all([getPublishedPosts(), getPublishedApps()]);
 const postCount = posts.length;
@@ -26,7 +26,8 @@ const appCount = apps.length;
       <h1 class="greeting">Hello, I'm Filipe.</h1>
       <div class="bio">
         <p class="bio-text">
-          I'm an engineering lead based in <strong>Dublin</strong>.
+          I'm a Software Engineering Manager at <Link href="https://www.clio.com/">Clio</Link>,
+          based in <strong>Dublin, Ireland</strong>.
         </p>
         <p class="bio-text">
           This blog explores my interests, captures my thoughts, and documents
