@@ -137,6 +137,7 @@ const kindLabel: Record<ItemKind, string> = {
 interface BookEntry {
   authors: string; // display string, matches curriculum prose
   title: string;
+  year: number; // latest edition year where one exists, else original pub year
   moduleCode: string; // primary module where introduced
   weeks: number[]; // all weeks that assign this book
   note?: string; // optional extra context
@@ -146,66 +147,94 @@ interface BookEntry {
 
 const BOOKS: BookEntry[] = [
   // S1 Foundations
-  { authors: "Bermúdez", title: "Cognitive Science", moduleCode: "1.1", weeks: [1, 2, 3] },
+  {
+    authors: "Bermúdez",
+    title: "Cognitive Science",
+    year: 2020,
+    moduleCode: "1.1",
+    weeks: [1, 2, 3],
+  },
   {
     authors: "Dawson",
     title: "Mind, Body, World",
+    year: 2013,
     moduleCode: "1.1",
     weeks: [2],
     note: "skim for a second perspective",
   },
-  { authors: "Kim", title: "Philosophy of Mind", moduleCode: "1.2", weeks: [4, 5, 6] },
+  { authors: "Kim", title: "Philosophy of Mind", year: 2010, moduleCode: "1.2", weeks: [4, 5, 6] },
   {
     authors: "Gazzaniga, Ivry & Mangun",
     title: "Cognitive Neuroscience",
+    year: 2018,
     moduleCode: "1.3",
     weeks: [8, 9, 13],
   },
   {
     authors: "Bear, Connors & Paradiso",
     title: "Neuroscience: Exploring the Brain",
+    year: 2020,
     moduleCode: "1.4",
     weeks: [11, 12, 13],
     matchAliases: ["Bear et al."],
   },
-  { authors: "Churchland", title: "Neurophilosophy", moduleCode: "1.4", weeks: [13] },
+  { authors: "Churchland", title: "Neurophilosophy", year: 1986, moduleCode: "1.4", weeks: [13] },
   {
     authors: "Huettel, Song & McCarthy",
     title: "Functional Magnetic Resonance Imaging",
+    year: 2014,
     moduleCode: "1.4",
     weeks: [14],
   },
   {
     authors: "Luck",
     title: "An Introduction to the ERP Technique",
+    year: 2014,
     moduleCode: "1.4",
     weeks: [14],
   },
-  { authors: "Hari & Puce", title: "MEG-EEG Primer", moduleCode: "1.4", weeks: [14], note: "skim" },
-  { authors: "McElreath", title: "Statistical Rethinking", moduleCode: "1.5", weeks: [16, 17] },
+  {
+    authors: "Hari & Puce",
+    title: "MEG-EEG Primer",
+    year: 2017,
+    moduleCode: "1.4",
+    weeks: [14],
+    note: "skim",
+  },
+  {
+    authors: "McElreath",
+    title: "Statistical Rethinking",
+    year: 2020,
+    moduleCode: "1.5",
+    weeks: [16, 17],
+  },
   // S2 Computational Core
   {
     authors: "Farrell & Lewandowsky",
     title: "Computational Modeling of Cognition and Behavior",
+    year: 2018,
     moduleCode: "2.1",
     weeks: [18, 19, 20],
   },
-  { authors: "Marr", title: "Vision", moduleCode: "2.1", weeks: [18] },
+  { authors: "Marr", title: "Vision", year: 1982, moduleCode: "2.1", weeks: [18] },
   {
     authors: "Griffiths, Chater & Tenenbaum",
     title: "Bayesian Models of Cognition",
+    year: 2024,
     moduleCode: "2.2",
     weeks: [22, 23, 24],
   },
   {
     authors: "Lee & Wagenmakers",
     title: "Bayesian Cognitive Modeling",
+    year: 2013,
     moduleCode: "2.2",
     weeks: [23],
   },
   {
     authors: "O'Reilly & Munakata",
     title: "Computational Cognitive Neuroscience",
+    year: 2020,
     moduleCode: "2.3",
     weeks: [26, 27, 28],
     note: "free online textbook",
@@ -213,6 +242,7 @@ const BOOKS: BookEntry[] = [
   {
     authors: "Rumelhart & McClelland",
     title: "Parallel Distributed Processing, Vol. 1",
+    year: 1986,
     moduleCode: "2.3",
     weeks: [27],
     matchAliases: ["PDP Vol 1"],
@@ -220,6 +250,7 @@ const BOOKS: BookEntry[] = [
   {
     authors: "Dayan & Abbott",
     title: "Theoretical Neuroscience",
+    year: 2001,
     moduleCode: "2.4",
     weeks: [30, 31, 32],
   },
@@ -227,89 +258,165 @@ const BOOKS: BookEntry[] = [
   {
     authors: "Eichenbaum",
     title: "The Cognitive Neuroscience of Memory",
+    year: 2011,
     moduleCode: "3.1",
     weeks: [34, 35],
   },
-  { authors: "Buzsáki", title: "Rhythms of the Brain", moduleCode: "3.1", weeks: [35] },
+  { authors: "Buzsáki", title: "Rhythms of the Brain", year: 2006, moduleCode: "3.1", weeks: [35] },
   {
     authors: "Sutton & Barto",
     title: "Reinforcement Learning: An Introduction",
+    year: 2018,
     moduleCode: "3.2",
     weeks: [37, 38, 39],
   },
-  { authors: "Gershman", title: "What Makes Us Smart", moduleCode: "3.2", weeks: [39] },
+  { authors: "Gershman", title: "What Makes Us Smart", year: 2021, moduleCode: "3.2", weeks: [39] },
   {
     authors: "Piaget",
     title: "The Construction of Reality in the Child",
+    year: 1954,
     moduleCode: "3.3",
     weeks: [41],
   },
-  { authors: "Vygotsky", title: "Mind in Society", moduleCode: "3.3", weeks: [41] },
-  { authors: "Spelke", title: "What Babies Know", moduleCode: "3.3", weeks: [41] },
-  { authors: "Carey", title: "The Origin of Concepts", moduleCode: "3.3", weeks: [42] },
+  { authors: "Vygotsky", title: "Mind in Society", year: 1978, moduleCode: "3.3", weeks: [41] },
+  { authors: "Spelke", title: "What Babies Know", year: 2022, moduleCode: "3.3", weeks: [41] },
+  { authors: "Carey", title: "The Origin of Concepts", year: 2009, moduleCode: "3.3", weeks: [42] },
   {
     authors: "de Waal",
     title: "Are We Smart Enough to Know How Smart Animals Are?",
+    year: 2016,
     moduleCode: "3.3",
     weeks: [43],
   },
-  { authors: "Jackendoff", title: "Foundations of Language", moduleCode: "3.4", weeks: [45] },
-  { authors: "Bergen", title: "Louder than Words", moduleCode: "3.4", weeks: [46] },
-  { authors: "Lakoff & Johnson", title: "Metaphors We Live By", moduleCode: "3.4", weeks: [46] },
+  {
+    authors: "Jackendoff",
+    title: "Foundations of Language",
+    year: 2002,
+    moduleCode: "3.4",
+    weeks: [45],
+  },
+  { authors: "Bergen", title: "Louder than Words", year: 2012, moduleCode: "3.4", weeks: [46] },
+  {
+    authors: "Lakoff & Johnson",
+    title: "Metaphors We Live By",
+    year: 2003,
+    moduleCode: "3.4",
+    weeks: [46],
+  },
   // S4 Embodied & Phenomenological Turn
   {
     authors: "Varela, Thompson & Rosch",
     title: "The Embodied Mind",
+    year: 2016,
     moduleCode: "4.1",
     weeks: [48],
   },
-  { authors: "Clark", title: "Being There", moduleCode: "4.1", weeks: [49] },
-  { authors: "Thompson", title: "Mind in Life", moduleCode: "4.1", weeks: [50] },
+  { authors: "Clark", title: "Being There", year: 1997, moduleCode: "4.1", weeks: [49] },
+  { authors: "Thompson", title: "Mind in Life", year: 2007, moduleCode: "4.1", weeks: [50] },
   {
     authors: "Gallagher & Zahavi",
     title: "The Phenomenological Mind",
+    year: 2021,
     moduleCode: "4.2",
     weeks: [52, 53],
   },
   {
     authors: "Merleau-Ponty",
     title: "Phenomenology of Perception",
+    year: 2012,
     moduleCode: "4.2",
     weeks: [52],
   },
-  { authors: "Noë", title: "Action in Perception", moduleCode: "4.2", weeks: [52] },
-  { authors: "Dreyfus", title: "What Computers Still Can't Do", moduleCode: "4.2", weeks: [53] },
+  { authors: "Noë", title: "Action in Perception", year: 2004, moduleCode: "4.2", weeks: [52] },
+  {
+    authors: "Dreyfus",
+    title: "What Computers Still Can't Do",
+    year: 1992,
+    moduleCode: "4.2",
+    weeks: [53],
+  },
   {
     authors: "Gallagher",
     title: "How the Body Shapes the Mind",
+    year: 2005,
     moduleCode: "4.2",
     weeks: [53],
     note: "optional",
   },
-  { authors: "Chalmers", title: "The Conscious Mind", moduleCode: "4.3", weeks: [55] },
+  { authors: "Chalmers", title: "The Conscious Mind", year: 1996, moduleCode: "4.3", weeks: [55] },
   {
     authors: "Baars",
     title: "A Cognitive Theory of Consciousness",
+    year: 1988,
     moduleCode: "4.3",
     weeks: [56],
   },
-  { authors: "Dehaene", title: "Consciousness and the Brain", moduleCode: "4.3", weeks: [56] },
-  { authors: "Koch", title: "The Feeling of Life Itself", moduleCode: "4.3", weeks: [57] },
-  { authors: "Dennett", title: "Consciousness Explained", moduleCode: "4.3", weeks: [57] },
-  { authors: "Hohwy", title: "The Predictive Mind", moduleCode: "4.3", weeks: [57, 59] },
-  { authors: "Clark", title: "Surfing Uncertainty", moduleCode: "4.4", weeks: [59, 60] },
-  // S5 Integration & Capstone
-  { authors: "Newell", title: "Unified Theories of Cognition", moduleCode: "5.2", weeks: [65] },
   {
-    authors: "Anderson",
-    title: "How Can the Human Mind Occur in the Physical Universe?",
+    authors: "Dehaene",
+    title: "Consciousness and the Brain",
+    year: 2014,
+    moduleCode: "4.3",
+    weeks: [56],
+  },
+  {
+    authors: "Koch",
+    title: "The Feeling of Life Itself",
+    year: 2019,
+    moduleCode: "4.3",
+    weeks: [57],
+  },
+  {
+    authors: "Dennett",
+    title: "Consciousness Explained",
+    year: 1991,
+    moduleCode: "4.3",
+    weeks: [57],
+  },
+  {
+    authors: "Hohwy",
+    title: "The Predictive Mind",
+    year: 2013,
+    moduleCode: "4.3",
+    weeks: [57, 59],
+  },
+  {
+    authors: "Clark",
+    title: "Surfing Uncertainty",
+    year: 2015,
+    moduleCode: "4.4",
+    weeks: [59, 60],
+  },
+  // S5 Integration & Capstone
+  {
+    authors: "Newell",
+    title: "Unified Theories of Cognition",
+    year: 1990,
     moduleCode: "5.2",
     weeks: [65],
   },
-  { authors: "Clark", title: "Supersizing the Mind", moduleCode: "5.2", weeks: [66] },
-  { authors: "Port & van Gelder", title: "Mind as Motion", moduleCode: "5.3", weeks: [68, 69] },
-  { authors: "Kelso", title: "Dynamic Patterns", moduleCode: "5.3", weeks: [68] },
-  { authors: "Hutchins", title: "Cognition in the Wild", moduleCode: "5.3", weeks: [69] },
+  {
+    authors: "Anderson",
+    title: "How Can the Human Mind Occur in the Physical Universe?",
+    year: 2007,
+    moduleCode: "5.2",
+    weeks: [65],
+  },
+  { authors: "Clark", title: "Supersizing the Mind", year: 2008, moduleCode: "5.2", weeks: [66] },
+  {
+    authors: "Port & van Gelder",
+    title: "Mind as Motion",
+    year: 1995,
+    moduleCode: "5.3",
+    weeks: [68, 69],
+  },
+  { authors: "Kelso", title: "Dynamic Patterns", year: 1995, moduleCode: "5.3", weeks: [68] },
+  {
+    authors: "Hutchins",
+    title: "Cognition in the Wild",
+    year: 1995,
+    moduleCode: "5.3",
+    weeks: [69],
+  },
 ];
 
 function bookBaseName(b: BookEntry): string {
@@ -440,6 +547,7 @@ function linkCourseInWatchText(text: string, weekN: number): string {
 interface ParsedPaper {
   /** "Author(s) (Year)" — used as the unique key and filename prefix. */
   authorYear: string;
+  year: number; // extracted from authorYear
   title: string; // may be empty when curriculum omitted it
   weeks: number[];
   moduleCode: string; // primary module of first appearance
@@ -487,8 +595,10 @@ function discoverPapers(): ParsedPaper[] {
           if (!existing.weeks.includes(fw.week.n)) existing.weeks.push(fw.week.n);
           if (!existing.title && p.title) existing.title = p.title;
         } else {
+          const ym = p.authorYear.match(/\((\d{4})[a-z]?\)/);
           byKey.set(p.authorYear, {
             authorYear: p.authorYear,
+            year: ym ? Number(ym[1]) : 0,
             title: p.title,
             weeks: [fw.week.n],
             moduleCode: fw.module.code,
@@ -1147,6 +1257,7 @@ function renderBookStub(b: BookEntry): string {
       type: "book",
       title: b.title,
       authors: b.authors,
+      year: b.year,
       module: b.moduleCode,
       weeks: b.weeks,
       status: "to-read",
@@ -1242,6 +1353,7 @@ function renderPaperStub(p: ParsedPaper): string {
     fm({
       type: "paper",
       authorYear: p.authorYear,
+      year: p.year || null,
       title: p.title,
       module: p.moduleCode,
       weeks: p.weeks,
