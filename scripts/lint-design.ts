@@ -424,10 +424,6 @@ function processLine(rawLine: string, rel: string, i: number, lines: string[]): 
 function scanFile(filepath: string): Violation[] {
   const rel = relative(join(ROOT, ".."), filepath);
   if (rel.endsWith("print.css") || rel.endsWith("global.css")) return [];
-  // Vault-rendered pages style prose content coming from the Obsidian vault
-  // and use inline, content-driven values that don't map cleanly to the
-  // design-token grid. Skip them.
-  if (rel.includes("pages/apps/msc-cogsci/notes/")) return [];
   const content = readFileSync(filepath, "utf-8");
   const lines = content.split("\n");
   const excludedLines = getExcludedLines(lines);
