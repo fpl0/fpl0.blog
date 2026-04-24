@@ -1,6 +1,12 @@
 ---
 /**
- * Home Page - Unified feed of blog posts and apps
+ * Home Page - Unified feed of blog posts and apps, alongside a live
+ * "Now" sidebar that surfaces MSc progress on wide viewports.
+ *
+ * DOM order (hero → aside → main) is chosen so flex-column on narrow
+ * viewports renders the NowPanel between the hero and the feed. On wide
+ * viewports, CSS grid places the aside in a full-height right column and
+ * the hero + feed stack in the left column.
  */
 
 import Layout from "../layouts/Layout.astro";
@@ -8,32 +14,52 @@ import "../styles/home.css";
 
 import PageHeader from "../components/PageHeader.astro";
 import EntryCard from "../components/EntryCard.astro";
+import Fleuron from "../components/Fleuron.astro";
+import HomeHero from "../components/HomeHero.astro";
+import NowPanel from "../components/NowPanel.astro";
 import WebSiteSchema from "../components/WebSiteSchema.astro";
 import { getFeedItems } from "../utils/content";
 
 const feedItems = await getFeedItems();
 ---
 
-<Layout title="Home">
+<Layout title="Home" dataPage="home">
   <WebSiteSchema />
   <PageHeader />
-  <blockquote class="bio-quote">
-    <p>"True delight is in the finding out rather than in the knowing."</p>
-    <cite>Isaac Asimov</cite>
-  </blockquote>
-  <main id="main-content" class="home-main">
-    {
-      feedItems.length > 0 ? (
-        <section class="archive">
-          <ul class="post-list">
-            {feedItems.map((item) => (
-              <EntryCard entry={item.entry} />
-            ))}
-          </ul>
-        </section>
-      ) : (
-        <p class="empty-state">Nothing here yet.</p>
-      )
-    }
-  </main>
+
+  <div class="home-layout">
+    <div class="home-layout__hero">
+      <HomeHero />
+    </div>
+
+    <aside class="home-layout__aside">
+      <NowPanel />
+    </aside>
+
+    <main id="main-content" class="home-layout__main home-main">
+      {
+        feedItems.length > 0 ? (
+          <>
+            <div class="home-rule" aria-hidden="true">
+              <Fleuron variant="mark" />
+            </div>
+            <section class="archive">
+              <ul class="post-list">
+                {feedItems.map((item) => (
+                  <EntryCard entry={item.entry} />
+                ))}
+              </ul>
+            </section>
+            <div class="home-closer" aria-hidden="true">
+              <Fleuron variant="diamond" />
+              <Fleuron variant="diamond" filled />
+              <Fleuron variant="diamond" />
+            </div>
+          </>
+        ) : (
+          <p class="empty-state">Nothing here yet.</p>
+        )
+      }
+    </main>
+  </div>
 </Layout>

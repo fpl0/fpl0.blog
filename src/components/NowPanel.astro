@@ -1,0 +1,104 @@
+---
+/**
+ * NowPanel — compact live-progress card for the homepage.
+ *
+ * Surfaces the MSc's current state: progress ring, counters, current week,
+ * and a link to the full `/apps/msc-cogsci/` dashboard. Data is fetched via
+ * `getProgressSnapshot()` so the panel can't drift from the dashboard's
+ * numbers (single source of truth).
+ *
+ * Layout: the homepage wraps this in `.home-layout__aside`. On wide
+ * viewports that wrapper becomes a sticky right column; on narrow viewports
+ * it's a full-width strip between the hero and the feed.
+ */
+
+import Link from "./Link.astro";
+import { buildSemesterTicks, getProgressSnapshot, pad2 } from "../utils/msc-progress";
+
+const {
+  weeksDone,
+  weeksTotal,
+  artifactsDone,
+  artifactsTotal,
+  currentWeek,
+  currentWeekTitle,
+  currentModuleTitle,
+  currentSemesterN,
+} = getProgressSnapshot();
+
+const weekLabel = currentWeek !== null ? `Week ${pad2(currentWeek)}` : null;
+const semesterTicks = buildSemesterTicks();
+---
+
+<aside class="now-panel" aria-label="MSc progress">
+  <header class="now-panel__header">
+    <p class="now-panel__eyebrow">Progress</p>
+    <p class="now-panel__title">My MSc in Cognitive Science</p>
+  </header>
+
+  <div
+    class="now-panel__ticks"
+    role="img"
+    aria-label={`${weeksDone} of ${weeksTotal} weeks complete, grouped into 5 semesters.`}
+  >
+    {
+      semesterTicks.map((s) => (
+        <div
+          class="now-panel__tick-group"
+          data-semester={s.n}
+          style={`flex: ${s.count} 0 0`}
+        >
+          {s.weeks.map((w) => (
+            <span class={`now-panel__tick now-panel__tick--${w.state}`} />
+          ))}
+        </div>
+      ))
+    }
+  </div>
+
+  <dl class="now-panel__counters">
+    <div class="now-panel__counter">
+      <dt>Weeks</dt>
+      <dd>
+        <span class="now-panel__counter-num">{weeksDone}</span>
+        <span class="now-panel__counter-sep">/</span>
+        <span class="now-panel__counter-total">{weeksTotal}</span>
+      </dd>
+    </div>
+    <div class="now-panel__counter">
+      <dt>Artifacts</dt>
+      <dd>
+        <span class="now-panel__counter-num">{artifactsDone}</span>
+        <span class="now-panel__counter-sep">/</span>
+        <span class="now-panel__counter-total">{artifactsTotal}</span>
+      </dd>
+    </div>
+  </dl>
+
+  {
+    currentWeek !== null && currentWeekTitle && (
+      <div class="now-panel__current">
+        <p class="now-panel__current-eyebrow">
+          Currently
+          {currentSemesterN !== null && (
+            <>
+              <span aria-hidden="true"> · </span>
+              <span>S{currentSemesterN}</span>
+            </>
+          )}
+        </p>
+        <p class="now-panel__current-title">
+          <span class="now-panel__current-week">{weekLabel}</span>
+          <span class="now-panel__current-dash" aria-hidden="true">&mdash;</span>
+          <span class="now-panel__current-topic">{currentWeekTitle}</span>
+        </p>
+        {currentModuleTitle && <p class="now-panel__current-module">{currentModuleTitle}</p>}
+      </div>
+    )
+  }
+
+  <Link href="/apps/msc-cogsci/" class="now-panel__cta">
+    <span>See the dashboard</span>
+    <span aria-hidden="true">&rarr;</span>
+  </Link>
+</aside>

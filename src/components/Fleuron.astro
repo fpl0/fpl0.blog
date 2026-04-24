@@ -1,0 +1,57 @@
+---
+/**
+ * Fleuron — a small typographic ornament.
+ *
+ * variant="mark"    (default) — symmetric curl-diamond-curl, used in dividers
+ * variant="diamond"           — solo diamond; pair with `filled` for ◆ vs ◇
+ *
+ * Stroke weight and rounded caps match the pin icon in EntryCard.astro so the
+ * whole page reads as one draftsman's hand.
+ */
+
+interface Props {
+  variant?: "mark" | "diamond";
+  filled?: boolean;
+  class?: string;
+}
+
+const { variant = "mark", filled = false, class: className } = Astro.props;
+---
+
+{
+  variant === "mark" ? (
+    <svg
+      class={`fleuron fleuron--mark${className ? ` ${className}` : ""}`}
+      viewBox="0 0 36 8"
+      width="36"
+      height="8"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="1"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path d="M0 4 Q 6 4 10 1.5" />
+      <path d="M15 4 L 18 1 L 21 4 L 18 7 Z" />
+      <path d="M36 4 Q 30 4 26 1.5" />
+    </svg>
+  ) : (
+    <svg
+      class={`fleuron fleuron--diamond${className ? ` ${className}` : ""}`}
+      viewBox="0 0 8 8"
+      width="8"
+      height="8"
+      fill={filled ? "currentColor" : "none"}
+      stroke="currentColor"
+      stroke-width="1"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <path d="M1 4 L 4 1 L 7 4 L 4 7 Z" />
+    </svg>
+  )
+}

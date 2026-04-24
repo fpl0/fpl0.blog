@@ -1,0 +1,87 @@
+---
+/**
+ * HomeHero — editorial masthead.
+ *
+ * Portrait on the left acts as a byline photo; name, tagline, and lead
+ * paragraph stack on the right. Typography tiers are kept strictly
+ * separate (display serif for the name, mono-brand for the tagline,
+ * serif body for the lead) so each element carries a distinct role.
+ * No container chrome — structure comes from alignment, not boxes.
+ */
+
+import { Image } from "astro:assets";
+import authorSketch from "../assets/fpl0-sketch.png";
+import authorSketchDark from "../assets/fpl0-sketch-dark.png";
+---
+
+<section class="home-hero">
+  <div class="home-hero__portrait" aria-hidden="true">
+    <div class="portrait-light">
+      <Image
+        src={authorSketch}
+        alt=""
+        class="portrait-image"
+        width={400}
+      />
+    </div>
+    <div class="portrait-dark">
+      <Image
+        src={authorSketchDark}
+        alt=""
+        class="portrait-image"
+        width={400}
+      />
+    </div>
+  </div>
+
+  <div class="home-hero__body">
+    <h1 class="home-hero__name">Filipe Lima</h1>
+    <p class="home-hero__lead">Essays on software, leadership, and how minds work &mdash; plus small apps to think with.</p>
+  </div>
+</section>
+
+<style>
+  .home-hero__portrait {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .portrait-image {
+    height: calc(var(--font-size-h2) * 4);
+    width: auto;
+    object-fit: contain;
+    transition:
+      filter var(--duration-slow) var(--ease-out),
+      opacity var(--duration-slow) var(--ease-out);
+  }
+
+  .portrait-light .portrait-image {
+    mix-blend-mode: multiply;
+    filter: contrast(1.5) grayscale(1) sepia(0.2) opacity(0.8);
+  }
+
+  .portrait-dark {
+    display: none;
+  }
+
+  :global([data-theme="dark"]) .portrait-light {
+    display: none;
+  }
+
+  :global([data-theme="dark"]) .portrait-dark {
+    display: block;
+  }
+
+  :global([data-theme="dark"]) .portrait-dark .portrait-image {
+    mix-blend-mode: screen;
+    filter: sepia(0.08) opacity(0.9);
+  }
+
+  @media (max-width: 600px) {
+    /* @breakpoint-mobile */
+    .portrait-image {
+      height: calc(var(--font-size-h2) * 3.5);
+    }
+  }
+</style>

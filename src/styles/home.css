@@ -1,26 +1,298 @@
 /* ==========================================================================
    HOME PAGE
-   "The Ledger" — elegant editorial index
+   "The Ledger" — compact masthead + feed + live NowPanel sidebar.
    ========================================================================== */
 
-/* --- Bio Quote --- */
+/* ==========================================================================
+   LAYOUT — 2-column grid on wide viewports
+   Default (narrow): single column. NowPanel appears between hero and feed
+   via CSS order — so on mobile it reads: hero → NowPanel → feed.
+   Wide (>=1024px): main column on the left, sticky NowPanel on the right.
+   ========================================================================== */
 
-.bio-quote {
-  margin: 0 0 var(--space-12) 0;
-  max-width: 100%;
-  border-left: var(--space-0-5) solid var(--color-primary);
-  padding-left: var(--space-6);
+.home-layout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-y-sm);
 }
 
-.bio-quote p {
-  font-family: var(--font-serif);
-  font-style: italic;
-  font-size: var(--font-size-sm);
-  line-height: var(--line-height-relaxed);
-  letter-spacing: var(--letter-spacing-slight);
-  color: var(--color-text-secondary);
-  font-weight: 400;
+.home-layout__hero,
+.home-layout__main,
+.home-layout__aside {
+  min-width: 0;
+}
+
+/* ==========================================================================
+   HERO — compact masthead
+   Portrait (byline photo) + name + lead bio in two columns. No card chrome,
+   no epigraph, no vertical padding — structure comes from alignment.
+   ========================================================================== */
+
+.home-hero {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--space-6);
+  align-items: center;
+  margin-bottom: var(--space-y-sm);
+}
+
+.home-hero__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.home-hero__name {
   margin: 0;
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: var(--font-size-h2);
+  line-height: var(--line-height-tight);
+  letter-spacing: var(--letter-spacing-tight);
+  color: var(--color-text);
+}
+
+.home-hero__lead {
+  margin: var(--space-1) 0 0;
+  font-family: var(--font-serif);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-text);
+  text-wrap: pretty;
+}
+
+/* Links inside prose need `display: inline` to avoid the inline-block
+   whitespace orphan next to punctuation. See home.css git history. */
+.home-hero__lead a {
+  display: inline;
+}
+
+/* ==========================================================================
+   FLEURON DIVIDERS
+   .home-rule   → hairline · fleuron · hairline (between hero and feed)
+   .home-closer → ◇ ◆ ◇ trio (below the feed, as editorial finality)
+   ========================================================================== */
+
+.home-rule {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: var(--space-4);
+  margin: var(--space-y-sm) 0;
+  color: var(--color-primary-dim);
+}
+
+.home-rule::before,
+.home-rule::after {
+  content: "";
+  height: 0;
+  border-top: var(--ui-border-subtle);
+}
+
+.home-closer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-4);
+  margin: var(--space-y-lg) 0 var(--space-y-sm);
+  color: var(--color-primary-dim);
+}
+
+/* ==========================================================================
+   NOW PANEL — live MSc progress card
+   Tokenised, no chrome. Becomes a sticky sidebar on wide viewports.
+   ========================================================================== */
+
+/* No card chrome (no background, no border-radius, no box-shadow). The panel
+   is banded top-and-bottom by hairline rules so it reads as a distinct
+   editorial section within the flow — not a UI widget sitting on top of the
+   page. Echoes the hairline pattern used by .home-rule. */
+.now-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  border-top: var(--ui-border-subtle);
+  border-bottom: var(--ui-border-subtle);
+}
+
+.now-panel__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-0-5);
+}
+
+.now-panel__eyebrow {
+  margin: 0;
+  font-family: var(--font-mono-brand);
+  font-size: var(--font-size-xxs);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.now-panel__title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-tight);
+  color: var(--color-text);
+}
+
+/* Tick strip — 80 weeks rendered as thin vertical bars grouped into 5
+   semesters. Past = primary, current = primary (doubled width for emphasis),
+   awaits-link = primary-dim, upcoming = hairline border. Width is fluid:
+   each semester group flex-grows proportional to its week count so the five
+   semesters share the full panel width despite uneven lengths (17/16/14/14/19).
+*/
+.now-panel__ticks {
+  display: flex;
+  gap: var(--space-2);
+  height: var(--space-6);
+  margin: var(--space-1) 0;
+}
+
+.now-panel__tick-group {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: var(--space-px);
+  min-width: 0;
+}
+
+.now-panel__tick {
+  background-color: var(--color-border);
+  border-radius: var(--space-px);
+  transition: background-color var(--duration-normal) var(--ease-out);
+}
+
+.now-panel__tick--done {
+  background-color: var(--color-primary);
+}
+
+.now-panel__tick--current {
+  background-color: var(--color-primary);
+  box-shadow: 0 0 0 var(--space-px) var(--color-primary-dim);
+}
+
+.now-panel__tick--awaits {
+  background-color: var(--color-primary-dim);
+}
+
+.now-panel__counters {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+  margin: 0;
+  padding: var(--space-2) 0 0;
+  border-top: var(--ui-border-subtle);
+}
+
+.now-panel__counter {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-0-5);
+  margin: 0;
+}
+
+.now-panel__counter dt {
+  font-family: var(--font-mono-brand);
+  font-size: var(--font-size-xxs);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.now-panel__counter dd {
+  margin: 0;
+  font-family: var(--font-serif);
+  color: var(--color-text);
+  line-height: var(--line-height-tight);
+}
+
+.now-panel__counter-num {
+  font-size: var(--font-size-h3);
+  font-variant-numeric: tabular-nums;
+}
+
+.now-panel__counter-sep {
+  margin: 0 var(--space-0-5);
+  color: var(--color-muted);
+}
+
+.now-panel__counter-total {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.now-panel__current {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-2) 0 0;
+  border-top: var(--ui-border-subtle);
+}
+
+.now-panel__current-eyebrow {
+  margin: 0;
+  font-family: var(--font-mono-brand);
+  font-size: var(--font-size-xxs);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.now-panel__current-title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-snug);
+  color: var(--color-text);
+}
+
+.now-panel__current-week {
+  font-family: var(--font-mono-brand);
+  font-size: var(--font-size-xxs);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+  color: var(--color-primary);
+  margin-right: var(--space-1);
+}
+
+.now-panel__current-dash {
+  margin: 0 var(--space-1);
+  color: var(--color-primary-dim);
+}
+
+.now-panel__current-topic {
+  font-style: italic;
+}
+
+.now-panel__current-module {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--font-size-sm);
+  color: var(--color-muted);
+}
+
+.now-panel__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  align-self: flex-start;
+  font-family: var(--font-mono-brand);
+  font-size: var(--font-size-xxs);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.now-panel__cta:hover {
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-underline-offset: var(--space-0-75);
 }
 
 /* ==========================================================================
@@ -38,10 +310,9 @@
   margin: 0;
 }
 
-/* Each post: CSS Grid with date column + content column */
 .post-item {
   display: grid;
-  grid-template-columns: var(--space-36) 1fr;
+  grid-template-columns: var(--space-32) 1fr;
   gap: var(--space-4);
   align-items: baseline;
   container-type: inline-size;
@@ -96,7 +367,6 @@
 .post-title {
   font-family: var(--font-serif);
   font-weight: 400;
-  /* Topological scaling based on container width */
   font-size: clamp(var(--font-size-base), 4cqi + 0.5rem, var(--font-size-h3));
   line-height: var(--line-height-snug);
   color: var(--color-text);
@@ -121,13 +391,63 @@
   max-width: var(--content-width-narrow);
 }
 
-/* --- Mobile: stack vertically (fallback/global) --- */
+/* ==========================================================================
+   WIDE VIEWPORT — 2-column sidebar layout
+   Main column on the left, sticky NowPanel on the right. Feed stays at a
+   readable width inside the main column.
+   ========================================================================== */
+
+@media (min-width: 1024px) {
+  /* @breakpoint-desktop */
+  .home-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) var(--space-80);
+    grid-template-areas:
+      "hero aside"
+      "main aside";
+    column-gap: var(--space-10);
+    row-gap: 0;
+    align-items: start;
+  }
+
+  .home-layout__hero {
+    grid-area: hero;
+  }
+
+  .home-layout__main {
+    grid-area: main;
+  }
+
+  .home-layout__aside {
+    grid-area: aside;
+    position: sticky;
+    top: var(--space-8);
+  }
+
+  .now-panel {
+    border-top: none;
+    padding-top: 0;
+  }
+}
+
+/* ==========================================================================
+   MOBILE — stack hero, shrink feed gaps
+   ========================================================================== */
 
 @media (max-width: 600px) {
   /* @breakpoint-mobile */
-  .bio-quote {
-    margin-bottom: var(--space-8);
-    padding-left: var(--space-4);
+  .home-hero {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+    margin-bottom: var(--space-y-sm);
+  }
+
+  .home-rule {
+    margin: var(--space-y-sm) 0;
+  }
+
+  .home-closer {
+    margin: var(--space-y-md) 0 var(--space-y-sm);
   }
 
   .post-list {
@@ -150,5 +470,9 @@
 
   .post-title {
     font-size: var(--font-size-base);
+  }
+
+  .now-panel {
+    gap: var(--space-3);
   }
 }

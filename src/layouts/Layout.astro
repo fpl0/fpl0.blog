@@ -16,12 +16,14 @@ interface Props {
   title: string;
   description?: string;
   image?: string;
+  dataPage?: string;
 }
 
 const {
   title,
   description = "True delight is in the finding out rather than in the knowing.",
   image,
+  dataPage,
 } = Astro.props;
 ---
 
@@ -30,7 +32,7 @@ const {
   <head>
     <BaseHead {title} {description} {image} />
   </head>
-  <body>
+  <body data-page={dataPage}>
     <a href="#main-content" class="skip-link">Skip to content</a>
     <slot />
     <SearchModal />

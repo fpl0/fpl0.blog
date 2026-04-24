@@ -67,7 +67,7 @@ export interface Milestone {
 export const programme = {
   title: "My Self-Directed MSc in Cognitive Science",
   tagline:
-    "A world-class curriculum synthesised from MIT, CMU, Stanford, Edinburgh, UCSD, Indiana and Sussex.",
+    "Pursued for no reason other than a fascination with how minds work — and the conviction that the best way to understand something is to study it end-to-end.",
   level: "NFQ Level 9 · MSc equivalent",
   startedLabel: "April 2026",
   totalWeeks: 80,

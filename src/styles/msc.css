@@ -1,6 +1,5 @@
 /* ==========================================================================
-   THE SELF-DIRECTED MSc — PUBLIC DASHBOARD
-   A scholarly programme document with live progress tracking.
+   THE SELF-DIRECTED MSc — PUBLIC PROGRAMME REPORT
    Design system: "The Digital Antiquarian".
    ========================================================================== */
 
@@ -18,59 +17,26 @@ body:has(.msc-main) .app-shell-content--scrollable {
 }
 
 /* ==========================================================================
-   SECTION TITLES (shared)
+   SECTION TITLES
    ========================================================================== */
 
 .msc-section-title {
-  display: flex;
-  align-items: baseline;
-  gap: var(--space-3);
   font-family: var(--font-serif);
   font-size: var(--font-size-h2);
   line-height: var(--line-height-snug);
   letter-spacing: var(--letter-spacing-snug);
   color: var(--color-text);
-  margin: 0;
-}
-
-.msc-section-num {
-  font-family: var(--font-mono-brand);
-  font-size: var(--font-size-micro);
-  text-transform: uppercase;
-  letter-spacing: var(--letter-spacing-loose);
-  color: var(--color-primary);
-  font-weight: 400;
-  transform: translateY(-0.4em); /* token-exempt — optical baseline alignment */
+  margin: 0 0 var(--space-y-sm);
 }
 
 /* ==========================================================================
-   HERO
+   HERO — nameplate + caption
    ========================================================================== */
 
 .msc-hero {
   margin-bottom: var(--space-y-xl);
-  padding-bottom: var(--space-y-lg);
+  padding-bottom: var(--space-y-md);
   border-bottom: var(--ui-border);
-}
-
-.msc-hero-eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-family: var(--font-mono-brand);
-  font-size: var(--font-size-micro);
-  text-transform: uppercase;
-  letter-spacing: var(--letter-spacing-wide);
-  color: var(--color-text-muted);
-  margin: 0 0 var(--space-5);
-}
-
-.msc-hero-eyebrow-dot {
-  width: var(--space-1-25);
-  height: var(--space-1-25);
-  border-radius: var(--radius-round);
-  background: var(--color-primary);
-  box-shadow: 0 0 0 var(--space-0-5) oklch(from var(--color-primary) l c h / 0.2);
 }
 
 .msc-title {
@@ -97,553 +63,251 @@ body:has(.msc-main) .app-shell-content--scrollable {
   line-height: var(--line-height-relaxed);
   color: var(--color-text-secondary);
   max-width: 62ch;
-  margin: 0 0 var(--space-y-md);
+  margin: 0 0 var(--space-4);
   text-wrap: pretty;
 }
 
-/* Hero meta strip — replaces the old 4-box stats grid.
-   A thin, dense specs row at desktop; stacks on mobile. */
-.msc-hero-meta {
-  display: grid;
-  grid-template-columns: repeat(5, auto) 1fr;
-  gap: var(--space-6);
-  align-items: end;
-  margin: 0;
-  padding-top: var(--space-4);
-  border-top: var(--ui-border-subtle);
-}
-
-.msc-hero-meta-item {
-  margin: 0;
-  min-width: 0;
-}
-
-.msc-hero-meta-item dt {
-  font-family: var(--font-mono-brand);
-  font-size: var(--font-size-micro);
-  text-transform: uppercase;
-  letter-spacing: var(--letter-spacing-loose);
-  color: var(--color-text-muted);
-  margin: 0 0 var(--space-1);
-}
-
-.msc-hero-meta-item dd {
+.msc-hero-caption {
   font-family: var(--font-serif);
+  font-style: italic;
   font-size: var(--font-size-sm);
-  font-weight: 700;
+  line-height: var(--line-height-relaxed);
+  color: var(--color-text-muted);
+  margin: 0 0 var(--space-3);
+  max-width: 72ch;
+}
+
+.msc-hero-lineage {
+  font-style: italic;
   color: var(--color-text);
+  text-decoration: underline;
+  text-decoration-color: var(--color-border);
+  text-underline-offset: var(--space-0-5);
+}
+
+.msc-hero-lineage:hover {
+  color: var(--color-primary);
+  text-decoration-color: var(--color-primary);
+}
+
+.msc-hero-meta {
+  font-family: var(--font-mono-brand);
+  font-size: var(--font-size-xxs);
+  letter-spacing: var(--letter-spacing-wide);
+  color: var(--color-text-muted);
   margin: 0;
   font-feature-settings: "tnum" 1;
-  line-height: var(--line-height-snug);
-}
-
-.msc-hero-action {
-  justify-self: end;
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2-5);
-  background: transparent;
-  border: var(--ui-border);
-  border-radius: var(--ui-radius-sm);
-  padding: var(--space-3) var(--space-5);
-  font-family: var(--font-mono-brand);
-  font-size: var(--font-size-micro);
-  text-transform: uppercase;
-  letter-spacing: var(--letter-spacing-loose);
-  color: var(--color-text-muted);
-  text-decoration: none;
-  transition:
-    color var(--duration-in) var(--ease-out),
-    border-color var(--duration-in) var(--ease-out),
-    transform var(--duration-in) var(--ease-out),
-    background var(--duration-in) var(--ease-out);
-}
-
-.msc-hero-action svg {
-  width: var(--space-3-5);
-  height: var(--space-3-5);
-}
-
-.msc-hero-action:hover {
-  color: var(--color-primary);
-  border-color: var(--color-primary);
-  transform: translateY(calc(var(--space-px) * -1));
-  background: oklch(from var(--color-primary) l c h / 0.04);
-  text-decoration: none;
-}
-
-@container msc (max-width: 720px) {
-  .msc-hero-meta {
-    grid-template-columns: repeat(2, 1fr);
-    row-gap: var(--space-4);
-  }
-  .msc-hero-action {
-    grid-column: 1 / -1;
-    justify-self: start;
-  }
 }
 
 /* ==========================================================================
-   DASHBOARD — 3-panel grid, heatmap below
+   STATE OF THE WORK — dateline + strips + currently
    ========================================================================== */
 
-.msc-dash {
+.msc-state {
   margin-bottom: var(--space-y-xl);
 }
 
-.msc-dash-header {
-  margin-bottom: var(--space-y-md);
-}
-
-.msc-dash-sub {
-  font-family: var(--font-serif);
-  font-style: italic;
-  font-size: var(--font-size-sm);
+.msc-state-dateline {
+  font-family: var(--font-mono-brand);
+  font-size: var(--font-size-xxs);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
   color: var(--color-text-muted);
-  margin: var(--space-2) 0 0;
+  margin: 0 0 var(--space-5);
 }
 
-/* Three panels: progress (auto) | now (1fr) | next (1fr) */
-.msc-dash-grid {
-  display: grid;
-  grid-template-columns: auto 1fr 1fr;
-  gap: 0;
-  border: var(--ui-border);
-  border-radius: var(--ui-radius);
-  background: var(--color-surface);
-  box-shadow: var(--ui-shadow);
-  overflow: hidden;
+.msc-state-dateline time {
+  color: var(--color-text);
+  font-weight: 600;
 }
 
-.msc-dash-pane {
-  padding: var(--space-5) var(--space-6);
-  min-width: 0;
-  position: relative;
+/* Progress strip — 80 week ticks grouped by semester. Clickable. */
+.msc-strip {
   display: flex;
-  flex-direction: column;
-}
-
-.msc-dash-pane + .msc-dash-pane {
-  border-left: var(--ui-border);
-}
-
-.msc-dash-progress {
-  display: grid;
-  grid-template-rows: auto auto;
-  justify-items: center;
-  align-content: center;
   gap: var(--space-3);
-  min-width: var(--space-44);
-  background: var(--color-surface-raised);
+  height: var(--space-8);
+  margin: 0 0 var(--space-3);
 }
 
-/* --- Progress ring --- */
-
-.msc-ring-wrap {
-  position: relative;
-  width: var(--space-28);
-  height: var(--space-28);
-}
-
-.msc-ring {
-  width: 100%;
-  height: 100%;
-  transform: rotate(-90deg);
-}
-
-.msc-ring-track {
-  fill: none;
-  stroke: var(--color-border);
-  stroke-width: 6;
-}
-
-.msc-ring-fill {
-  fill: none;
-  stroke: var(--color-primary);
-  stroke-width: 6;
-  stroke-linecap: round;
-  stroke-dasharray: 327;
-  stroke-dashoffset: 327;
-  transition: stroke-dashoffset 0.6s var(--spring-soft);
-}
-
-.msc-ring-text {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-0-5);
-}
-
-.msc-ring-percent {
-  font-family: var(--font-serif);
-  font-weight: 700;
-  font-size: var(--font-size-h2);
-  line-height: 1;
-  color: var(--color-text);
-  font-feature-settings: "tnum" 1;
-}
-
-.msc-ring-percent-sign {
-  font-family: var(--font-mono-brand);
-  font-size: var(--font-size-xxs);
-  font-weight: 400;
-  color: var(--color-text-muted);
-  margin-left: var(--space-0-5);
-}
-
-.msc-ring-caption {
-  font-family: var(--font-mono-brand);
-  font-size: var(--font-size-micro);
-  text-transform: uppercase;
-  letter-spacing: var(--letter-spacing-loose);
-  color: var(--color-text-muted);
-}
-
-/* Raw counters underneath the ring. */
-.msc-counters {
+.msc-strip-group {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--space-5);
-  margin: 0;
-  width: 100%;
-}
-
-.msc-counter {
-  margin: 0;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: var(--space-px);
   min-width: 0;
-  text-align: center;
 }
 
-.msc-counter dt {
-  font-family: var(--font-mono-brand);
-  font-size: var(--font-size-micro);
-  text-transform: uppercase;
-  letter-spacing: var(--letter-spacing-loose);
-  color: var(--color-text-muted);
-  margin-bottom: var(--space-1);
-}
-
-.msc-counter dd {
-  margin: 0;
-  font-family: var(--font-serif);
-  font-weight: 700;
-  font-size: var(--font-size-h3);
-  line-height: 1.1;
-  color: var(--color-text);
-  font-feature-settings: "tnum" 1;
-  white-space: nowrap;
-}
-
-.msc-counter-sep {
-  color: var(--color-text-muted);
-  font-weight: 400;
-  margin: 0 var(--space-0-5);
-}
-
-/* --- Now / Next panes --- */
-
-.msc-dash-pane-kicker {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-family: var(--font-mono-brand);
-  font-size: var(--font-size-micro);
-  text-transform: uppercase;
-  letter-spacing: var(--letter-spacing-loose);
-  color: var(--color-primary);
-  font-weight: 600;
-  margin: 0 0 var(--space-3);
-}
-
-.msc-dash-pulse {
-  width: var(--space-2);
-  height: var(--space-2);
-  border-radius: var(--radius-round);
-  background: var(--color-primary);
-  box-shadow: 0 0 0 var(--space-0-5) oklch(from var(--color-primary) l c h / 0.25);
-  animation: msc-pulse 2s var(--ease-out) infinite;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .msc-dash-pulse {
-    animation: none;
-  }
-}
-
-.msc-dash-pane-meta {
-  font-family: var(--font-mono-brand);
-  font-size: var(--font-size-micro);
-  letter-spacing: var(--letter-spacing-slight);
-  color: var(--color-text-muted);
-  margin: 0 0 var(--space-2);
-}
-
-.msc-dash-pane-title {
-  font-family: var(--font-serif);
-  font-size: var(--font-size-h3);
-  font-weight: 700;
-  line-height: var(--line-height-snug);
-  color: var(--color-text);
-  margin: 0 0 var(--space-3);
-  letter-spacing: var(--letter-spacing-snug);
-  text-wrap: balance;
-}
-
-.msc-dash-pane-artifact-meta {
-  font-family: var(--font-mono-brand);
-  font-size: var(--font-size-micro);
-  letter-spacing: var(--letter-spacing-slight);
-  color: var(--color-primary);
-  font-weight: 600;
-  margin: 0 0 var(--space-3);
-}
-
-.msc-dash-pane-question {
-  font-family: var(--font-serif);
-  font-style: italic;
-  font-size: var(--font-size-sm);
-  line-height: var(--line-height-relaxed);
-  color: var(--color-text-secondary);
-  margin: 0 0 var(--space-3);
-  border-left: var(--space-0-5) solid var(--color-primary);
-  padding-left: var(--space-3);
-}
-
-.msc-dash-pane-items {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 var(--space-4);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2-5);
-  flex: 1;
-}
-
-.msc-dash-pane-items li {
-  display: grid;
-  grid-template-columns: var(--space-10) 1fr;
-  gap: var(--space-3);
-  align-items: baseline;
-  font-family: var(--font-sans);
-  font-size: var(--font-size-label);
-  line-height: var(--line-height-relaxed);
-  color: var(--color-text);
-}
-
-.msc-dash-pane-kind {
-  font-family: var(--font-mono-brand);
-  font-size: var(--font-size-micro);
-  text-transform: uppercase;
-  letter-spacing: var(--letter-spacing-loose);
-  color: var(--color-text-muted);
-  font-weight: 600;
-  text-align: right;
-}
-
-.msc-dash-pane-link {
-  margin-top: auto;
-  align-self: flex-start;
-  font-family: var(--font-mono-brand);
-  font-size: var(--font-size-micro);
-  text-transform: uppercase;
-  letter-spacing: var(--letter-spacing-loose);
-  color: var(--color-primary);
-  text-decoration: none;
-  font-weight: 600;
-  padding: var(--space-1-5) 0;
-  transition: transform var(--duration-in) var(--ease-out);
-}
-
-.msc-dash-pane-link:hover {
-  transform: translateY(calc(var(--space-px) * -1));
-  text-decoration: underline;
-  background: none;
-}
-
-.msc-dash-pane-idle {
-  font-family: var(--font-serif);
-  font-style: italic;
-  font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
-  margin: 0;
-}
-
-/* Dashboard collapses to a single column on narrower viewports. */
-@container msc (max-width: 880px) {
-  .msc-dash-grid {
-    grid-template-columns: 1fr;
-  }
-  .msc-dash-pane + .msc-dash-pane {
-    border-left: none;
-    border-top: var(--ui-border);
-  }
-  .msc-dash-progress {
-    flex-direction: row;
-    grid-template-rows: auto;
-    grid-template-columns: auto 1fr;
-    justify-items: start;
-    gap: var(--space-6);
-  }
-  .msc-counters {
-    text-align: left;
-    grid-template-columns: 1fr 1fr;
-  }
-  .msc-counter {
-    text-align: left;
-  }
-}
-
-@container msc (max-width: 520px) {
-  .msc-dash-progress {
-    grid-template-columns: 1fr;
-    justify-items: center;
-    gap: var(--space-4);
-  }
-  .msc-counters {
-    text-align: center;
-  }
-  .msc-counter {
-    text-align: center;
-  }
-}
-
-/* --- Heatmap ---
-   A dense contribution-graph-style timeline. Sits as a tight figure tucked
-   under the dashboard card; no visual chrome of its own, minimal whitespace
-   so the progress picture reads as a single glance. */
-
-.msc-heatmap {
-  margin-top: var(--space-5);
-  padding: 0;
-}
-
-.msc-heatmap-rows {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1-5);
-}
-
-.msc-heatmap-row {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-}
-
-.msc-heatmap-row .msc-heatmap-label {
-  flex-shrink: 0;
-  min-width: var(--space-36);
-}
-
-.msc-heatmap-label {
-  display: inline-flex;
-  align-items: baseline;
-  gap: var(--space-2);
-  margin: 0;
-  line-height: 1;
-  white-space: nowrap;
-}
-
-.msc-heatmap-label-num {
-  font-family: var(--font-mono-brand);
-  font-size: var(--font-size-xxs);
-  font-weight: 600;
-  letter-spacing: var(--letter-spacing-loose);
-  color: var(--color-primary);
-}
-
-.msc-heatmap-label-title {
-  font-family: var(--font-mono-brand);
-  font-size: var(--font-size-xxs);
-  color: var(--color-text-muted);
-  letter-spacing: var(--letter-spacing-slight);
-  text-transform: uppercase;
-  font-weight: 500;
-}
-
-/* Fixed-size square cells in a tight grid — GitHub contribution-graph style.
-   Longest semester sets the column count; shorter rows leave blank columns
-   on the right so cells line up vertically across rows. */
-.msc-heatmap-cells {
-  display: grid;
-  grid-template-columns: repeat(var(--msc-heatmap-cols, 20), var(--space-4));
-  grid-auto-rows: var(--space-4);
-  gap: var(--space-1);
-}
-
-.msc-cell {
-  width: var(--space-4);
-  height: var(--space-4);
-  border-radius: var(--radius-xs);
-  background: var(--color-border);
+.msc-strip-tick {
+  display: block;
+  background-color: var(--color-border);
+  border-radius: var(--space-px);
+  transition:
+    background-color var(--duration-in) var(--ease-out),
+    transform var(--duration-in) var(--ease-out);
   position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  color: var(--color-text-muted);
-  transition: background var(--duration-in) var(--ease-out);
 }
 
-.msc-cell:hover,
-.msc-cell:focus-visible {
-  background: var(--color-primary);
-  outline: none;
-}
-
-.msc-cell::after {
-  /* hit-box expansion per Fitts's Law */
+.msc-strip-tick::after {
+  /* Hit-box expansion per Fitts's Law. */
   content: "";
   position: absolute;
   inset: calc(var(--space-1) * -1);
 }
 
-.msc-cell-num {
+.msc-strip-tick:hover,
+.msc-strip-tick:focus-visible {
+  background-color: var(--color-primary-dim);
+  outline: none;
+}
+
+.msc-strip-tick--done {
+  background-color: var(--color-primary);
+}
+
+.msc-strip-tick--current {
+  background-color: var(--color-primary);
+  box-shadow: 0 0 0 var(--space-px) var(--color-primary-dim);
+  animation: msc-strip-pulse 2s var(--ease-out) infinite;
+}
+
+.msc-strip-tick--awaits {
+  background-color: var(--color-primary-dim);
+}
+
+@keyframes msc-strip-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .msc-strip-tick--current {
+    animation: none;
+  }
+}
+
+/* Artifact rail — 80-axis, only the 21 artifact weeks carry visible weight. */
+.msc-rail {
+  display: flex;
+  gap: var(--space-3);
+  margin: 0 0 var(--space-y-sm);
+  min-height: var(--space-6);
+}
+
+.msc-rail-group {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: var(--space-px);
+  min-width: 0;
+  align-items: center;
+}
+
+.msc-rail-tick {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--space-4);
+  border-radius: var(--space-px);
+  text-decoration: none;
+  color: var(--color-primary);
+  transition:
+    color var(--duration-in) var(--ease-out),
+    transform var(--duration-in) var(--ease-out);
+  position: relative;
+}
+
+.msc-rail-tick::after {
+  content: "";
+  position: absolute;
+  inset: calc(var(--space-1) * -1);
+}
+
+/* The global a::before hit-box (absolute, inset: -8px) is repurposed here as
+   a hover tooltip. Hidden by default; revealed on hover/focus; content pulled
+   from data-tooltip. inset: auto resets the global's negative inset. */
+.msc-strip-tick::before,
+.msc-rail-tick::before {
+  content: attr(data-tooltip);
+  position: absolute;
+  inset: auto;
+  bottom: calc(100% + var(--space-2));
+  left: 50%;
+  transform: translateX(-50%);
+  padding: var(--space-1-25) var(--space-2-5);
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+  border: var(--ui-border-subtle);
+  border-radius: var(--ui-radius-sm);
+  box-shadow: var(--shadow-md);
   font-family: var(--font-mono-brand);
-  font-size: var(--font-size-micro);
-  font-weight: 600;
-  line-height: 1;
+  font-size: var(--font-size-xxs);
+  letter-spacing: var(--letter-spacing-slight);
+  white-space: nowrap;
+  pointer-events: none;
   opacity: 0;
-  transition: opacity var(--duration-in) var(--ease-out);
-  font-feature-settings: "tnum" 1;
+  visibility: hidden;
+  transition:
+    opacity var(--duration-in) var(--ease-out),
+    visibility var(--duration-in) var(--ease-out);
+  z-index: var(--z-dropdown);
 }
 
-.msc-cell:hover .msc-cell-num,
-.msc-cell:focus-visible .msc-cell-num,
-.msc-cell.is-done .msc-cell-num,
-.msc-cell.is-in-progress .msc-cell-num {
+.msc-strip-tick:hover::before,
+.msc-strip-tick:focus-visible::before,
+.msc-rail-tick:hover::before,
+.msc-rail-tick:focus-visible::before {
   opacity: 1;
+  visibility: visible;
 }
 
-.msc-cell:hover .msc-cell-num,
-.msc-cell:focus-visible .msc-cell-num {
-  color: var(--color-bg);
+/* "empty" ticks are the non-artifact weeks — reserve the slot without ink so
+   the rail stays aligned with the strip above. */
+.msc-rail-tick--empty {
+  visibility: hidden;
 }
 
-.msc-cell.is-done {
-  background: var(--color-primary);
+.msc-rail-tick--future {
+  background-color: var(--color-border);
+  min-height: var(--space-3);
+  align-self: center;
 }
 
-.msc-cell.is-done .msc-cell-num {
-  color: var(--color-bg);
+.msc-rail-tick--future:hover,
+.msc-rail-tick--future:focus-visible {
+  background-color: var(--color-primary-dim);
 }
 
-.msc-cell.is-awaiting-link {
-  background: oklch(from var(--color-primary) l c h / 0.35);
+.msc-rail-tick--next {
+  animation: msc-rail-glow 2.4s var(--ease-out) infinite;
 }
 
-.msc-cell.is-in-progress {
-  background: var(--color-primary);
-  animation: msc-cell-pulse 2s var(--ease-out) infinite;
+.msc-rail-tick-dot {
+  display: block;
+  width: var(--space-3);
+  height: var(--space-3);
+  border-radius: var(--radius-round);
+  background-color: var(--color-primary);
 }
 
-.msc-cell.is-in-progress .msc-cell-num {
-  color: var(--color-bg);
+.msc-rail-tick--shipped svg,
+.msc-rail-tick--current svg {
+  width: var(--space-4);
+  height: var(--space-4);
+  color: var(--color-primary);
 }
 
-@keyframes msc-cell-pulse {
+.msc-rail-tick:hover,
+.msc-rail-tick:focus-visible {
+  transform: translateY(calc(var(--space-px) * -1));
+  outline: none;
+}
+
+@keyframes msc-rail-glow {
   0%,
   100% {
     opacity: 1;
@@ -654,282 +318,74 @@ body:has(.msc-main) .app-shell-content--scrollable {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .msc-cell.is-in-progress {
+  .msc-rail-tick--next {
     animation: none;
   }
 }
 
-/* --- Heatmap legend --- */
-
-.msc-heatmap-legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-4);
+/* "Currently" sentence — label at left, prose body + deep-link stacked right.
+   The outer element spans full width so the border-top divider runs the full
+   rail width; the body is constrained inside. */
+.msc-state-currently {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--space-2) var(--space-4);
+  align-items: baseline;
+  font-family: var(--font-serif);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-text);
   margin: var(--space-4) 0 0;
   padding-top: var(--space-3);
   border-top: var(--ui-border-subtle);
+}
+
+.msc-state-currently-body {
+  display: block;
+  max-width: 72ch;
+}
+
+.msc-state-currently-link {
+  display: block;
+  margin-top: var(--space-2);
+}
+
+.msc-state-currently-label {
   font-family: var(--font-mono-brand);
-  font-size: var(--font-size-micro);
+  font-size: var(--font-size-xxs);
   text-transform: uppercase;
-  letter-spacing: var(--letter-spacing-loose);
-  color: var(--color-text-muted);
-}
-
-.msc-legend-item {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-
-.msc-legend-swatch {
-  width: var(--space-3);
-  height: var(--space-2-5);
-  border-radius: var(--radius-xs);
-}
-
-.msc-legend-empty {
-  background: var(--color-border);
-}
-
-.msc-legend-done {
-  background: var(--color-primary);
-  border-color: var(--color-primary);
-}
-
-.msc-legend-in-progress {
-  background: var(--color-primary);
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 var(--space-px) var(--color-primary);
-}
-
-.msc-legend-pending {
-  background: oklch(from var(--color-primary) l c h / 0.35);
-  border-color: transparent;
-}
-
-@container msc (max-width: 640px) {
-  .msc-heatmap-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-1-5);
-  }
-  .msc-heatmap-row .msc-heatmap-label {
-    min-width: 0;
-  }
-}
-
-/* ==========================================================================
-   METHODOLOGY / HOW THIS WORKS
-   ========================================================================== */
-
-.msc-method {
-  margin-bottom: var(--space-y-xl);
-}
-
-.msc-method-header {
-  margin-bottom: var(--space-y-md);
-}
-
-.msc-method-sub {
-  font-family: var(--font-serif);
-  font-style: italic;
-  font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
-  margin: var(--space-2) 0 0;
-  max-width: 62ch;
-}
-
-.msc-method-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--space-5);
-  margin-bottom: var(--space-y-md);
-}
-
-.msc-method-card {
-  padding: var(--space-5);
-  border: var(--ui-border);
-  border-radius: var(--ui-radius);
-  background: var(--color-surface);
-  transition:
-    transform var(--duration-out) var(--ease-out),
-    box-shadow var(--duration-out) var(--ease-out);
-}
-
-.msc-method-card:hover {
-  transform: translateY(calc(var(--space-px) * -1));
-  box-shadow: var(--shadow-md);
-}
-
-.msc-method-card-title {
-  font-family: var(--font-mono-brand);
-  font-size: var(--font-size-micro);
-  text-transform: uppercase;
-  letter-spacing: var(--letter-spacing-loose);
+  letter-spacing: var(--letter-spacing-wide);
   color: var(--color-primary);
-  margin: 0 0 var(--space-3);
-  font-weight: 600;
+  margin-right: var(--space-2);
 }
 
-.msc-method-card-body {
-  font-family: var(--font-serif);
-  font-size: var(--font-size-sm);
-  line-height: var(--line-height-relaxed);
-  color: var(--color-text);
-  margin: 0;
-}
-
-@container msc (max-width: 820px) {
-  .msc-method-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
-@container msc (max-width: 560px) {
-  .msc-method-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* --- Weekly time budget --- */
-
-.msc-budget {
-  padding: var(--space-5) var(--space-6);
-  border: var(--ui-border);
-  border-radius: var(--ui-radius);
-  background: var(--color-surface);
-}
-
-.msc-budget-header {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-4);
-  margin-bottom: var(--space-4);
-  flex-wrap: wrap;
-}
-
-.msc-budget-title {
-  font-family: var(--font-serif);
-  font-size: var(--font-size-h3);
-  font-weight: 700;
-  color: var(--color-text);
-  margin: 0;
-  letter-spacing: var(--letter-spacing-snug);
-}
-
-.msc-budget-total {
-  display: inline-flex;
-  align-items: baseline;
-  gap: var(--space-2);
-  margin: 0;
-}
-
-.msc-budget-total-value {
-  font-family: var(--font-mono-brand);
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  color: var(--color-primary);
-  font-feature-settings: "tnum" 1;
-}
-
-.msc-budget-total-note {
-  font-family: var(--font-serif);
+.msc-state-currently-body {
   font-style: italic;
-  font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
-}
-
-.msc-budget-rows {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0;
-  border: var(--ui-border-subtle);
-  border-radius: var(--ui-radius-sm);
-  overflow: hidden;
-}
-
-.msc-budget-row {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  padding: var(--space-4);
-  border-right: var(--ui-border-subtle);
-}
-
-.msc-budget-row:last-child {
-  border-right: none;
-}
-
-.msc-budget-activity {
-  font-family: var(--font-serif);
-  font-weight: 700;
-  color: var(--color-text);
-  font-size: var(--font-size-sm);
-}
-
-.msc-budget-hours {
-  font-family: var(--font-mono-brand);
-  font-size: var(--font-size-lead);
-  color: var(--color-primary);
-  font-weight: 600;
-  white-space: nowrap;
-  font-feature-settings: "tnum" 1;
-  line-height: 1.1;
-}
-
-.msc-budget-note {
-  font-family: var(--font-sans);
-  font-size: var(--font-size-label);
-  color: var(--color-text-muted);
-}
-
-.msc-budget-rhythm {
-  font-family: var(--font-serif);
-  font-style: italic;
-  font-size: var(--font-size-sm);
-  line-height: var(--line-height-relaxed);
   color: var(--color-text-secondary);
-  margin: var(--space-4) 0 0;
-  padding-top: var(--space-4);
-  border-top: var(--ui-border-subtle);
 }
 
-@container msc (max-width: 820px) {
-  .msc-budget-rows {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .msc-budget-row:nth-child(2n) {
-    border-right: none;
-  }
-  .msc-budget-row:nth-child(-n + 2) {
-    border-bottom: var(--ui-border-subtle);
-  }
+.msc-state-currently-link {
+  font-style: normal;
+  font-family: var(--font-mono-brand);
+  font-size: var(--font-size-xxs);
+  letter-spacing: var(--letter-spacing-wide);
+  text-transform: uppercase;
+  color: var(--color-primary);
+  text-decoration: none;
+  white-space: nowrap;
 }
 
-@container msc (max-width: 480px) {
-  .msc-budget-rows {
-    grid-template-columns: 1fr;
-  }
-  .msc-budget-row {
-    border-right: none;
-    border-bottom: var(--ui-border-subtle);
-  }
-  .msc-budget-row:last-child {
-    border-bottom: none;
-  }
+.msc-state-currently-link:hover {
+  text-decoration: underline;
+  text-underline-offset: var(--space-0-75);
 }
 
 /* ==========================================================================
-   CURRICULUM
+   CURRICULUM — native <details> accordion, one per semester
    ========================================================================== */
 
 .msc-curriculum {
   margin-bottom: var(--space-y-xl);
-}
-
-.msc-curriculum-header {
-  margin-bottom: var(--space-y-md);
 }
 
 .msc-curriculum-sub {
@@ -937,98 +393,87 @@ body:has(.msc-main) .app-shell-content--scrollable {
   font-style: italic;
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
-  margin: var(--space-2) 0 0;
+  margin: 0 0 var(--space-y-md);
   max-width: 62ch;
 }
 
-/* Semester index — 5 jump cards, one per semester. */
-.msc-sem-index {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: var(--space-3);
-  margin-bottom: var(--space-y-lg);
-}
-
-.msc-sem-card {
-  display: grid;
-  grid-template-rows: auto auto auto auto auto;
-  gap: var(--space-1-5);
-  padding: var(--space-4);
+.msc-semester {
+  margin: 0 0 var(--space-5);
   border: var(--ui-border);
   border-radius: var(--ui-radius);
-  background: var(--color-surface);
-  text-decoration: none;
-  color: var(--color-text);
-  transition:
-    transform var(--duration-in) var(--ease-out),
-    border-color var(--duration-in) var(--ease-out),
-    box-shadow var(--duration-in) var(--ease-out);
-  position: relative;
+  background: var(--color-bg);
+  overflow: hidden;
+  scroll-margin-top: calc(var(--space-12) + var(--space-6));
 }
 
-.msc-sem-card:hover {
-  transform: translateY(calc(var(--space-px) * -1));
-  border-color: var(--color-primary);
-  box-shadow: var(--shadow-md);
+.msc-semester[open] {
   background: var(--color-surface);
 }
 
-/* Tab-selected semester — fills with accent so the active panel is obvious. */
-.msc-sem-card.is-active {
-  border-color: var(--color-primary);
-  background: oklch(from var(--color-primary) l c h / 0.08);
-  box-shadow:
-    inset var(--space-0-5) 0 0 var(--color-primary),
-    var(--ui-shadow);
+.msc-semester-summary {
+  list-style: none;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: var(--space-5);
+  align-items: center;
+  padding: var(--space-5) var(--space-6);
+  cursor: pointer;
+  transition: background var(--duration-in) var(--ease-out);
+  user-select: none;
 }
 
-.msc-sem-card.is-active .msc-sem-card-title {
-  color: var(--color-primary);
+.msc-semester-summary::-webkit-details-marker {
+  display: none;
 }
 
-/* The in-progress semester is already visually marked in its kicker region
-   (the active-tab rule wins when both are true). */
-.msc-sem-card.has-in-progress .msc-sem-card-kicker::after {
-  content: " · in progress";
-  color: var(--color-primary);
+.msc-semester-summary:hover {
+  background: var(--color-surface-raised);
 }
 
-.msc-sem-card-kicker {
-  font-family: var(--font-mono-brand);
-  font-size: var(--font-size-micro);
-  text-transform: uppercase;
-  letter-spacing: var(--letter-spacing-loose);
-  color: var(--color-primary);
-  font-weight: 600;
-}
-
-.msc-sem-card-title {
-  font-family: var(--font-serif);
-  font-weight: 700;
-  font-size: var(--font-size-body);
-  line-height: var(--line-height-snug);
-  color: var(--color-text);
-  letter-spacing: var(--letter-spacing-tighter);
-}
-
-.msc-sem-card-meta {
+.msc-semester-kicker {
   font-family: var(--font-mono-brand);
   font-size: var(--font-size-xxs);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+  color: var(--color-primary);
+  white-space: nowrap;
+}
+
+.msc-semester-title {
+  font-family: var(--font-serif);
+  font-size: var(--font-size-h3);
+  font-weight: 700;
+  line-height: var(--line-height-snug);
+  letter-spacing: var(--letter-spacing-snug);
+  color: var(--color-text);
+  min-width: 0;
+}
+
+.msc-semester-progress {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  white-space: nowrap;
+}
+
+.msc-semester-progress-count {
+  font-family: var(--font-mono-brand);
+  font-size: var(--font-size-xxs);
+  letter-spacing: var(--letter-spacing-wide);
   color: var(--color-text-muted);
   font-feature-settings: "tnum" 1;
 }
 
-.msc-sem-card-progress {
+.msc-semester-progress-bar {
   display: block;
-  width: 100%;
+  width: var(--space-24);
   height: var(--space-1);
   border-radius: var(--radius-round);
   background: var(--color-border);
   overflow: hidden;
-  margin-top: var(--space-2);
 }
 
-.msc-sem-card-progress-fill {
+.msc-semester-progress-fill {
   display: block;
   height: 100%;
   width: var(--fill, 0%);
@@ -1037,74 +482,24 @@ body:has(.msc-main) .app-shell-content--scrollable {
   transition: width 0.6s var(--spring-soft);
 }
 
-.msc-sem-card-count {
-  font-family: var(--font-mono-brand);
-  font-size: var(--font-size-xxs);
-  color: var(--color-text-muted);
-  font-feature-settings: "tnum" 1;
-}
-
-@container msc (max-width: 820px) {
-  .msc-sem-index {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@container msc (max-width: 520px) {
-  .msc-sem-index {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-/* --- Semester --- */
-
-.msc-semester {
-  margin-bottom: var(--space-y-xl);
-  padding-top: var(--space-y-md);
-  scroll-margin-top: calc(var(--space-12) + var(--space-6));
-}
-
-.msc-semester:not(:first-of-type) {
-  border-top: var(--space-0-5) solid var(--color-border);
-}
-
-.msc-semester-header {
-  margin-bottom: var(--space-y-md);
-}
-
-.msc-semester-kicker {
-  font-family: var(--font-mono-brand);
-  font-size: var(--font-size-micro);
-  text-transform: uppercase;
-  letter-spacing: var(--letter-spacing-wide);
-  color: var(--color-primary);
-  margin: 0 0 var(--space-3);
-}
-
-.msc-semester-title {
-  font-family: var(--font-serif);
-  font-weight: 700;
-  font-size: clamp(1.8rem, 2.5vw + 1rem, 2.4rem);
-  line-height: var(--line-height-tight);
-  letter-spacing: var(--letter-spacing-tight);
-  color: var(--color-text);
-  margin: 0 0 var(--space-3);
-}
-
 .msc-semester-subtitle {
   font-family: var(--font-serif);
   font-style: italic;
-  font-size: var(--font-size-lead);
+  font-size: var(--font-size-base);
   line-height: var(--line-height-relaxed);
   color: var(--color-text-secondary);
-  margin: 0;
+  margin: 0 var(--space-6) var(--space-y-md);
+  padding: 0 0 var(--space-4);
   max-width: 62ch;
+  border-bottom: var(--ui-border-subtle);
 }
 
-/* --- Module --- */
+/* ==========================================================================
+   MODULE
+   ========================================================================== */
 
 .msc-module {
-  margin-top: var(--space-y-lg);
+  margin: var(--space-y-md) var(--space-6);
 }
 
 .msc-module-header {
@@ -1142,20 +537,19 @@ body:has(.msc-main) .app-shell-content--scrollable {
   font-style: italic;
 }
 
-/* --- Weeks --- */
+/* ==========================================================================
+   WEEKS
+   ========================================================================== */
 
 .msc-weeks {
   list-style: none;
   padding: 0;
-  margin: 0;
+  margin: 0 0 var(--space-5);
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
 }
 
-/* Base week card — same neutral treatment whether or not it has an artifact.
-   The artifact's OWN card (`.msc-artifact` inside) carries the accent; the
-   week wrapper stays quiet so artifact weeks don't read as "highlighted". */
 .msc-week {
   border: var(--ui-border);
   border-radius: var(--ui-radius);
@@ -1173,13 +567,36 @@ body:has(.msc-main) .app-shell-content--scrollable {
   border-color: oklch(from var(--color-primary) l c h / 0.35);
 }
 
-/* In-progress: quiet border accent + pulsing dot in the check box. */
 .msc-week.is-in-progress {
   border-color: var(--color-primary);
   background: oklch(from var(--color-primary) l c h / 0.08);
   box-shadow:
     inset var(--space-0-5) 0 0 var(--color-primary),
     var(--ui-shadow);
+}
+
+/* Selected-week highlight — a whisper. Just a faint background tint that
+   fades in on arrival. No border, no stripe: the highlight reads as
+   "you are here" without competing with is-done or is-in-progress state. */
+.msc-week:target {
+  border-color: var(--color-primary-dim);
+  background: oklch(from var(--color-primary) l c h / 0.02);
+  animation: msc-week-target-flash 1.2s var(--ease-out);
+}
+
+@keyframes msc-week-target-flash {
+  0% {
+    background: oklch(from var(--color-primary) l c h / 0.07);
+  }
+  100% {
+    background: oklch(from var(--color-primary) l c h / 0.02);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .msc-week:target {
+    animation: none;
+  }
 }
 
 .msc-week-row {
@@ -1282,9 +699,6 @@ body:has(.msc-main) .app-shell-content--scrollable {
   line-height: var(--line-height-snug);
   color: var(--color-text);
   letter-spacing: var(--letter-spacing-tighter);
-  transition:
-    color var(--duration-in) var(--ease-out),
-    text-decoration-color var(--duration-in) var(--ease-out);
 }
 
 .msc-week.is-done .msc-week-title {
@@ -1346,10 +760,8 @@ body:has(.msc-main) .app-shell-content--scrollable {
 }
 .msc-kind-note .msc-kind-tag {
   color: var(--color-text-muted);
-  font-style: italic;
 }
 .msc-kind-note .msc-kind-text {
-  font-style: italic;
   color: var(--color-text-muted);
 }
 
@@ -1385,11 +797,6 @@ body:has(.msc-main) .app-shell-content--scrollable {
   flex-shrink: 0;
 }
 
-.msc-artifact-flag svg {
-  width: var(--space-3-5);
-  height: var(--space-3-5);
-}
-
 .msc-artifact-body {
   flex: 1;
   min-width: 0;
@@ -1413,6 +820,14 @@ body:has(.msc-main) .app-shell-content--scrollable {
   font-feature-settings: "tnum" 1;
 }
 
+.msc-artifact-description {
+  font-family: var(--font-serif);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-text-secondary);
+  margin: var(--space-2) 0 0;
+}
+
 .msc-artifact-link {
   margin: var(--space-1-25) 0 0;
   font-family: var(--font-mono-brand);
@@ -1427,6 +842,195 @@ body:has(.msc-main) .app-shell-content--scrollable {
   letter-spacing: var(--letter-spacing-slight);
   color: var(--color-text-muted);
   font-style: italic;
+}
+
+/* ==========================================================================
+   METHOD — compact rows (not cards)
+   ========================================================================== */
+
+.msc-method {
+  margin-bottom: var(--space-y-xl);
+  padding-top: var(--space-y-md);
+  border-top: var(--ui-border);
+}
+
+/* Method — three labelled blocks flowing horizontally on wide viewports,
+   stacking on narrow. No card chrome; dividers between columns carry the
+   separation. */
+.msc-method-rows {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-10);
+  margin: 0 0 var(--space-y-lg);
+}
+
+.msc-method-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+@container msc (max-width: 820px) {
+  .msc-method-rows {
+    grid-template-columns: 1fr;
+    gap: var(--space-y-md);
+  }
+}
+
+.msc-method-row-title {
+  font-family: var(--font-mono-brand);
+  font-size: var(--font-size-xxs);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+  color: var(--color-primary);
+  font-weight: 600;
+  margin: 0;
+}
+
+.msc-method-row-body {
+  font-family: var(--font-serif);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+  color: var(--color-text);
+  margin: 0;
+}
+
+/* Weekly time budget — 4 columns on wide, 2 on medium, 1 on narrow. Kicker
+   row across the top. No card chrome; a hairline above separates it from the
+   three method columns above. */
+.msc-budget {
+  margin: 0;
+  padding: var(--space-y-md) 0 0;
+  border: none;
+  border-top: var(--ui-border-subtle);
+  background: none;
+}
+
+.msc-budget-header {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+  flex-wrap: wrap;
+}
+
+.msc-budget-title {
+  font-family: var(--font-mono-brand);
+  font-size: var(--font-size-xxs);
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
+  color: var(--color-primary);
+  font-weight: 600;
+  margin: 0;
+}
+
+.msc-budget-total {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.msc-budget-total-value {
+  font-family: var(--font-mono-brand);
+  font-size: var(--font-size-xxs);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  letter-spacing: var(--letter-spacing-wide);
+  font-feature-settings: "tnum" 1;
+}
+
+.msc-budget-rows {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--space-6);
+  margin: 0;
+}
+
+.msc-budget-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: 0;
+  border: none;
+}
+
+.msc-budget-activity {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+}
+
+.msc-budget-hours {
+  font-family: var(--font-mono-brand);
+  font-size: var(--font-size-lead);
+  color: var(--color-primary);
+  font-weight: 600;
+  white-space: nowrap;
+  font-feature-settings: "tnum" 1;
+  line-height: 1.1;
+}
+
+.msc-budget-note {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  line-height: var(--line-height-snug);
+}
+
+@container msc (max-width: 820px) {
+  .msc-budget-rows {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-5);
+  }
+}
+
+@container msc (max-width: 480px) {
+  .msc-budget-rows {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================================================
+   COLOPHON — closing line with source codes inline
+   ========================================================================== */
+
+.msc-colophon {
+  margin-top: var(--space-y-lg);
+  padding-top: var(--space-y-md);
+  border-top: var(--ui-border);
+  text-align: center;
+  max-width: 72ch;
+  margin-inline: auto;
+}
+
+.msc-colophon-meta {
+  font-family: var(--font-mono-brand);
+  font-size: var(--font-size-xxs);
+  letter-spacing: var(--letter-spacing-slight);
+  color: var(--color-text-muted);
+  line-height: var(--line-height-relaxed);
+  margin: var(--space-3) 0 0;
+}
+
+/* ==========================================================================
+   CONTAINER-QUERY RESPONSIVE TWEAKS
+   ========================================================================== */
+
+@container msc (max-width: 720px) {
+  .msc-semester-summary {
+    grid-template-columns: auto 1fr;
+    row-gap: var(--space-2);
+  }
+  .msc-semester-progress {
+    grid-column: 1 / -1;
+  }
+  .msc-strip,
+  .msc-rail {
+    gap: var(--space-2);
+  }
 }
 
 @container msc (max-width: 540px) {
@@ -1460,231 +1064,14 @@ body:has(.msc-main) .app-shell-content--scrollable {
     flex-direction: column;
     gap: var(--space-2);
   }
-}
-
-/* ==========================================================================
-   MILESTONES
-   ========================================================================== */
-
-.msc-milestones {
-  margin-bottom: var(--space-y-xl);
-}
-
-.msc-milestones-header {
-  margin-bottom: var(--space-y-md);
-}
-
-.msc-milestones-sub {
-  font-family: var(--font-serif);
-  font-style: italic;
-  font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
-  margin: var(--space-2) 0 0;
-}
-
-.msc-milestones-sub strong {
-  color: var(--color-text);
-  font-style: normal;
-  font-weight: 600;
-}
-
-.msc-milestone-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  border-left: var(--space-0-5) solid var(--color-border);
-  position: relative;
-}
-
-.msc-milestone {
-  display: grid;
-  grid-template-columns: auto auto 1fr auto;
-  gap: var(--space-3);
-  align-items: baseline;
-  padding: var(--space-3) 0 var(--space-3) var(--space-5);
-  position: relative;
-  font-family: var(--font-serif);
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-}
-
-.msc-milestone-mark {
-  position: absolute;
-  left: calc(var(--space-2) * -1);
-  top: 50%;
-  transform: translateY(-50%);
-  width: var(--space-3);
-  height: var(--space-3);
-  border-radius: var(--radius-round);
-  background: var(--color-bg);
-  border: var(--space-0-5) solid var(--color-border);
-  transition:
-    background var(--duration-in) var(--ease-out),
-    border-color var(--duration-in) var(--ease-out),
-    transform var(--duration-in) var(--spring-bouncy);
-}
-
-.msc-milestone.is-reached .msc-milestone-mark {
-  background: var(--color-primary);
-  border-color: var(--color-primary);
-  transform: translateY(-50%) scale(1.1);
-}
-
-.msc-milestone-major .msc-milestone-mark {
-  width: var(--space-4);
-  height: var(--space-4);
-  left: calc(var(--space-2-5) * -1);
-}
-
-.msc-milestone-major {
-  padding-top: var(--space-4);
-  padding-bottom: var(--space-4);
-  color: var(--color-text);
-}
-
-.msc-milestone-week {
-  font-family: var(--font-mono-brand);
-  font-size: var(--font-size-micro);
-  font-weight: 600;
-  letter-spacing: var(--letter-spacing-loose);
-  color: var(--color-primary);
-  min-width: var(--space-8);
-}
-
-.msc-milestone-text {
-  line-height: var(--line-height-snug);
-  color: var(--color-text);
-}
-
-.msc-milestone-text a {
-  color: inherit;
-  text-decoration: none;
-  border-bottom: var(--space-px) dashed var(--color-border);
-  transition: border-color var(--duration-in) var(--ease-out);
-}
-
-.msc-milestone-text a:hover {
-  border-bottom-color: var(--color-primary);
-  background: none;
-  color: var(--color-text);
-  transform: none;
-}
-
-.msc-milestone-artifact {
-  font-style: italic;
-  color: var(--color-text-muted);
-  font-weight: 400;
-}
-
-.msc-milestone-major .msc-milestone-text {
-  font-weight: 700;
-}
-
-.msc-milestone-count {
-  font-family: var(--font-mono-brand);
-  font-size: var(--font-size-micro);
-  letter-spacing: var(--letter-spacing-slight);
-  color: var(--color-text-muted);
-  white-space: nowrap;
-  font-feature-settings: "tnum" 1;
-}
-
-@container msc (max-width: 560px) {
-  .msc-milestone {
-    grid-template-columns: auto 1fr;
-  }
-  .msc-milestone-count {
-    grid-column: 1 / -1;
-    text-align: left;
+  .msc-method-row {
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
   }
 }
 
 /* ==========================================================================
-   SOURCES
-   ========================================================================== */
-
-.msc-sources {
-  margin-bottom: var(--space-y-xl);
-  padding-top: var(--space-y-md);
-  border-top: var(--ui-border);
-}
-
-.msc-sources-header {
-  margin-bottom: var(--space-y-md);
-}
-
-/* --- Colophon roll — compact one-line-per-source list --- */
-
-.msc-sources-roll {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 var(--space-y-md);
-  max-width: 72ch;
-}
-
-.msc-source {
-  margin: 0;
-}
-
-.msc-source-link {
-  display: inline-flex;
-  align-items: baseline;
-  gap: var(--space-3);
-  padding: var(--space-1) 0;
-  font-family: var(--font-serif);
-  font-size: var(--font-size-sm);
-  line-height: var(--line-height-snug);
-  color: var(--color-text);
-  text-decoration: none;
-  border-bottom: none;
-  transition: color var(--duration-in) var(--ease-out);
-}
-
-.msc-source-link:hover,
-.msc-source-link:focus-visible {
-  color: var(--color-primary);
-  background: none;
-  outline: none;
-  border-bottom: none;
-}
-
-.msc-source-code {
-  font-family: var(--font-mono-brand);
-  font-size: var(--font-size-xxs);
-  font-weight: 600;
-  letter-spacing: var(--letter-spacing-loose);
-  color: var(--color-primary);
-  font-feature-settings: "tnum" 1;
-  min-width: var(--space-10);
-  flex-shrink: 0;
-}
-
-.msc-source-name {
-  font-family: var(--font-serif);
-  font-size: var(--font-size-sm);
-  font-weight: 400;
-  color: inherit;
-}
-
-/* Override the global external-link ↗ — this list is quiet. */
-.msc-sources-roll .msc-source-link[target="_blank"]::after {
-  content: none;
-}
-
-.msc-sources-meta {
-  margin: var(--space-y-lg) 0 0;
-  padding-top: var(--space-y-md);
-  border-top: var(--ui-border-subtle);
-  font-family: var(--font-mono-brand);
-  font-size: var(--font-size-xxs);
-  letter-spacing: var(--letter-spacing-slight);
-  color: var(--color-text-muted);
-  text-align: center;
-  line-height: var(--line-height-relaxed);
-}
-
-/* ==========================================================================
-   PRINT — produces the PDF export
+   PRINT — PDF export
    ========================================================================== */
 
 @media print {
@@ -1704,15 +1091,16 @@ body:has(.msc-main) .app-shell-content--scrollable {
 
   .app-shell-bar,
   .skip-link,
-  .search-backdrop,
-  .msc-hero-action,
-  .msc-sem-index {
+  .search-backdrop {
     display: none !important;
   }
 
-  /* Tabbed semesters: reveal all panels so the full curriculum renders in PDF. */
-  .msc-semester[hidden] {
-    display: block !important;
+  /* Open all <details> so the curriculum renders fully in PDF. */
+  .msc-semester:not([open]) > :not(summary) {
+    display: revert !important;
+  }
+  .msc-semester {
+    break-inside: avoid;
   }
 
   body.app-shell-body,
@@ -1740,11 +1128,10 @@ body:has(.msc-main) .app-shell-content--scrollable {
     line-height: 1.5;
   }
 
-  .msc-dash,
+  .msc-state,
   .msc-method,
   .msc-curriculum,
-  .msc-milestones,
-  .msc-sources {
+  .msc-colophon {
     break-before: page;
     page-break-before: always;
   }
@@ -1752,8 +1139,6 @@ body:has(.msc-main) .app-shell-content--scrollable {
   .msc-semester + .msc-semester {
     break-before: page;
     page-break-before: always;
-    border-top: none;
-    padding-top: 0;
   }
 
   h1,
@@ -1765,79 +1150,36 @@ body:has(.msc-main) .app-shell-content--scrollable {
   .msc-semester-kicker,
   .msc-module-title,
   .msc-module-kicker,
-  .msc-budget-title,
-  .msc-method-card-title {
+  .msc-budget-title {
     break-after: avoid-page;
     page-break-after: avoid;
   }
 
-  .msc-semester-header,
   .msc-module-header,
-  .msc-dash-header,
-  .msc-semester-header + .msc-module,
-  .msc-dash-header + .msc-dash-grid {
+  .msc-semester-summary {
     break-inside: avoid;
     page-break-inside: avoid;
-  }
-  .msc-semester-header,
-  .msc-module-header {
-    break-after: avoid-page;
-    page-break-after: avoid;
   }
 
   .msc-week,
   .msc-artifact,
-  .msc-method-card,
-  .msc-milestone,
-  .msc-budget,
-  .msc-dash-grid,
-  .msc-heatmap {
+  .msc-budget {
     break-inside: avoid;
     page-break-inside: avoid;
   }
 
   p,
-  .msc-tagline,
-  .msc-semester-subtitle,
-  .msc-method-card-body {
+  .msc-tagline {
     orphans: 3;
     widows: 3;
   }
 
-  /* Print: dashboard stacks vertically for clean A4 flow. */
-  .msc-dash-grid {
-    grid-template-columns: 1fr;
-    box-shadow: none;
-  }
-  .msc-dash-pane + .msc-dash-pane {
-    border-left: none;
-    border-top: var(--ui-border);
-  }
-  .msc-dash-pane-link {
-    display: none;
-  }
-
-  /* Shrink heatmap cells so the longest semester fits on A4 width. */
-  .msc-heatmap-cells {
-    grid-template-columns: repeat(var(--msc-heatmap-cols, 20), minmax(0, 1fr));
-    gap: var(--space-0-75);
-  }
-
-  .msc-cell,
-  .msc-week-row,
-  .msc-method-card,
-  .msc-milestone-mark {
+  .msc-strip-tick,
+  .msc-rail-tick,
+  .msc-week-row {
     transition: none !important;
     transform: none !important;
     box-shadow: none !important;
-  }
-
-  .msc-cell {
-    border-color: var(--color-border) !important;
-  }
-  .msc-cell.is-done {
-    background: var(--color-primary) !important;
-    border-color: var(--color-primary) !important;
   }
 
   a {
@@ -1849,17 +1191,7 @@ body:has(.msc-main) .app-shell-content--scrollable {
     content: none !important;
   }
 
-  .msc-milestone-text a {
-    border-bottom: none;
-  }
-
-  .msc-heatmap {
-    box-shadow: none;
-    break-inside: avoid;
-    page-break-inside: avoid;
-  }
-
-  /* Honor background colors (critical for heatmap + progress ring). */
+  /* Honor background colors (critical for progress/artifact strips). */
   * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
@@ -1867,13 +1199,11 @@ body:has(.msc-main) .app-shell-content--scrollable {
 }
 
 /* Playwright PDF generation sets this on <html> to force-apply print layout. */
-html[data-pdf-export="true"] .app-shell-bar,
-html[data-pdf-export="true"] .msc-hero-action,
-html[data-pdf-export="true"] .msc-sem-index {
+html[data-pdf-export="true"] .app-shell-bar {
   display: none !important;
 }
-html[data-pdf-export="true"] .msc-semester[hidden] {
-  display: block !important;
+html[data-pdf-export="true"] .msc-semester:not([open]) > :not(summary) {
+  display: revert !important;
 }
 html[data-pdf-export="true"] body.app-shell-body--scrollable {
   max-width: none;

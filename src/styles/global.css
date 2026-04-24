@@ -473,6 +473,13 @@ body {
   text-wrap: pretty;
 }
 
+/* Homepage breaks out of the 72ch reading cage so the feed can share
+   horizontal space with the NowPanel sidebar on wide viewports. All other
+   pages remain at 72ch via the default body rule above. */
+body[data-page="home"] {
+  max-width: 1120px;
+}
+
 p {
   orphans: 3;
   widows: 3;
@@ -631,7 +638,8 @@ a[target="_blank"]:not(
     .tweet-card a,
     .lyt-playbtn,
     .search-result a,
-    .post-title
+    .post-title,
+    .msc-hero-lineage
   )::after {
   content: " \2197";
   font-size: 0.75em;

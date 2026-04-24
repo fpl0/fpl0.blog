@@ -2,26 +2,35 @@
 /**
  * msc — My Self-Directed MSc in Cognitive Science
  *
- * A public-facing dashboard + curriculum.
- *
- * Source of truth: `completedWeeks` + `inProgressWeek` in src/data/msc-curriculum.ts.
- * The page is fully server-rendered; there is no client-side state.
+ * A public programme report, not a dashboard. Source of truth:
+ * `completedWeeks` + `inProgressWeek` in src/data/msc-curriculum.ts. Fully
+ * server-rendered, no client-side state except a small hash-to-details
+ * promoter for deep-links.
  */
 
 import Link from "../../../components/Link.astro";
+import Fleuron from "../../../components/Fleuron.astro";
 import {
+  inProgressWeek,
+  type ItemKind,
   programme,
   semesters,
-  artifactWeeks,
-  completedWeeks,
-  inProgressWeek,
-  type Semester,
-  type Week,
   type WeekItem,
-  type ItemKind,
 } from "../../../data/msc-curriculum";
+import {
+  awaitsLink,
+  buildSemesterTicks,
+  getProgressSnapshot,
+  isWeekDone,
+  moduleForWeek,
+  pad2,
+  RAIL_SUFFIX,
+  railState,
+  TICK_SUFFIX,
+  weekById,
+} from "../../../utils/msc-progress";
 import "../../../styles/msc.css";
-import TABS_SCRIPT from "../../../components/msc-tabs.inline.js?raw";
+import DETAILS_SCRIPT from "../../../components/msc-details.inline.js?raw";
 
 const kindLabel: Record<ItemKind, string> = {
   read: "Read",
@@ -33,370 +42,283 @@ const kindLabel: Record<ItemKind, string> = {
   note: "Note",
 };
 
-const rawCompletedSet = new Set(completedWeeks);
-
-const weekById = (n: number): Week | undefined => {
-  for (const s of semesters) {
-    for (const m of s.modules) {
-      const w = m.weekDetails.find((x) => x.n === n);
-      if (w) return w;
-    }
-  }
-  return undefined;
-};
-
-const moduleForWeek = (n: number) => {
-  for (const s of semesters) {
-    for (const m of s.modules) {
-      if (n >= m.weeks[0] && n <= m.weeks[1]) return { semester: s, module: m };
-    }
-  }
-  return null;
-};
-
-const isWeekDone = (n: number): boolean => {
-  if (!rawCompletedSet.has(n)) return false;
-  const wk = weekById(n);
-  if (wk?.artifact && !wk.artifact.link) return false;
-  return true;
-};
-
-const awaitsLink = (n: number): boolean => {
-  if (!rawCompletedSet.has(n)) return false;
-  const wk = weekById(n);
-  return !!wk?.artifact && !wk.artifact.link;
-};
-
 const semesterSlug = (n: number) => `semester-${n}`;
 const weekSlug = (n: number) => `week-${n}`;
 
-// ---- Derived progress state (computed at build time) ----
+const { weeksDone, artifactsDone, percentComplete } = getProgressSnapshot();
+const semesterTicks = buildSemesterTicks();
 
-const effectiveCompleted = Array.from({ length: programme.totalWeeks }, (_, i) => i + 1).filter(
-  isWeekDone,
-);
-const weeksDone = effectiveCompleted.length;
-const artifactsDone = artifactWeeks.filter(isWeekDone).length;
-const percentComplete = Math.round((weeksDone / programme.totalWeeks) * 100);
+const todayIso = new Date().toISOString().slice(0, 10);
 
-const ringRadius = 52;
-const ringCircumference = 2 * Math.PI * ringRadius;
-const ringOffset = ringCircumference * (1 - weeksDone / programme.totalWeeks);
+const ROMAN: Record<number, string> = { 1: "I", 2: "II", 3: "III", 4: "IV", 5: "V" };
 
-// The longest semester sets the heatmap grid width; shorter semesters leave
-// blank trailing columns so cells stay aligned vertically across rows.
-const longestSemesterWeeks = semesters.reduce(
-  (max, s) => Math.max(max, s.weeks[1] - s.weeks[0] + 1),
-  0,
-);
-
-const heatmapRows: { semester: Semester; weekNumbers: number[] }[] = semesters.map((s) => ({
-  semester: s,
-  weekNumbers: Array.from({ length: s.weeks[1] - s.weeks[0] + 1 }, (_, i) => s.weeks[0] + i),
-}));
-
-// ---- "Now" and "Next" panels ----
-
-const currentWeek: Week | null =
-  inProgressWeek !== null ? (weekById(inProgressWeek) ?? null) : null;
+const currentWeek = inProgressWeek !== null ? weekById(inProgressWeek) : undefined;
 const currentContext = inProgressWeek !== null ? moduleForWeek(inProgressWeek) : null;
+const currentSemesterLabel = currentContext ? (ROMAN[currentContext.semester.n] ?? "") : "";
 
-/** Next artifact that hasn't been shipped yet — but never the active week
- * itself (that's already rendered in the "Now" pane), so the two panels
- * never duplicate each other on artifact weeks. */
-const nextArtifactWeekNum = artifactWeeks.find((n) => !isWeekDone(n) && n !== inProgressWeek);
-const nextArtifactWeek: Week | null =
-  nextArtifactWeekNum !== undefined ? (weekById(nextArtifactWeekNum) ?? null) : null;
-const nextArtifactContext =
-  nextArtifactWeekNum !== undefined ? moduleForWeek(nextArtifactWeekNum) : null;
-
-/** Rough "weeks until" estimate for the next artifact, relative to the active week. */
-const weeksUntilNext =
-  inProgressWeek !== null && nextArtifactWeekNum !== undefined
-    ? Math.max(0, nextArtifactWeekNum - inProgressWeek)
-    : null;
-
-function currentPhaseLabel(): string {
-  if (inProgressWeek !== null && currentWeek && currentContext) {
-    return `W${String(inProgressWeek).padStart(2, "0")} · ${currentWeek.title} — S${currentContext.semester.n} ${currentContext.semester.shortTitle}`;
-  }
-  if (weeksDone === 0) return "Not started";
-  if (weeksDone >= programme.totalWeeks) return "Programme complete";
-  for (const s of semesters) {
-    const semWeeks = Array.from({ length: s.weeks[1] - s.weeks[0] + 1 }, (_, i) => s.weeks[0] + i);
-    const allDone = semWeeks.every(isWeekDone);
-    if (!allDone) return `S${s.n} · ${s.title}`;
-  }
-  const last = semesters[semesters.length - 1];
-  return last ? `S${last.n} · ${last.title}` : "Programme complete";
+function currentlySentence(): string | null {
+  if (!(currentWeek && currentContext)) return null;
+  const mod = currentContext.module.title.replace(/[.!?]+$/, "");
+  const artifactLine = currentWeek.artifact
+    ? ` A ${currentWeek.artifact.kind.toLowerCase()} ships this week.`
+    : "";
+  return `In Week ${currentWeek.n} — ${currentWeek.title} — reading ${mod}.${artifactLine}`;
 }
 
-const currentLabel = currentPhaseLabel();
-
-const semesterContainsWeek = (s: Semester, n: number | null): boolean =>
-  n !== null && n >= s.weeks[0] && n <= s.weeks[1];
-
-/** The semester that should be open by default when the curriculum section
- * first renders (pre-JS / before hash resolution): whichever contains the
- * in-progress week, falling back to the first semester. */
-const defaultSemesterN: number =
-  semesters.find((s) => semesterContainsWeek(s, inProgressWeek))?.n ?? semesters[0]?.n ?? 1;
+const currently = currentlySentence();
 ---
 
 <div class="msc-main">
-  <!-- ========================================================== HERO -->
+  <!-- ============================================================== HERO -->
   <header class="msc-hero">
-    <p class="msc-hero-eyebrow">
-      <span class="msc-hero-eyebrow-dot" aria-hidden="true"></span>
-      {programme.level} · Self-directed · Running in public
-    </p>
     <h1 class="msc-title">
       My Self-Directed MSc in<br />
       <span class="msc-title-accent">Cognitive Science</span>
     </h1>
     <p class="msc-tagline">{programme.tagline}</p>
-
-    <dl class="msc-hero-meta">
-      <div class="msc-hero-meta-item">
-        <dt>Started</dt>
-        <dd>{programme.startedLabel}</dd>
-      </div>
-      <div class="msc-hero-meta-item">
-        <dt>Length</dt>
-        <dd>{programme.totalWeeks} weeks</dd>
-      </div>
-      <div class="msc-hero-meta-item">
-        <dt>Shape</dt>
-        <dd>{programme.totalSemesters} semesters · {programme.totalModules} modules</dd>
-      </div>
-      <div class="msc-hero-meta-item">
-        <dt>Output</dt>
-        <dd>{programme.totalArtifacts} artifacts</dd>
-      </div>
-      <div class="msc-hero-meta-item">
-        <dt>Pace</dt>
-        <dd>{programme.pace}</dd>
-      </div>
-      <a
-        href="/apps/msc-cogsci/notes"
-        class="msc-hero-action"
-        aria-label="Open study notes"
-      >
-        <svg
-          viewBox="0 0 16 16"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="1.5"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          aria-hidden="true"
-        >
-          <path d="M3 2h8l2 2v10H3z"></path>
-          <path d="M5 6h6M5 9h6M5 12h4"></path>
-        </svg>
-        <span>Notes</span>
-      </a>
-    </dl>
+    <p class="msc-hero-caption">
+      Curriculum synthesised from MIT, CMU, Stanford, Edinburgh, UCSD, Indiana, and Sussex — in
+      the tradition of
+      <Link
+        href="https://www.scotthyoung.com/blog/myprojects/mit-challenge-2/"
+        class="msc-hero-lineage"
+      >Scott H. Young's MIT Challenge</Link>.
+    </p>
+    <p class="msc-hero-meta">
+      Started {programme.startedLabel} · {programme.totalWeeks} weeks ·
+      {programme.totalSemesters} semesters · {programme.totalArtifacts} artifacts ·
+      {programme.pace}.
+    </p>
   </header>
 
-  <!-- ========================================================== DASHBOARD -->
-  <section class="msc-dash" aria-labelledby="progress-heading">
-    <div class="msc-dash-header">
-      <h2 id="progress-heading" class="msc-section-title">
-        <span class="msc-section-num">§ 01</span>
-        Progress
-      </h2>
-    </div>
+  <!-- ============================================================== STATE -->
+  <section class="msc-state" aria-labelledby="state-heading">
+    <h2 id="state-heading" class="msc-section-title">The state of the work</h2>
 
-    <div class="msc-dash-grid">
-      <!-- Progress pane — ring + raw counts -->
-      <div class="msc-dash-pane msc-dash-progress">
-        <div class="msc-ring-wrap">
-          <svg class="msc-ring" viewBox="0 0 120 120" aria-hidden="true">
-            <circle class="msc-ring-track" cx="60" cy="60" r={ringRadius}></circle>
-            <circle
-              class="msc-ring-fill"
-              cx="60"
-              cy="60"
-              r={ringRadius}
-              style={`stroke-dasharray: ${ringCircumference}; stroke-dashoffset: ${ringOffset};`}
-            ></circle>
-          </svg>
-          <div class="msc-ring-text">
-            <span class="msc-ring-percent">
-              {percentComplete}<span class="msc-ring-percent-sign">%</span>
-            </span>
-            <span class="msc-ring-caption">complete</span>
-          </div>
-        </div>
+    <p class="msc-state-dateline">
+      As of <time datetime={todayIso}>{todayIso}</time> ·
+      {weeksDone} of {programme.totalWeeks} weeks · {percentComplete}% · {artifactsDone} of
+      {programme.totalArtifacts} artifacts shipped
+      {currentContext && (
+        <>
+          · Semester {currentSemesterLabel}
+        </>
+      )}
+    </p>
 
-        <dl class="msc-counters">
-          <div class="msc-counter">
-            <dt>Weeks</dt>
-            <dd>
-              <span>{weeksDone}</span><span class="msc-counter-sep">/</span><span>{programme.totalWeeks}</span>
-            </dd>
-          </div>
-          <div class="msc-counter">
-            <dt>Artifacts</dt>
-            <dd>
-              <span>{artifactsDone}</span><span class="msc-counter-sep">/</span><span>{programme.totalArtifacts}</span>
-            </dd>
-          </div>
-        </dl>
-      </div>
-
-      <!-- Now pane — what is actively being worked on -->
-      <div class="msc-dash-pane msc-dash-now">
-        <p class="msc-dash-pane-kicker">
-          <span class="msc-dash-pulse" aria-hidden="true"></span>
-          Now
-        </p>
-        {currentWeek && currentContext ? (
-          <>
-            <p class="msc-dash-pane-meta">
-              Week {currentWeek.n} · {currentContext.semester.shortTitle} · Module {currentContext.module.code}
-              {currentWeek.hours && <> · {currentWeek.hours} hrs</>}
-            </p>
-            <h3 class="msc-dash-pane-title">{currentWeek.title}</h3>
-            <ul class="msc-dash-pane-items">
-              {currentWeek.items.slice(0, 4).map((it) => (
-                <li>
-                  <span class={`msc-dash-pane-kind msc-kind-${it.kind}`}>{kindLabel[it.kind]}</span>
-                  <span>{it.text}</span>
-                </li>
-              ))}
-            </ul>
-            <a class="msc-dash-pane-link" href={`#${weekSlug(currentWeek.n)}`}>
-              Open week {currentWeek.n} →
-            </a>
-          </>
-        ) : (
-          <>
-            <h3 class="msc-dash-pane-title">{currentLabel}</h3>
-            <p class="msc-dash-pane-idle">No week is active right now.</p>
-          </>
-        )}
-      </div>
-
-      <!-- Next pane — the next artifact gate -->
-      <div class="msc-dash-pane msc-dash-next">
-        <p class="msc-dash-pane-kicker">Next artifact</p>
-        {nextArtifactWeek && nextArtifactWeek.artifact && nextArtifactContext ? (
-          <>
-            <p class="msc-dash-pane-meta">
-              {`Week ${nextArtifactWeek.n} · ${nextArtifactContext.semester.shortTitle}${
-                weeksUntilNext !== null && weeksUntilNext > 0
-                  ? ` · in ${weeksUntilNext} ${weeksUntilNext === 1 ? "week" : "weeks"}`
-                  : ""
-              }`}
-            </p>
-            <h3 class="msc-dash-pane-title">{nextArtifactWeek.artifact.title}</h3>
-            <p class="msc-dash-pane-artifact-meta">
-              {nextArtifactWeek.artifact.kind} · {nextArtifactWeek.artifact.length}
-            </p>
-            {nextArtifactContext.module.question && (
-              <p class="msc-dash-pane-question">{nextArtifactContext.module.question}</p>
-            )}
-            <a class="msc-dash-pane-link" href={`#${weekSlug(nextArtifactWeek.n)}`}>
-              Open brief →
-            </a>
-          </>
-        ) : (
-          <>
-            <h3 class="msc-dash-pane-title">All artifacts delivered</h3>
-            <p class="msc-dash-pane-idle">Programme complete.</p>
-          </>
-        )}
-      </div>
-    </div>
-
-    <!-- Heatmap — the whole programme at a glance -->
+    <!-- Progress strip — 80 weeks, 5 semester groups -->
     <div
-      class="msc-heatmap"
-      role="group"
-      aria-label="Weekly progress grid"
-      style={`--msc-heatmap-cols: ${longestSemesterWeeks};`}
+      class="msc-strip msc-strip--weeks"
+      role="img"
+      aria-label={`${weeksDone} of ${programme.totalWeeks} weeks complete`}
     >
-      <div class="msc-heatmap-rows">
-        {heatmapRows.map(({ semester, weekNumbers }) => (
-          <div class="msc-heatmap-row">
-            <p class="msc-heatmap-label">
-              <span class="msc-heatmap-label-num">S{semester.n}</span>
-              <span class="msc-heatmap-label-title">{semester.shortTitle}</span>
-            </p>
-            <div class="msc-heatmap-cells">
-              {weekNumbers.map((n) => {
-                const isDone = isWeekDone(n);
-                const isPending = awaitsLink(n);
-                const isActive = n === inProgressWeek;
-                const cls = [
-                  "msc-cell",
-                  isDone ? "is-done" : "",
-                  isPending ? "is-awaiting-link" : "",
-                  isActive ? "is-in-progress" : "",
-                ]
-                  .filter(Boolean)
-                  .join(" ");
-                const statusSuffix = isActive
-                  ? " · in progress"
-                  : isDone
-                    ? " · completed"
-                    : isPending
-                      ? " · awaiting link"
-                      : "";
-                return (
-                  <a
-                    href={`#${weekSlug(n)}`}
-                    class={cls}
-                    title={`Week ${n}${statusSuffix}`}
-                    aria-label={`Jump to week ${n}${statusSuffix}`}
-                  >
-                    <span class="msc-cell-num">{n}</span>
-                  </a>
-                );
-              })}
-            </div>
-          </div>
-        ))}
-      </div>
+      {semesterTicks.map((s) => (
+        <div class="msc-strip-group" style={`flex: ${s.count} 0 0`}>
+          {s.weeks.map((w) => {
+            const wk = weekById(w.n);
+            const ctx = moduleForWeek(w.n);
+            const suffix = TICK_SUFFIX[w.state];
+            const parts = [`W${pad2(w.n)}`];
+            if (wk?.title) parts.push(wk.title);
+            if (ctx) parts.push(`S${ctx.semester.n} · ${ctx.module.code}`);
+            const tooltip = parts.join(" · ") + suffix;
+            return (
+              <a
+                href={`#${weekSlug(w.n)}`}
+                class={`msc-strip-tick msc-strip-tick--${w.state}`}
+                aria-label={`Week ${w.n}${suffix}`}
+                data-tooltip={tooltip}
+              />
+            );
+          })}
+        </div>
+      ))}
+    </div>
 
-      <p class="msc-heatmap-legend">
-        <span class="msc-legend-item">
-          <span class="msc-legend-swatch msc-legend-empty" aria-hidden="true"></span>
-          upcoming
-        </span>
-        <span class="msc-legend-item">
-          <span class="msc-legend-swatch msc-legend-done" aria-hidden="true"></span>
-          completed
-        </span>
-        <span class="msc-legend-item">
-          <span class="msc-legend-swatch msc-legend-in-progress" aria-hidden="true"></span>
-          in progress
-        </span>
-        <span class="msc-legend-item">
-          <span class="msc-legend-swatch msc-legend-pending" aria-hidden="true"></span>
-          awaiting link
+    <!-- Artifact rail — 80-axis, but only the 21 artifact weeks carry weight -->
+    <div class="msc-rail" role="img" aria-label={`${artifactsDone} of ${programme.totalArtifacts} artifacts shipped`}>
+      {semesterTicks.map((s) => (
+        <div class="msc-rail-group" style={`flex: ${s.count} 0 0`}>
+          {s.weeks.map((w) => {
+            const state = railState(w.n);
+            if (state === null) {
+              return <span class="msc-rail-tick msc-rail-tick--empty" aria-hidden="true" />;
+            }
+            const art = weekById(w.n)?.artifact;
+            const suffix = RAIL_SUFFIX[state];
+            const parts = [`W${pad2(w.n)}`];
+            if (art?.title) parts.push(art.title);
+            if (art) parts.push(`${art.kind} · ${art.length}`);
+            const tooltip = parts.join(" · ") + suffix;
+            const showDiamond = state === "shipped" || state === "current";
+            return (
+              <a
+                href={`#${weekSlug(w.n)}`}
+                class={`msc-rail-tick msc-rail-tick--${state}`}
+                aria-label={`Artifact, week ${w.n}${suffix}`}
+                data-tooltip={tooltip}
+              >
+                {showDiamond && <Fleuron variant="diamond" filled />}
+                {state === "next" && <span class="msc-rail-tick-dot" aria-hidden="true" />}
+              </a>
+            );
+          })}
+        </div>
+      ))}
+    </div>
+
+    {currently && (
+      <p class="msc-state-currently">
+        <span class="msc-state-currently-label">Currently</span>
+        <span class="msc-state-currently-body">
+          {currently}
+          {currentWeek && (
+            <>
+              {" "}
+              <a class="msc-state-currently-link" href={`#${weekSlug(currentWeek.n)}`}>
+                Open Week {currentWeek.n} →
+              </a>
+            </>
+          )}
         </span>
       </p>
-    </div>
+    )}
   </section>
 
-  <!-- ========================================================== HOW THIS WORKS -->
-  <section class="msc-method" aria-labelledby="method-heading">
-    <div class="msc-method-header">
-      <h2 id="method-heading" class="msc-section-title">
-        <span class="msc-section-num">§ 02</span>
-        How this works
-      </h2>
-    </div>
+  <!-- ============================================================== CURRICULUM -->
+  <section class="msc-curriculum" aria-labelledby="curriculum-heading">
+    <h2 id="curriculum-heading" class="msc-section-title">The curriculum</h2>
+    <p class="msc-curriculum-sub">
+      Five semesters, {programme.totalModules} modules, {programme.totalArtifacts} shippable
+      artifacts. Click a semester to expand, or jump straight to a week via the progress bar above.
+    </p>
 
-    <div class="msc-method-grid">
+    {semesters.map((s) => {
+      const semWeeks = Array.from(
+        { length: s.weeks[1] - s.weeks[0] + 1 },
+        (_, i) => s.weeks[0] + i,
+      );
+      const doneCount = semWeeks.filter(isWeekDone).length;
+      return (
+        <details class="msc-semester" id={semesterSlug(s.n)}>
+          <summary class="msc-semester-summary">
+            <span class="msc-semester-kicker">
+              Semester {ROMAN[s.n] ?? s.n} · Weeks {s.weeks[0]}–{s.weeks[1]}
+            </span>
+            <span class="msc-semester-title">{s.title}</span>
+            <span class="msc-semester-progress" aria-label={`${doneCount} of ${semWeeks.length} weeks done`}>
+              <span class="msc-semester-progress-count">
+                {doneCount} / {semWeeks.length}
+              </span>
+              <span class="msc-semester-progress-bar" aria-hidden="true">
+                <span
+                  class="msc-semester-progress-fill"
+                  style={`--fill: ${(doneCount / semWeeks.length) * 100}%`}
+                />
+              </span>
+            </span>
+          </summary>
+
+          <p class="msc-semester-subtitle">{s.subtitle}</p>
+
+          {s.modules.map((m) => (
+            <section class="msc-module">
+              <header class="msc-module-header">
+                <p class="msc-module-kicker">
+                  Module {m.code} · Weeks {m.weeks[0]}–{m.weeks[1]}
+                </p>
+                <h3 class="msc-module-title">{m.title}</h3>
+                <p class="msc-module-question">{m.question}</p>
+              </header>
+
+              <ol class="msc-weeks">
+                {m.weekDetails.map((wk) => {
+                  const isDone = isWeekDone(wk.n);
+                  const isPending = awaitsLink(wk.n);
+                  const isActive = wk.n === inProgressWeek;
+                  const cls = [
+                    "msc-week",
+                    isDone ? "is-done" : "",
+                    isPending ? "is-awaiting-link" : "",
+                    isActive ? "is-in-progress" : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" ");
+                  return (
+                    <li class={cls} id={weekSlug(wk.n)}>
+                      <div class="msc-week-row">
+                        <span class="msc-week-check-box" aria-hidden="true">
+                          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 8l3.5 3.5L13 5"></path>
+                          </svg>
+                        </span>
+                        <span class="msc-week-meta">
+                          <span class="msc-week-num">W{pad2(wk.n)}</span>
+                          {wk.hours && <span class="msc-week-hours">{wk.hours} hrs</span>}
+                        </span>
+                        <span class="msc-week-title">{wk.title}</span>
+                      </div>
+
+                      {wk.items.length > 0 && (
+                        <ul class="msc-week-items">
+                          {wk.items.map((it: WeekItem) => (
+                            <li class={`msc-week-item msc-kind-${it.kind}`}>
+                              <span class="msc-kind-tag">{kindLabel[it.kind]}</span>
+                              <span class="msc-kind-text">{it.text}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+
+                      {wk.artifact && (
+                        <div class="msc-artifact">
+                          <span class="msc-artifact-flag">
+                            <Fleuron variant="diamond" filled={!!wk.artifact.link} />
+                            {wk.artifact.link ? "Artifact shipped" : "Artifact due"}
+                          </span>
+                          <div class="msc-artifact-body">
+                            <p class="msc-artifact-title">{wk.artifact.title}</p>
+                            <p class="msc-artifact-meta">
+                              {wk.artifact.kind} · {wk.artifact.length}
+                            </p>
+                            {wk.artifact.description && (
+                              <p class="msc-artifact-description">{wk.artifact.description}</p>
+                            )}
+                            {wk.artifact.link ? (
+                              <p class="msc-artifact-link">
+                                <Link href={wk.artifact.link}>View published artifact →</Link>
+                              </p>
+                            ) : (
+                              isPending && (
+                                <p class="msc-artifact-pending">
+                                  Work done · awaiting published link before this week counts as complete.
+                                </p>
+                              )
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </li>
+                  );
+                })}
+              </ol>
+            </section>
+          ))}
+        </details>
+      );
+    })}
+  </section>
+
+  <!-- ============================================================== METHOD -->
+  <section class="msc-method" aria-labelledby="method-heading">
+    <h2 id="method-heading" class="msc-section-title">How this works</h2>
+
+    <div class="msc-method-rows">
       {programme.methodology.map((item) => (
-        <article class="msc-method-card">
-          <h3 class="msc-method-card-title">{item.heading}</h3>
-          <p class="msc-method-card-body">{item.body}</p>
-        </article>
+        <div class="msc-method-row">
+          <h3 class="msc-method-row-title">{item.heading}</h3>
+          <p class="msc-method-row-body">{item.body}</p>
+        </div>
       ))}
     </div>
 
@@ -419,189 +341,13 @@ const defaultSemesterN: number =
     </div>
   </section>
 
-  <!-- ========================================================== CURRICULUM -->
-  <section class="msc-curriculum" aria-labelledby="curriculum-heading">
-    <div class="msc-curriculum-header">
-      <h2 id="curriculum-heading" class="msc-section-title">
-        <span class="msc-section-num">§ 03</span>
-        Curriculum
-      </h2>
-      <p class="msc-curriculum-sub">
-        Five semesters, {programme.totalModules} modules, {programme.totalArtifacts} shippable artifacts. Jump to any semester below.
-      </p>
-    </div>
-
-    <!-- Semester tabs — click to switch curriculum panel below. -->
-    <nav class="msc-sem-index" role="tablist" aria-label="Semesters">
-      {semesters.map((s) => {
-        const semWeeks = Array.from(
-          { length: s.weeks[1] - s.weeks[0] + 1 },
-          (_, i) => s.weeks[0] + i,
-        );
-        const doneCount = semWeeks.filter(isWeekDone).length;
-        const hasInProgress = semWeeks.some((n) => n === inProgressWeek);
-        const isDefault = s.n === defaultSemesterN;
-        return (
-          <a
-            role="tab"
-            id={`sem-tab-${s.n}`}
-            class={`msc-sem-card${isDefault ? " is-active" : ""}${hasInProgress ? " has-in-progress" : ""}`}
-            href={`#${semesterSlug(s.n)}`}
-            data-sem-tab={s.n}
-            aria-controls={semesterSlug(s.n)}
-            aria-selected={isDefault ? "true" : "false"}
-          >
-            <span class="msc-sem-card-kicker">Semester {s.n}</span>
-            <span class="msc-sem-card-title">{s.shortTitle}</span>
-            <span class="msc-sem-card-meta">
-              W{s.weeks[0]}–{s.weeks[1]} · {s.modules.length} modules
-            </span>
-            <span class="msc-sem-card-progress" aria-hidden="true">
-              <span
-                class="msc-sem-card-progress-fill"
-                style={`--fill: ${(doneCount / semWeeks.length) * 100}%;`}
-              ></span>
-            </span>
-            <span class="msc-sem-card-count">{doneCount} / {semWeeks.length} weeks done</span>
-          </a>
-        );
-      })}
-    </nav>
-
-    {semesters.map((s) => {
-      const isDefault = s.n === defaultSemesterN;
-      const hasInProgress = semesterContainsWeek(s, inProgressWeek);
-      return (
-      <article
-        class="msc-semester"
-        id={semesterSlug(s.n)}
-        role="tabpanel"
-        aria-labelledby={`sem-tab-${s.n}`}
-        data-sem-panel={s.n}
-        data-sem-weeks={`${s.weeks[0]}-${s.weeks[1]}`}
-        data-sem-active={hasInProgress ? "true" : undefined}
-        hidden={!isDefault}
-      >
-        <header class="msc-semester-header">
-          <p class="msc-semester-kicker">Semester {s.n} · Weeks {s.weeks[0]}–{s.weeks[1]}</p>
-          <h3 class="msc-semester-title">{s.title}</h3>
-          <p class="msc-semester-subtitle">{s.subtitle}</p>
-        </header>
-
-        {s.modules.map((m) => (
-          <section class="msc-module">
-            <header class="msc-module-header">
-              <p class="msc-module-kicker">
-                Module {m.code} · Weeks {m.weeks[0]}–{m.weeks[1]}
-              </p>
-              <h4 class="msc-module-title">{m.title}</h4>
-              <p class="msc-module-question">{m.question}</p>
-            </header>
-
-            <ol class="msc-weeks">
-              {m.weekDetails.map((wk) => {
-                const isDone = isWeekDone(wk.n);
-                const isPending = awaitsLink(wk.n);
-                const isActive = wk.n === inProgressWeek;
-                const cls = [
-                  "msc-week",
-                  isDone ? "is-done" : "",
-                  isPending ? "is-awaiting-link" : "",
-                  isActive ? "is-in-progress" : "",
-                ]
-                  .filter(Boolean)
-                  .join(" ");
-                return (
-                  <li class={cls} id={weekSlug(wk.n)}>
-                    <div class="msc-week-row">
-                      <span class="msc-week-check-box" aria-hidden="true">
-                        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                          <path d="M3 8l3.5 3.5L13 5"></path>
-                        </svg>
-                      </span>
-                      <span class="msc-week-meta">
-                        <span class="msc-week-num">W{String(wk.n).padStart(2, "0")}</span>
-                        {wk.hours && <span class="msc-week-hours">{wk.hours} hrs</span>}
-                      </span>
-                      <span class="msc-week-title">{wk.title}</span>
-                    </div>
-
-                    {wk.items.length > 0 && (
-                      <ul class="msc-week-items">
-                        {wk.items.map((it: WeekItem) => (
-                          <li class={`msc-week-item msc-kind-${it.kind}`}>
-                            <span class="msc-kind-tag">{kindLabel[it.kind]}</span>
-                            <span class="msc-kind-text">{it.text}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-
-                    {wk.artifact && (
-                      <div class="msc-artifact">
-                        <span class="msc-artifact-flag">
-                          <svg viewBox="0 0 16 16" aria-hidden="true" fill="currentColor">
-                            <path d="M2 2v12h1V9.5l.5-.2a6 6 0 0 1 4.5 0c1.5.5 3-.5 4.5-.2l.5.2V2.5l-.5-.2c-1.5-.3-3 .7-4.5.2A6 6 0 0 0 3 2.5z"></path>
-                          </svg>
-                          {wk.artifact.link ? "Artifact shipped" : "Artifact due"}
-                        </span>
-                        <div class="msc-artifact-body">
-                          <p class="msc-artifact-title">{wk.artifact.title}</p>
-                          <p class="msc-artifact-meta">
-                            {wk.artifact.kind} · {wk.artifact.length}
-                          </p>
-                          {wk.artifact.description && (
-                            <p class="msc-artifact-description">{wk.artifact.description}</p>
-                          )}
-                          {wk.artifact.link ? (
-                            <p class="msc-artifact-link">
-                              <Link href={wk.artifact.link}>View published artifact →</Link>
-                            </p>
-                          ) : (
-                            isPending && (
-                              <p class="msc-artifact-pending">
-                                Work done · awaiting published link before this week counts as complete.
-                              </p>
-                            )
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </li>
-                );
-              })}
-            </ol>
-          </section>
-        ))}
-      </article>
-      );
-    })}
-  </section>
-  <script is:inline set:html={TABS_SCRIPT} />
-
-  <!-- ========================================================== SOURCES / COLOPHON -->
-  <section class="msc-sources" aria-labelledby="sources-heading">
-    <header class="msc-sources-header">
-      <h2 id="sources-heading" class="msc-section-title">
-        <span class="msc-section-num">§ 04</span>
-        Sources
-      </h2>
-    </header>
-
-    <ol class="msc-sources-roll">
-      {programme.sources.map((src) => (
-        <li class="msc-source">
-          <Link href={src.url} class="msc-source-link">
-            <span class="msc-source-code" aria-hidden="true">{src.code}</span>
-            <span class="msc-source-name">{src.institution} · {src.name}</span>
-          </Link>
-        </li>
-      ))}
-    </ol>
-
-    <p class="msc-sources-meta">
-      {programme.totalWeeks} weeks · {programme.totalArtifacts} artifacts · 25+ canonical textbooks · 60+ foundational papers.
+  <!-- ============================================================== COLOPHON -->
+  <footer class="msc-colophon">
+    <p class="msc-colophon-meta">
+      {programme.totalWeeks} weeks · {programme.totalArtifacts} artifacts · 25+ canonical
+      textbooks · 60+ foundational papers.
     </p>
-  </section>
+  </footer>
 
+  <script is:inline set:html={DETAILS_SCRIPT} />
 </div>
