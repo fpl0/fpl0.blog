@@ -297,6 +297,7 @@
 
   --content-width: 72ch;
   --content-width-narrow: 60ch;
+  --content-width-wide: 1120px; /* token-exempt — page container cap */
 
   /* ==========================================================================
      SEMANTIC ABSTRACTION LAYER
@@ -461,7 +462,7 @@ body {
   font-feature-settings: var(--font-settings);
   background-color: var(--color-bg);
   color: var(--color-text);
-  max-width: var(--content-width);
+  max-width: var(--content-width-wide);
   margin: 0 auto;
   padding: clamp(var(--space-6), 8vh, var(--space-16)) clamp(var(--space-4), 5vw, var(--space-6));
   -webkit-font-smoothing: antialiased;
@@ -473,11 +474,11 @@ body {
   text-wrap: pretty;
 }
 
-/* Homepage breaks out of the 72ch reading cage so the feed can share
-   horizontal space with the NowPanel sidebar on wide viewports. All other
-   pages remain at 72ch via the default body rule above. */
-body[data-page="home"] {
-  max-width: 1120px;
+/* Long-form prose pages (individual blog posts) narrow back to the 72ch
+   reading cage for readability. Every other page uses the default 1120px
+   wide layout. */
+body[data-page="post"] {
+  max-width: var(--content-width);
 }
 
 p {

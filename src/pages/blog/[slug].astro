@@ -53,7 +53,7 @@ const canonicalURL = new URL(`/blog/${post.slug}/`, Astro.site);
 const tocHeadings = headings.filter((h) => h.depth === 2 || h.depth === 3);
 ---
 
-<Layout title={post.data.title} description={post.data.summary} image={post.data.image}>
+<Layout title={post.data.title} description={post.data.summary} image={post.data.image} dataPage="post">
   <BlogPostSchema
     title={post.data.title}
     description={post.data.summary}
