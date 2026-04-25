@@ -96,7 +96,8 @@ const contentClass = scrollable
 		max-width: none;
 		margin: 0;
 		padding: 0;
-		overflow: visible;
+		overflow-x: clip;
+		overflow-y: visible;
 		height: auto;
 		min-height: 100vh;
 	}
@@ -111,5 +112,14 @@ const contentClass = scrollable
 		width: var(--space-4);
 		height: var(--space-4);
 	}
+</style>
 
+<!-- Clip horizontal overflow at the viewport so absolutely-positioned content
+     (e.g. nowrap tooltips on the MSc progress ticks) cannot create a horizontal
+     scrollbar on narrow viewports. body-level overflow doesn't reliably
+     propagate to the viewport for `clip`, so target html directly. -->
+<style is:global>
+	html:has(body.app-shell-body--scrollable) {
+		overflow-x: clip;
+	}
 </style>
