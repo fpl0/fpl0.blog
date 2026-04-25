@@ -1021,11 +1021,9 @@ body:has(.msc-main) .app-shell-content--scrollable {
 
 @container msc (max-width: 720px) {
   .msc-semester-summary {
-    grid-template-columns: auto 1fr;
+    grid-template-columns: 1fr;
     row-gap: var(--space-2);
-  }
-  .msc-semester-progress {
-    grid-column: 1 / -1;
+    align-items: start;
   }
   .msc-strip,
   .msc-rail {
