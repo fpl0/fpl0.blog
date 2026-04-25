@@ -91,12 +91,16 @@ const contentClass = scrollable
 	}
 
 	/* Document mode — long-form content that scrolls naturally.
-	   Keeps the fixed app bar but lets the body flow past the viewport. */
+	   Keeps the fixed app bar but lets the body flow past the viewport.
+	   overflow-x: clip contains absolutely-positioned overflow (e.g. nowrap
+	   tooltips on progress ticks) at the viewport edge without making the
+	   body programmatically scrollable. */
 	.app-shell-body--scrollable {
 		max-width: none;
 		margin: 0;
 		padding: 0;
-		overflow: visible;
+		overflow-x: clip;
+		overflow-y: visible;
 		height: auto;
 		min-height: 100vh;
 	}
