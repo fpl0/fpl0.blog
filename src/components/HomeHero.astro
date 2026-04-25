@@ -57,8 +57,11 @@ import authorSketchDark from "../assets/fpl0-sketch-dark.png";
   }
 
   .portrait-light .portrait-image {
-    mix-blend-mode: multiply;
-    filter: contrast(1.5) grayscale(1) sepia(0.2) opacity(0.8);
+    /* Inline SVG feColorMatrix maps near-white pixels to alpha 0 so the page bg shows
+       through reliably on iOS Safari, where mix-blend-mode + filter compose unreliably. */
+    filter:
+      url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg"><filter id="p" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  -2 -2 -2 0 2"/></filter></svg>#p')
+      contrast(1.5) grayscale(1) sepia(0.2) opacity(0.8);
   }
 
   .portrait-dark {
@@ -74,8 +77,9 @@ import authorSketchDark from "../assets/fpl0-sketch-dark.png";
   }
 
   :global([data-theme="dark"]) .portrait-dark .portrait-image {
-    mix-blend-mode: screen;
-    filter: sepia(0.08) opacity(0.9);
+    filter:
+      url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg"><filter id="p" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  2 2 2 0 -1"/></filter></svg>#p')
+      sepia(0.08) opacity(0.9);
   }
 
   @media (max-width: 600px) {
