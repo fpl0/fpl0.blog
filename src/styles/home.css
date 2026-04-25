@@ -113,7 +113,6 @@
   gap: var(--space-3);
   padding: var(--space-3) 0;
   border-top: var(--ui-border-subtle);
-  border-bottom: var(--ui-border-subtle);
 }
 
 .now-panel__header {
@@ -426,6 +425,7 @@
 
   .now-panel {
     border-top: none;
+    border-bottom: var(--ui-border-subtle);
     padding-top: 0;
   }
 }
