@@ -14,6 +14,9 @@
 
 import Link from "./Link.astro";
 import { buildSemesterTicks, getProgressSnapshot, pad2 } from "../utils/msc-progress";
+import { inProgressWeek, completedWeeks } from "../data/msc-curriculum";
+
+const hidden = inProgressWeek === null && completedWeeks.length === 0;
 
 const {
   weeksDone,
@@ -30,7 +33,7 @@ const weekLabel = currentWeek !== null ? `Week ${pad2(currentWeek)}` : null;
 const semesterTicks = buildSemesterTicks();
 ---
 
-<aside class="now-panel" aria-label="MSc progress">
+{!hidden && <aside class="now-panel" aria-label="MSc progress">
   <header class="now-panel__header">
     <p class="now-panel__eyebrow">Progress</p>
     <p class="now-panel__title">My MSc in Cognitive Science</p>
@@ -101,4 +104,4 @@ const semesterTicks = buildSemesterTicks();
     <span>See the dashboard</span>
     <span aria-hidden="true">&rarr;</span>
   </Link>
-</aside>
+</aside>}
