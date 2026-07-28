@@ -1,0 +1,411 @@
+/* ---------------------------------------------------------------------------
+   fpl0.io — hand-written CSS. No framework, no theme.
+   Fonts are provided by Astro's Fonts API as --font-serif / --font-mono.
+--------------------------------------------------------------------------- */
+
+/* Tokens ------------------------------------------------------------------ */
+
+:root {
+  color-scheme: light dark;
+
+  --bg: light-dark(#fbfbf9, #16161a);
+  --fg: light-dark(#16161a, #e2e0db);
+  --muted: light-dark(#6d6a72, #94919a);
+  --rule: light-dark(#e5e2dc, #2b2b31);
+  --rule-strong: light-dark(#c9c5bd, #43434b);
+  /* Azulejo cobalt — the one colour on the site, used only as punctuation. */
+  --accent: light-dark(#24509b, #8fb1ea);
+  --code-bg: light-dark(#f3f1ec, #1e1e24);
+
+  --measure: 66ch;
+  --gutter: 1.25rem;
+  --step-0: clamp(1.1875rem, 1.1rem + 0.4vw, 1.3125rem); /* 19px → 21px */
+}
+
+/* Manual override set by the theme toggle (data-theme on <html>). */
+:root[data-theme='light'] { color-scheme: light; }
+:root[data-theme='dark']  { color-scheme: dark; }
+
+/* Base -------------------------------------------------------------------- */
+
+* { box-sizing: border-box; }
+
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-serif);
+  font-size: var(--step-0);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.wrap {
+  inline-size: 100%;
+  /* rem, not ch: `ch` resolves against each element's own font, which would
+     give the mono-set footer a narrower column than the serif-set content.
+     43.5rem ≈ 66ch of Source Serif 4 at the type scale's 21px ceiling. */
+  max-inline-size: calc(43.5rem + 2 * var(--gutter));
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+main { flex: 1; padding-block: 2.5rem 4rem; }
+
+::selection {
+  background: color-mix(in oklab, var(--accent) 25%, transparent);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+:target { scroll-margin-block-start: 5rem; }
+
+/* Site chrome ------------------------------------------------------------- */
+
+.site-header {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  padding-block: 1.4rem;
+}
+
+.site-header .brand {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--fg);
+  text-decoration: none;
+}
+
+.brand .dot { color: var(--accent); }
+
+.site-header nav {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-inline-start: auto;
+}
+
+.site-header nav a {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.site-header nav a:hover { color: var(--fg); }
+
+#theme-toggle {
+  border: 0;
+  padding: 0.3rem;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+  line-height: 0;
+}
+
+#theme-toggle:hover { color: var(--accent); }
+
+@media (prefers-reduced-motion: no-preference) {
+  #theme-toggle svg { transition: transform 0.35s ease; }
+  #theme-toggle:hover svg { transform: rotate(180deg); }
+}
+
+.site-footer {
+  position: relative;
+  padding-block: 1.5rem 2rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+/* The footer hairline locks to the text column, not the padding box. */
+.site-footer::before {
+  content: '';
+  position: absolute;
+  inset-inline: var(--gutter);
+  inset-block-start: 0;
+  block-size: 1px;
+  background: var(--rule);
+}
+
+/* The index (home) ----------------------------------------------------------
+   The identity is typographic: the author's name in the serif's display
+   range, closed by the site's one colour — a cobalt full stop. Below it,
+   an archive grouped by year, set like a table of contents. */
+
+.masthead {
+  font-size: clamp(2.3rem, 1.9rem + 1.8vw, 2.75rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  margin-block: 1.75rem 0.5rem;
+}
+
+.masthead .dot { color: var(--accent); }
+
+.byline {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-block: 0 3.5rem;
+}
+
+.posts { list-style: none; margin: 0; padding: 0; }
+
+.posts a { text-decoration: none; color: var(--fg); }
+
+.posts .title { font-weight: 500; }
+
+.posts time {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+
+.posts a:hover .title { color: var(--accent); }
+
+/* Sparse archive: each entry earns its space with its description. */
+.posts.sparse li { margin-block-end: 2rem; }
+.posts.sparse a { display: block; }
+.posts.sparse .title { display: block; font-size: 1.05em; }
+
+.posts.sparse .desc {
+  display: block;
+  color: var(--muted);
+  font-size: 0.95em;
+  max-inline-size: 56ch;
+  margin-block: 0.2rem 0.35rem;
+}
+
+.posts.sparse time { display: block; }
+
+/* Dense archive: a table of contents with dotted leaders. */
+.posts.dense li { margin-block-end: 1.1rem; }
+
+.posts.dense a {
+  display: flex;
+  align-items: baseline;
+  gap: 1ch;
+}
+
+.posts.dense .leader {
+  flex: 1 0 2ch;
+  border-block-end: 1px dotted var(--rule-strong);
+  transform: translateY(-0.3em);
+}
+
+.posts.dense time { flex-shrink: 0; }
+.posts.dense a:hover .leader { border-color: var(--accent); }
+
+@media (max-width: 480px) {
+  .posts.dense li { margin-block-end: 1.5rem; }
+  .posts.dense a { flex-direction: column; align-items: flex-start; gap: 0.1rem; }
+  .posts.dense .leader { display: none; }
+}
+
+.draft-badge {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--accent);
+  border: 1px solid currentColor;
+  border-radius: 3px;
+  padding: 0.05em 0.35em;
+  vertical-align: middle;
+  margin-inline-start: 0.5em;
+}
+
+/* Article header -----------------------------------------------------------
+   The signature: each post opens with its own frontmatter, typeset.
+   The metadata is real — this is the file's actual YAML, not decoration. */
+
+.post-header { margin-block-end: 2.75rem; }
+
+.post-header h1 {
+  font-size: clamp(1.75rem, 1.35rem + 1.6vw, 2.3rem);
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+  margin-block: 0 0.85rem;
+}
+
+.fm {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1.9;
+  color: color-mix(in oklab, var(--fg) 80%, var(--muted));
+  margin: 0;
+}
+
+.fm > span { display: block; }
+
+.fm .fm-key { color: var(--muted); }
+
+/* Prose ------------------------------------------------------------------- */
+
+.prose {
+  max-inline-size: var(--measure);
+  text-wrap: pretty;
+  hanging-punctuation: first last;
+  /* Old-style figures sit inside running text like lowercase letters;
+     the mono layer (dates, code, tables) keeps lining tabular figures. */
+  font-variant-numeric: oldstyle-nums proportional-nums;
+}
+
+.prose code,
+.prose .astro-code { font-variant-numeric: lining-nums tabular-nums; }
+
+.prose h2,
+.prose h3,
+.prose h4 {
+  font-weight: 600;
+  line-height: 1.25;
+  text-wrap: balance;
+  margin-block: 2em 0.6em;
+}
+
+/* Sized in em so headings track the fluid body and can never undercut it. */
+.prose h2 { font-size: 1.45em; }
+.prose h3 { font-size: 1.18em; }
+.prose h4 { font-size: 1em; font-weight: 500; font-style: italic; }
+
+.prose p { margin-block: 0 1.1em; }
+
+.prose a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-decoration-color: color-mix(in oklab, var(--accent) 60%, transparent);
+  text-underline-offset: 0.15em;
+}
+
+.prose a:hover {
+  color: var(--accent);
+  text-decoration-color: var(--accent);
+}
+
+.prose ul, .prose ol { margin-block: 0 1.1em; padding-inline-start: 1.5rem; }
+.prose li { margin-block: 0.3em; }
+.prose li::marker { color: var(--muted); }
+
+.prose blockquote {
+  margin: 0 0 1.1em;
+  padding-inline-start: 1.25rem;
+  border-inline-start: 2px solid var(--rule);
+  color: color-mix(in oklab, var(--fg) 80%, var(--muted));
+}
+
+.prose hr {
+  border: 0;
+  margin-block: 2.75rem;
+  text-align: center;
+}
+
+.prose hr::after {
+  content: '* * *'; /* as it is written in the source */
+  font-family: var(--font-mono);
+  font-size: 0.8em;
+  color: var(--muted);
+  letter-spacing: 0.25em;
+  margin-inline-start: 0.25em; /* optically recenter the spaced glyphs */
+}
+
+.prose img { max-inline-size: 100%; block-size: auto; }
+
+.prose table {
+  display: block;
+  overflow-x: auto;
+  border-collapse: collapse;
+  font-size: 0.85em;
+  font-variant-numeric: tabular-nums;
+  margin-block: 0 1.25em;
+}
+
+.prose th, .prose td {
+  padding: 0.35em 1.25em 0.35em 0;
+  border-block-end: 1px solid var(--rule);
+  text-align: left;
+  vertical-align: top;
+}
+
+.prose th { font-weight: 600; }
+
+/* Code -------------------------------------------------------------------- */
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.82em;
+}
+
+.prose :not(pre) > code {
+  background: var(--code-bg);
+  padding: 0.1em 0.35em;
+  border-radius: 3px;
+}
+
+.astro-code {
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 1rem 1.25rem;
+  overflow-x: auto;
+  line-height: 1.55;
+  margin-block: 0 1.25em;
+  /* One warm code surface per mode — not Shiki's stark theme background.
+     !important beats the inline style Shiki puts on the <pre>. */
+  background-color: var(--code-bg) !important;
+}
+
+.astro-code code { font-size: 0.75em; }
+
+/* Shiki dual themes: token colours follow the OS unless the toggle forces
+   a side. Only text colour — the surface stays --code-bg. */
+:root[data-theme='dark'] .astro-code,
+:root[data-theme='dark'] .astro-code span {
+  color: var(--shiki-dark) !important;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) .astro-code,
+  :root:not([data-theme='light']) .astro-code span {
+    color: var(--shiki-dark) !important;
+  }
+}
+
+/* Footnotes --------------------------------------------------------------- */
+
+.prose .footnotes {
+  margin-block-start: 3rem;
+  border-block-start: 1px solid var(--rule);
+  padding-block-start: 1rem;
+  font-size: 0.85em;
+  color: color-mix(in oklab, var(--fg) 85%, var(--muted));
+}
+
+.prose sup { line-height: 0; }
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}

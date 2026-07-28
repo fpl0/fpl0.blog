@@ -1,0 +1,117 @@
+---
+import { Font } from 'astro:assets';
+import { SITE_TITLE, SITE_DESCRIPTION, AUTHOR } from '../consts';
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** Set for blog posts: emits article Open Graph metadata. */
+  article?: { published: Date; updated?: Date };
+  /** Homepage: the masthead is the identity mark, so the header hides its own. */
+  home?: boolean;
+  /** 404: the page has no real URL, so no canonical and no indexing. */
+  noindex?: boolean;
+}
+
+const { title, description = SITE_DESCRIPTION, article, home, noindex } = Astro.props;
+const pageTitle = title ? `${title} · ${SITE_TITLE}` : SITE_TITLE;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#fbfbf9" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#16161a" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <meta name="author" content={AUTHOR} />
+    {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={SITE_TITLE}
+      href={new URL('rss.xml', Astro.site)}
+    />
+    <meta name="generator" content={Astro.generator} />
+
+    <meta property="og:site_name" content={SITE_TITLE} />
+    <meta property="og:title" content={title ?? SITE_TITLE} />
+    <meta property="og:description" content={description} />
+    {!noindex && <meta property="og:url" content={canonical} />}
+    <meta property="og:type" content={article ? 'article' : 'website'} />
+    {article && (
+      <meta property="article:published_time" content={article.published.toISOString()} />
+    )}
+    {article?.updated && (
+      <meta property="article:modified_time" content={article.updated.toISOString()} />
+    )}
+    <meta name="twitter:card" content="summary" />
+
+    <Font cssVariable="--font-serif" preload={[{ style: 'normal' }]} />
+    <Font cssVariable="--font-mono" />
+
+    <!-- Apply a stored theme override before first paint to avoid a flash.
+         localStorage is guarded: it throws when the user blocks site data. -->
+    <script is:inline>
+      try {
+        const theme = localStorage.getItem('theme');
+        if (theme === 'light' || theme === 'dark') {
+          document.documentElement.dataset.theme = theme;
+          document.documentElement.style.colorScheme = theme;
+        }
+      } catch {}
+    </script>
+  </head>
+  <body>
+    <header class="site-header wrap">
+      {!home && <a class="brand" href="/">{SITE_TITLE}<span class="dot">.</span></a>}
+      <nav>
+        <a href="https://github.com/fpl0" rel="me">github</a>
+        <a href="https://www.linkedin.com/in/filipelm" rel="me">linkedin</a>
+        <a href="/rss.xml">rss</a>
+        <button id="theme-toggle" aria-label="Dark mode" aria-pressed="false">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <circle cx="8" cy="8" r="6.25" stroke="currentColor" stroke-width="1.5" />
+            <path d="M8 1.75 A 6.25 6.25 0 0 1 8 14.25 Z" fill="currentColor" />
+          </svg>
+        </button>
+      </nav>
+    </header>
+
+    <main class="wrap">
+      <slot />
+    </main>
+
+    <footer class="site-footer wrap">
+      © {AUTHOR}
+    </footer>
+
+    <script is:inline>
+      (() => {
+        const root = document.documentElement;
+        const button = document.getElementById('theme-toggle');
+        const media = matchMedia('(prefers-color-scheme: dark)');
+        const resolved = () => root.dataset.theme || (media.matches ? 'dark' : 'light');
+        const sync = () => button.setAttribute('aria-pressed', String(resolved() === 'dark'));
+        button.addEventListener('click', () => {
+          const next = resolved() === 'dark' ? 'light' : 'dark';
+          root.dataset.theme = next;
+          root.style.colorScheme = next;
+          try {
+            localStorage.setItem('theme', next);
+          } catch {}
+          sync();
+        });
+        media.addEventListener('change', sync);
+        sync();
+      })();
+    </script>
+  </body>
+</html>

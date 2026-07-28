@@ -1,0 +1,37 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
+import { isoDate } from '../lib/format';
+
+// Drafts are visible in `astro dev` but never built for production.
+const posts = (
+  await getCollection('blog', ({ data }) => import.meta.env.DEV || !data.draft)
+).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+// The dotted-leader index only reads as a table once rows repeat; until then
+// each entry earns its space with its description.
+const dense = posts.length >= 4;
+---
+
+<BaseLayout home>
+  <h1 class="masthead">{SITE_TITLE}<span class="dot">.</span></h1>
+  <p class="byline">{SITE_DESCRIPTION}</p>
+  <ul class:list={['posts', dense ? 'dense' : 'sparse']}>
+    {
+      posts.map((post) => (
+        <li>
+          <a href={`/posts/${post.id}/`}>
+            <span class="title">
+              {post.data.title}
+              {post.data.draft && <span class="draft-badge">draft</span>}
+            </span>
+            {!dense && <span class="desc">{post.data.description}</span>}
+            {dense && <span class="leader" aria-hidden="true" />}
+            <time datetime={isoDate(post.data.date)}>{isoDate(post.data.date)}</time>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</BaseLayout>
