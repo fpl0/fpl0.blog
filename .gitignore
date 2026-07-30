@@ -19,8 +19,9 @@ pnpm-debug.log*
 # wrangler
 .wrangler/
 
-# Claude Code runtime state
+# Claude Code runtime state and personal settings
 .claude/scheduled_tasks.lock
+.claude/settings.local.json
 
 # macOS-specific files
 .DS_Store
