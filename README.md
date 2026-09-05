@@ -43,7 +43,10 @@ npm run deploy    # build and upload to Cloudflare Pages
 
 **Prerequisites:**
 - Node.js >=22.12 installed
-- Logged into wrangler as `me@fpl0.io` (check with `npx wrangler@4 whoami`, login if needed)
+- Wrangler authenticated via one of:
+  - OAuth: `npx wrangler@4 login` / check with `npx wrangler@4 whoami` (should show me@fpl0.io / account fpl0)
+  - API token: set `CLOUDFLARE_API_TOKEN` (and `CLOUDFLARE_ACCOUNT_ID` if needed) for non-interactive deploys
+  - Note: The repo has GitHub secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`, but no workflow uses them. CI remains deploy-free by design.
 - Local checkout of the repo
 
 **Deploy command:**
@@ -59,9 +62,10 @@ and tests pass, but do not publish anything. Passing CI does not mean the site i
 manually with the command above.
 
 **Post-deploy checks:**
-1. Homepage loads: https://www.fpl0.io/ (or https://fpl0.io/) returns 200
-2. Pick one known published post and confirm it loads
-3. RSS feed is valid: https://www.fpl0.io/rss.xml returns 200
+1. Wrangler prints a `pages.dev` URL after deploy — spot-check the changed post there first
+2. Verify the new content appears on https://www.fpl0.io/ and the specific `/posts/<slug>/`
+3. Confirm any drafts (`draft: true` in frontmatter) are absent from the production build and post list
+4. Optional: check `/rss.xml` if the change affects the feed
 
 **Ownership:** Robert (Blog Manager) owns the publish path and wrangler auth. Escalate any
 requests to reconnect Pages to Git or add CI auto-deploy workflows to Tech Lead before
