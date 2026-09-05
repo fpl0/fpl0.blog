@@ -86,6 +86,7 @@ toggle stops working. Old URLs can be redirected with a `public/_redirects` file
 
 ## Where things live
 
+- `DESIGN.md` — design system documentation (tokens, usage rules, patterns)
 - `src/content/blog/` — the writing, plain `.md` only, no MDX
 - `ideas.md` — one-line post seeds (not published; outside the content collection)
 - `templates/blog-post.md` — draft template (copy into `src/content/blog/`; not under the collection)
