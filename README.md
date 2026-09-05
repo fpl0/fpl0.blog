@@ -41,6 +41,8 @@ npm run deploy    # build and upload to Cloudflare Pages
 
 ### Deploy runbook
 
+> **Note:** Phase 1 ship automation may supersede manual deploy as the happy path; emergency rollback will remain manual.
+
 **Prerequisites:**
 - Node.js >=22.12 installed
 - Wrangler authenticated via one of:
