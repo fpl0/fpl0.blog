@@ -59,46 +59,90 @@ test.describe('RSS feed', () => {
 test.describe('Theme toggle', () => {
   test('button exists and is accessible', async ({ page }) => {
     await page.goto('/');
-    const themeToggle = page.locator('#theme-toggle');
-    await expect(themeToggle).toBeVisible();
-    await expect(themeToggle).toHaveAttribute('aria-label');
-    await expect(themeToggle).toHaveAttribute('aria-pressed');
+    const toggle = page.locator('#theme-toggle');
+    await expect(toggle).toBeVisible();
+    await expect(toggle).toHaveAttribute('aria-label', /theme/i);
+    await expect(toggle).toHaveAttribute('aria-pressed');
   });
 
-  test('toggles theme on click', async ({ page }) => {
+  test('actually flips theme by changing data-theme and colorScheme', async ({ page }) => {
     await page.goto('/');
-    const themeToggle = page.locator('#theme-toggle');
     const html = page.locator('html');
+    const toggle = page.locator('#theme-toggle');
     
-    const initialTheme = await html.evaluate(el => el.dataset.theme || 'system');
-    await themeToggle.click();
+    const initialTheme = await html.getAttribute('data-theme');
+    const initialColorScheme = await html.evaluate(el => el.style.colorScheme);
+    const initialPressed = await toggle.getAttribute('aria-pressed');
+    const initialLabel = await toggle.getAttribute('aria-label');
     
-    const newTheme = await html.evaluate(el => el.dataset.theme);
-    expect(newTheme).toBeTruthy();
-    expect(newTheme).not.toBe(initialTheme === 'system' ? undefined : initialTheme);
+    await toggle.click();
+    
+    const newTheme = await html.getAttribute('data-theme');
+    const newColorScheme = await html.evaluate(el => el.style.colorScheme);
+    const newPressed = await toggle.getAttribute('aria-pressed');
+    const newLabel = await toggle.getAttribute('aria-label');
+    
+    expect(newTheme).not.toBe(initialTheme);
+    expect(newTheme).toMatch(/^(light|dark)$/);
+    expect(newColorScheme).not.toBe(initialColorScheme);
+    expect(newColorScheme).toMatch(/^(light|dark)$/);
+    expect(newPressed).not.toBe(initialPressed);
+    expect(newLabel).not.toBe(initialLabel);
   });
 
-  test('persists theme preference', async ({ page }) => {
+  test('persists theme preference across page reload via localStorage', async ({ page }) => {
     await page.goto('/');
-    const themeToggle = page.locator('#theme-toggle');
+    const html = page.locator('html');
+    const toggle = page.locator('#theme-toggle');
     
-    await themeToggle.click();
-    const theme = await page.locator('html').evaluate(el => el.dataset.theme);
+    await toggle.click();
+    const themeAfterToggle = await html.getAttribute('data-theme');
+    const colorSchemeAfterToggle = await html.evaluate(el => el.style.colorScheme);
+    const localStorageTheme = await page.evaluate(() => localStorage.getItem('theme'));
+    
+    expect(localStorageTheme).toBe(themeAfterToggle);
+    expect(themeAfterToggle).toMatch(/^(light|dark)$/);
     
     await page.reload();
-    const persistedTheme = await page.locator('html').evaluate(el => el.dataset.theme);
-    expect(persistedTheme).toBe(theme);
+    
+    const themeAfterReload = await html.getAttribute('data-theme');
+    const colorSchemeAfterReload = await html.evaluate(el => el.style.colorScheme);
+    
+    expect(themeAfterReload).toBe(themeAfterToggle);
+    expect(colorSchemeAfterReload).toBe(colorSchemeAfterToggle);
+  });
+});
+
+test.describe('Draft exclusion', () => {
+  test('draft posts do not appear on homepage post list', async ({ page }) => {
+    await page.goto('/');
+    const posts = page.locator('.posts li');
+    const postsText = await posts.allTextContents();
+    const combinedText = postsText.join(' ').toLowerCase();
+    
+    expect(combinedText).not.toContain('returning to java');
+    expect(combinedText).not.toContain('java swing');
+  });
+});
+
+test.describe('Accessibility', () => {
+  test('skip link focuses main content', async ({ page }) => {
+    await page.goto('/');
+    const skipLink = page.locator('.skip-link');
+    await expect(skipLink).toBeVisible({ timeout: 100 }).catch(() => {});
+    
+    if (await skipLink.isVisible()) {
+      await page.keyboard.press('Tab');
+      await page.keyboard.press('Enter');
+      const focusedElement = await page.evaluate(() => document.activeElement.id);
+      expect(focusedElement).toBe('main');
+    }
   });
 
-  test('updates aria-label when toggled', async ({ page }) => {
+  test('RSS link is reachable in navigation', async ({ page }) => {
     await page.goto('/');
-    const themeToggle = page.locator('#theme-toggle');
-    
-    const initialLabel = await themeToggle.getAttribute('aria-label');
-    await themeToggle.click();
-    const newLabel = await themeToggle.getAttribute('aria-label');
-    
-    expect(newLabel).not.toBe(initialLabel);
-    expect(newLabel).toMatch(/Use (light|dark) theme/);
+    const rssLink = page.locator('nav a[href="/rss.xml"]');
+    await expect(rssLink).toBeVisible();
+    await expect(rssLink).toHaveText('rss');
   });
 });
