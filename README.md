@@ -74,6 +74,24 @@ step-by-step manual publish as primary.
 
 CI today is a merge gate only (install, audit, build, tests) and does not publish.
 
+### Emergency-only (break-glass)
+
+When an emergency deploy is necessary before the automated pipeline is in place:
+
+**Command:** `npm run deploy` (equivalent to `astro build && npx wrangler@4 pages deploy dist --project-name=fpl0`). Requires Node ≥22.12.
+
+**Authentication:** wrangler requires either OAuth (`npx wrangler@4 login` / `npx wrangler@4 whoami` should show `me@fpl0.io` / account `fpl0`) OR a `CLOUDFLARE_API_TOKEN` environment variable (plus account id if needed). The repository has unused GitHub secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` from earlier experiments — these are intentionally not wired into CI workflows here.
+
+**Ownership:** Robert owns the wrangler authentication and publish path today.
+
+**Post-deploy checks:**
+1. Spot-check the wrangler **pages.dev** URL first (the one printed after deployment)
+2. Verify custom domain https://www.fpl0.io/ and `/posts/<slug>/`
+3. Confirm `draft: true` posts are absent from production
+4. Optional: check `/rss.xml` if the feed was affected
+
+**Rollback:** If a bad deploy goes out, redeploy a known-good commit via the same emergency command.
+
 `public/_headers` handles immutable caching for hashed assets, security headers, and a
 hash-based Content-Security-Policy. If either inline script in `BaseLayout.astro` changes,
 the CSP hash has to be recomputed (`sha256` of the exact script body, base64) or the theme
