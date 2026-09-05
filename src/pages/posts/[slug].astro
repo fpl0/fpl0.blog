@@ -19,6 +19,7 @@ const { title, description, date, updated, draft } = post.data;
 ---
 
 <BaseLayout {title} {description} article={{ published: date, updated }}>
+  <a href="/" class="back-link">← index</a>
   <article>
     <header class="post-header">
       <h1>{title}</h1>

@@ -15,8 +15,8 @@ const dense = posts.length >= 4;
 ---
 
 <BaseLayout home>
-  <h1 class="masthead">{SITE_TITLE}<span class="dot">.</span></h1>
-  <p class="byline">{SITE_DESCRIPTION}</p>
+  <h1 class:list={['masthead', !dense && 'compact']}>{SITE_TITLE}<span class="dot">.</span></h1>
+  <p class:list={['byline', !dense && 'compact']}>{SITE_DESCRIPTION}</p>
   <ul class:list={['posts', dense ? 'dense' : 'sparse']}>
     {
       posts.map((post) => (

@@ -70,6 +70,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     </script>
   </head>
   <body>
+    <a href="#main" class="skip-link">Skip to content</a>
     <header class="site-header wrap">
       {!home && <a class="brand" href="/">{SITE_TITLE}<span class="dot">.</span></a>}
       <nav>
@@ -85,7 +86,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
       </nav>
     </header>
 
-    <main class="wrap">
+    <main id="main" tabindex="-1" class="wrap">
       <slot />
     </main>
 
@@ -99,7 +100,22 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
         const button = document.getElementById('theme-toggle');
         const media = matchMedia('(prefers-color-scheme: dark)');
         const resolved = () => root.dataset.theme || (media.matches ? 'dark' : 'light');
-        const sync = () => button.setAttribute('aria-pressed', String(resolved() === 'dark'));
+        const sync = () => {
+          const current = resolved();
+          const isDark = current === 'dark';
+          button.setAttribute('aria-pressed', String(isDark));
+          button.setAttribute('aria-label', isDark ? 'Use light theme' : 'Use dark theme');
+          const metas = document.querySelectorAll('meta[name="theme-color"]');
+          if (root.dataset.theme) {
+            const color = isDark ? '#16161a' : '#fbfbf9';
+            metas.forEach(m => { m.content = color; m.removeAttribute('media'); });
+          } else {
+            metas[0]?.setAttribute('media', '(prefers-color-scheme: light)');
+            metas[0] && (metas[0].content = '#fbfbf9');
+            metas[1]?.setAttribute('media', '(prefers-color-scheme: dark)');
+            metas[1] && (metas[1].content = '#16161a');
+          }
+        };
         button.addEventListener('click', () => {
           const next = resolved() === 'dark' ? 'light' : 'dark';
           root.dataset.theme = next;

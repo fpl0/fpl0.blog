@@ -104,17 +104,28 @@ main { flex: 1; padding-block: 2.5rem 4rem; }
   font-size: 0.75rem;
   color: var(--muted);
   text-decoration: none;
+  padding: 0.5rem 0.35rem;
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .site-header nav a:hover { color: var(--fg); }
 
 #theme-toggle {
   border: 0;
-  padding: 0.3rem;
+  padding: 0.5rem;
   background: none;
   color: var(--muted);
   cursor: pointer;
   line-height: 0;
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 #theme-toggle:hover { color: var(--accent); }
@@ -155,6 +166,8 @@ main { flex: 1; padding-block: 2.5rem 4rem; }
   margin-block: 1.75rem 0.5rem;
 }
 
+.masthead.compact { margin-block: 1.25rem 0.5rem; }
+
 .masthead .dot { color: var(--accent); }
 
 .byline {
@@ -163,6 +176,8 @@ main { flex: 1; padding-block: 2.5rem 4rem; }
   color: var(--muted);
   margin-block: 0 3.5rem;
 }
+
+.byline.compact { margin-block: 0 2.5rem; }
 
 .posts { list-style: none; margin: 0; padding: 0; }
 
@@ -232,6 +247,17 @@ main { flex: 1; padding-block: 2.5rem 4rem; }
 /* Article header -----------------------------------------------------------
    The signature: each post opens with its own frontmatter, typeset.
    The metadata is real — this is the file's actual YAML, not decoration. */
+
+.back-link {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--muted);
+  text-decoration: none;
+  margin-block-end: 1.5rem;
+}
+
+.back-link:hover { color: var(--fg); }
 
 .post-header { margin-block-end: 2.75rem; }
 
@@ -408,4 +434,29 @@ code {
   clip-path: inset(50%);
   white-space: nowrap;
   border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  inset-inline-start: var(--gutter);
+  inset-block-start: var(--gutter);
+  padding: 0.5rem 1rem;
+  background: var(--bg);
+  color: var(--fg);
+  text-decoration: none;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  border: 2px solid var(--accent);
+  border-radius: 2px;
+  transform: translateY(-200%);
+  z-index: 100;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .skip-link { transition: transform 0.2s; }
+}
+
+.skip-link:focus {
+  transform: translateY(0);
 }
