@@ -39,7 +39,39 @@ npm run deploy    # build and upload to Cloudflare Pages
 
 ## Deploying
 
-`npm run deploy` builds and uploads straight to the `fpl0` Pages project with wrangler.
+### Deploy runbook
+
+**Prerequisites:**
+- Node.js >=22.12 installed
+- Logged into wrangler as `me@fpl0.io` (check with `npx wrangler@4 whoami`, login if needed)
+- Local checkout of the repo
+
+**Deploy command:**
+
+```bash
+npm run deploy
+```
+
+This builds the site and uploads to the Cloudflare Pages project `fpl0`.
+
+**Important:** CI on GitHub Actions is a merge gate only — green checks verify the build works
+and tests pass, but do not publish anything. Passing CI does not mean the site is live. Deploy
+manually with the command above.
+
+**Post-deploy checks:**
+1. Homepage loads: https://www.fpl0.io/ (or https://fpl0.io/) returns 200
+2. Pick one known published post and confirm it loads
+3. RSS feed is valid: https://www.fpl0.io/rss.xml returns 200
+
+**Ownership:** Robert (Blog Manager) owns the publish path and wrangler auth. Escalate any
+requests to reconnect Pages to Git or add CI auto-deploy workflows to Tech Lead before
+changing.
+
+**Rollback:** Check out a known-good commit locally and run `npm run deploy` from that
+checkout. There's no Git-connected Pages rollback UI since the project isn't connected to GitHub.
+
+### Configuration notes
+
 The project is not connected to GitHub, so pushing to `main` does not publish anything on
 its own; I have to run the deploy. (Connecting it to Git in the Cloudflare dashboard would
 change that, if I ever want push-to-deploy and preview URLs.)

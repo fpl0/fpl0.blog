@@ -3,6 +3,11 @@
 Content is plain `.md` only — no MDX. All CSS is hand-written in `src/styles/global.css`;
 no UI frameworks, no Tailwind. See `README.md` for the writing and deploy workflow.
 
+## Deploying
+
+See the **Deploy runbook** in `README.md`. Short version: `npm run deploy` publishes manually.
+CI is merge-gate only; passing checks do not publish. Robert owns wrangler auth and publish path.
+
 ## Development
 
 When starting the dev server, use background mode:
