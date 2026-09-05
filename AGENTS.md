@@ -3,6 +3,12 @@
 Content is plain `.md` only — no MDX. All CSS is hand-written in `src/styles/global.css`;
 no UI frameworks, no Tailwind. See `README.md` for the writing and deploy workflow.
 
+## Deployment
+
+Production deploys are automated via GitHub Actions (`.github/workflows/ci.yml`). On push
+to `main`, after build and audit checks pass, the workflow deploys to Cloudflare Pages
+and runs health checks. Manual `npm run deploy` is available for emergencies only.
+
 ## Development
 
 When starting the dev server, use background mode:

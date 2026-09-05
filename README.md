@@ -34,15 +34,26 @@ a vault.
 npm run dev       # dev server, drafts visible
 npm run build     # production build into dist/
 npm run preview   # serve the production build locally
-npm run deploy    # build and upload to Cloudflare Pages
+npm run deploy    # emergency-only manual deploy (use CI/CD instead)
 ```
 
 ## Deploying
 
-`npm run deploy` builds and uploads straight to the `fpl0` Pages project with wrangler.
-The project is not connected to GitHub, so pushing to `main` does not publish anything on
-its own; I have to run the deploy. (Connecting it to Git in the Cloudflare dashboard would
-change that, if I ever want push-to-deploy and preview URLs.)
+Production deploys run automatically via GitHub Actions when code is merged to `main`.
+After the build and audit checks pass, the workflow deploys to Cloudflare Pages using
+wrangler and runs health checks against the live site. The release log is the Actions run
+history at https://github.com/fpl0/fpl0.blog/actions.
+
+**Secrets required** (already configured in repository settings):
+- `CLOUDFLARE_API_TOKEN` — API token with Pages edit permissions
+- `CLOUDFLARE_ACCOUNT_ID` — Cloudflare account ID
+
+The Cloudflare Pages project is **not** connected to GitHub in the Cloudflare dashboard,
+so deploys only happen through the CI/CD workflow.
+
+**Emergency manual deploy:** If the CI/CD pipeline is down, you can run `npm run deploy`
+locally, but this should only be used as a last resort. The automated workflow is the
+primary deployment path.
 
 `public/_headers` handles immutable caching for hashed assets, security headers, and a
 hash-based Content-Security-Policy. If either inline script in `BaseLayout.astro` changes,
