@@ -6,21 +6,26 @@ below are so I remember how it works when I come back to it in six months.
 
 ## Writing a post
 
-Add a Markdown file to `src/content/blog/`:
+Copy `templates/blog-post.md` into `src/content/blog/` (always start with `draft: true`).
+See `WRITING.md` for the shippable-idea bar, weekly seed ritual, and prompts. Seeds live
+in `ideas.md` at the repo root — not under `src/content/`, so they never publish.
 
 ```markdown
 ---
 title: The title
 description: One sentence for the list page, RSS, and search engines.
 date: 2026-07-28
+draft: true
 ---
 
 The post.
 ```
 
 `updated: 2026-08-01` shows an "updated" date. `draft: true` keeps a post visible in
-`npm run dev` but out of production builds. The filename becomes the URL, so
-`my-post.md` lives at `fpl0.io/posts/my-post/`.
+`npm run dev` but out of production builds. Frontmatter uses `date` (not `pubDate`).
+The filename becomes the URL, so `my-post.md` lives at `fpl0.io/posts/my-post/`. Prefer
+`YYYY-MM-DD-short-slug.md` when useful; a short slug is fine if the date prefix would
+block drafting. Frontmatter `date` is the chronology source of truth.
 
 Frontmatter is validated against the Zod schema in `src/content.config.ts`, so a typo in a
 date fails the build rather than shipping a broken post.
@@ -53,6 +58,9 @@ toggle stops working. Old URLs can be redirected with a `public/_redirects` file
 ## Where things live
 
 - `src/content/blog/` — the writing, plain `.md` only, no MDX
+- `ideas.md` — one-line post seeds (not published; outside the content collection)
+- `templates/blog-post.md` — draft template (copy into `src/content/blog/`; not under the collection)
+- `WRITING.md` — shippable-idea bar, prompts, and weekly ritual
 - `src/content.config.ts` — frontmatter schema
 - `src/styles/global.css` — all of the CSS, including typography
 - `src/layouts/BaseLayout.astro` — head/meta, header, footer, theme toggle
