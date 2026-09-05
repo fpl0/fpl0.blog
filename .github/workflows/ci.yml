@@ -83,22 +83,49 @@ jobs:
 
       - name: Health check
         run: |
-          echo "Checking site health..."
+          echo "Checking site health (with retry for CDN propagation)..."
           
-          # Check main page
-          status_code=$(curl -s -o /dev/null -w "%{http_code}" https://www.fpl0.io/)
-          if [ "$status_code" != "200" ]; then
-            echo "Error: Main page returned status $status_code"
-            exit 1
-          fi
-          echo "✓ Main page OK (200)"
+          # Retry function with exponential backoff
+          check_url() {
+            local url="$1"
+            local label="$2"
+            local max_attempts=5
+            local attempt=1
+            
+            while [ $attempt -le $max_attempts ]; do
+              echo "Attempt $attempt/$max_attempts: checking $label..."
+              
+              # Use -f (fail on HTTP errors), -s (silent), -S (show errors), -L (follow redirects)
+              if curl -fsSL -o /dev/null -w "%{http_code}\n" "$url" | grep -q "^200$"; then
+                echo "✓ $label OK (200)"
+                return 0
+              fi
+              
+              if [ $attempt -lt $max_attempts ]; then
+                local wait_time=$((2 ** (attempt - 1)))
+                echo "  Failed, waiting ${wait_time}s before retry..."
+                sleep $wait_time
+              fi
+              
+              attempt=$((attempt + 1))
+            done
+            
+            echo "✗ $label failed after $max_attempts attempts"
+            return 1
+          }
+          
+          # Check main page (handles www -> apex redirect)
+          check_url "https://www.fpl0.io/" "Main page"
+          main_result=$?
           
           # Check RSS feed
-          rss_status=$(curl -s -o /dev/null -w "%{http_code}" https://www.fpl0.io/rss.xml)
-          if [ "$rss_status" != "200" ]; then
-            echo "Error: RSS feed returned status $rss_status"
+          check_url "https://www.fpl0.io/rss.xml" "RSS feed"
+          rss_result=$?
+          
+          # Exit with error if any check failed
+          if [ $main_result -ne 0 ] || [ $rss_result -ne 0 ]; then
+            echo "Health checks failed!"
             exit 1
           fi
-          echo "✓ RSS feed OK (200)"
           
           echo "All health checks passed!"
