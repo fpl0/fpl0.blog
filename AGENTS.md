@@ -2,6 +2,13 @@
 
 Content is plain `.md` only — no MDX. All CSS is hand-written in `src/styles/global.css`;
 no UI frameworks, no Tailwind. See `README.md` for the writing and deploy workflow.
+Publish direction (pipeline TBD; emergency-only manual until then): **Deploying** in `README.md`.
+
+For content bar, seed ritual, and drafting rules, see `WRITING.md`. `ideas.md` and
+`templates/` live outside `src/content/` on purpose — they are not part of the
+Astro content collection and must never be placed under it (the collection glob is
+`**/*.md`). Real drafts go in `src/content/blog/` with `draft: true`. Frontmatter uses
+`date` (not `pubDate`).
 
 ## Deployment
 
