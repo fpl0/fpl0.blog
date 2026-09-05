@@ -85,11 +85,12 @@ jobs:
         run: |
           echo "Checking site health (with retry for CDN propagation)..."
           
-          # Retry function with exponential backoff
+          # Retry function with fixed sleep for custom-domain propagation
           check_url() {
             local url="$1"
             local label="$2"
-            local max_attempts=5
+            local max_attempts=6
+            local sleep_time=10
             local attempt=1
             
             while [ $attempt -le $max_attempts ]; do
@@ -102,9 +103,8 @@ jobs:
               fi
               
               if [ $attempt -lt $max_attempts ]; then
-                local wait_time=$((2 ** (attempt - 1)))
-                echo "  Failed, waiting ${wait_time}s before retry..."
-                sleep $wait_time
+                echo "  Failed, waiting ${sleep_time}s for propagation..."
+                sleep $sleep_time
               fi
               
               attempt=$((attempt + 1))
