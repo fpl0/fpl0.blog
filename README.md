@@ -62,25 +62,23 @@ The tests use Playwright and run automatically in CI on every push and pull requ
 
 ## Deploying
 
-**Automated pipeline only (direction).** Publish should go through an automated
-pipeline with checks and a release log. That pipeline is TBD — Tech Lead owns
-Phase 1. Do not treat manual publish as the long-term happy path.
+**Merge to main = publish.** After CI passes (install, audit, build, smoke tests), merging
+to `main` triggers an automated deploy via wrangler-in-CI using `CLOUDFLARE_API_TOKEN` and
+`CLOUDFLARE_ACCOUNT_ID` secrets. The Cloudflare Pages project `fpl0` (live:
+https://www.fpl0.io/) is not Git-connected in the dashboard; deployment happens exclusively
+through the GitHub Actions workflow.
 
-Until the pipeline lands, the Cloudflare Pages project `fpl0` (live:
-https://www.fpl0.io/) is still not Git-connected, so a push to `main` does not
-publish by itself. The package.json `deploy` script (wrangler upload to project
-`fpl0`) is **emergency-only**. Prefer waiting for the pipeline over expanding
-step-by-step manual publish as primary.
+The release log is the Actions run history for the main branch.
 
-CI today is a merge gate only (install, audit, build, tests) and does not publish.
+Manual `npm run deploy` is **emergency-only** for break-glass situations and rollback.
 
 ### Emergency-only (break-glass)
 
-When an emergency deploy is necessary before the automated pipeline is in place:
+For rollback or when CI is unavailable:
 
 **Command:** `npm run deploy` (equivalent to `astro build && npx wrangler@4 pages deploy dist --project-name=fpl0`). Requires Node ≥22.12.
 
-**Authentication:** wrangler requires either OAuth (`npx wrangler@4 login` / `npx wrangler@4 whoami` should show `me@fpl0.io` / account `fpl0`) OR a `CLOUDFLARE_API_TOKEN` environment variable (plus account id if needed). The repository has unused GitHub secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` from earlier experiments — these are intentionally not wired into CI workflows here.
+**Authentication:** wrangler requires either OAuth (`npx wrangler@4 login` / `npx wrangler@4 whoami` should show `me@fpl0.io` / account `fpl0`) OR a `CLOUDFLARE_API_TOKEN` environment variable (plus account id if needed). The GitHub secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` are used by the automated workflow — do not expand manual publish as an alternative happy path.
 
 **Ownership:** Robert owns the wrangler authentication and publish path today.
 
