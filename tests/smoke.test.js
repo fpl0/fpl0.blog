@@ -55,3 +55,50 @@ test.describe('RSS feed', () => {
     expect(body).toContain('<link>');
   });
 });
+
+test.describe('Theme toggle', () => {
+  test('button exists and is accessible', async ({ page }) => {
+    await page.goto('/');
+    const themeToggle = page.locator('#theme-toggle');
+    await expect(themeToggle).toBeVisible();
+    await expect(themeToggle).toHaveAttribute('aria-label');
+    await expect(themeToggle).toHaveAttribute('aria-pressed');
+  });
+
+  test('toggles theme on click', async ({ page }) => {
+    await page.goto('/');
+    const themeToggle = page.locator('#theme-toggle');
+    const html = page.locator('html');
+    
+    const initialTheme = await html.evaluate(el => el.dataset.theme || 'system');
+    await themeToggle.click();
+    
+    const newTheme = await html.evaluate(el => el.dataset.theme);
+    expect(newTheme).toBeTruthy();
+    expect(newTheme).not.toBe(initialTheme === 'system' ? undefined : initialTheme);
+  });
+
+  test('persists theme preference', async ({ page }) => {
+    await page.goto('/');
+    const themeToggle = page.locator('#theme-toggle');
+    
+    await themeToggle.click();
+    const theme = await page.locator('html').evaluate(el => el.dataset.theme);
+    
+    await page.reload();
+    const persistedTheme = await page.locator('html').evaluate(el => el.dataset.theme);
+    expect(persistedTheme).toBe(theme);
+  });
+
+  test('updates aria-label when toggled', async ({ page }) => {
+    await page.goto('/');
+    const themeToggle = page.locator('#theme-toggle');
+    
+    const initialLabel = await themeToggle.getAttribute('aria-label');
+    await themeToggle.click();
+    const newLabel = await themeToggle.getAttribute('aria-label');
+    
+    expect(newLabel).not.toBe(initialLabel);
+    expect(newLabel).toMatch(/Use (light|dark) theme/);
+  });
+});
