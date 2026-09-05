@@ -10,6 +10,12 @@ Astro content collection and must never be placed under it (the collection glob 
 `**/*.md`). Real drafts go in `src/content/blog/` with `draft: true`. Frontmatter uses
 `date` (not `pubDate`).
 
+## Deployment
+
+Production deploys are automated via GitHub Actions (`.github/workflows/ci.yml`). On push
+to `main`, after build and audit checks pass, the workflow deploys to Cloudflare Pages
+and runs health checks. Manual `npm run deploy` is available for emergencies only.
+
 ## Development
 
 When starting the dev server, use background mode:

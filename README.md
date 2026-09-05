@@ -40,7 +40,7 @@ npm run dev       # dev server, drafts visible
 npm run build     # production build into dist/
 npm run preview   # serve the production build locally
 npm run test      # run smoke tests (requires build first)
-npm run deploy    # build and upload to Cloudflare Pages
+npm run deploy    # emergency-only manual deploy (use CI/CD instead)
 ```
 
 ## Testing
@@ -62,17 +62,21 @@ The tests use Playwright and run automatically in CI on every push and pull requ
 
 ## Deploying
 
-**Automated pipeline only (direction).** Publish should go through an automated
-pipeline with checks and a release log. That pipeline is TBD — Tech Lead owns
-Phase 1. Do not treat manual publish as the long-term happy path.
+Production deploys run automatically via GitHub Actions when code is merged to `main`.
+After the build, audit, and Playwright smoke tests pass, the workflow deploys to Cloudflare
+Pages using wrangler and runs health checks against the live site. The release log is the
+Actions run history at https://github.com/fpl0/fpl0.blog/actions.
 
-Until the pipeline lands, the Cloudflare Pages project `fpl0` (live:
-https://www.fpl0.io/) is still not Git-connected, so a push to `main` does not
-publish by itself. The package.json `deploy` script (wrangler upload to project
-`fpl0`) is **emergency-only**. Prefer waiting for the pipeline over expanding
-step-by-step manual publish as primary.
+**Secrets required** (already configured in repository settings):
+- `CLOUDFLARE_API_TOKEN` — API token with Pages edit permissions
+- `CLOUDFLARE_ACCOUNT_ID` — Cloudflare account ID
 
-CI today is a merge gate only (install, audit, build, tests) and does not publish.
+The Cloudflare Pages project is **not** connected to GitHub in the Cloudflare dashboard,
+so deploys only happen through the CI/CD workflow.
+
+**Emergency manual deploy:** If the CI/CD pipeline is down, you can run `npm run deploy`
+locally, but this should only be used as a last resort. The automated workflow is the
+primary deployment path.
 
 `public/_headers` handles immutable caching for hashed assets, security headers, and a
 hash-based Content-Security-Policy. If either inline script in `BaseLayout.astro` changes,
