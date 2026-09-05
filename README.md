@@ -52,6 +52,7 @@ toggle stops working. Old URLs can be redirected with a `public/_redirects` file
 
 ## Where things live
 
+- `DESIGN.md` — design system documentation (tokens, usage rules, patterns)
 - `src/content/blog/` — the writing, plain `.md` only, no MDX
 - `src/content.config.ts` — frontmatter schema
 - `src/styles/global.css` — all of the CSS, including typography
