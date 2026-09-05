@@ -21,30 +21,37 @@ echo "Extracting inline script hashes from built HTML..."
 
 # Use Python to extract scripts and compute hashes
 ACTUAL_HASHES=$(python3 << 'EOF'
+import sys
 import re
 import hashlib
 import base64
 import glob
 
-# Find the first HTML file in dist
+# Find all HTML files in dist
 html_files = glob.glob('dist/**/*.html', recursive=True)
 if not html_files:
     print("ERROR: No HTML files found in dist/", file=sys.stderr)
-    exit(1)
+    sys.exit(1)
 
-html_file = html_files[0]
+# Collect all unique script hashes across all HTML files
+all_hashes = set()
 
-with open(html_file, 'r') as f:
-    html = f.read()
+for html_file in html_files:
+    with open(html_file, 'r') as f:
+        html = f.read()
+    
+    # Find all inline scripts
+    scripts = re.findall(r'<script>(.*?)</script>', html, re.DOTALL)
+    
+    # Compute SHA-256 hashes
+    for script in scripts:
+        sha256 = hashlib.sha256(script.encode('utf-8')).digest()
+        hash_b64 = base64.b64encode(sha256).decode('utf-8')
+        all_hashes.add(f"sha256-{hash_b64}")
 
-# Find all inline scripts
-scripts = re.findall(r'<script>(.*?)</script>', html, re.DOTALL)
-
-# Compute SHA-256 hashes
-for script in scripts:
-    sha256 = hashlib.sha256(script.encode('utf-8')).digest()
-    hash_b64 = base64.b64encode(sha256).decode('utf-8')
-    print(f"sha256-{hash_b64}")
+# Print sorted hashes for consistent output
+for hash_val in sorted(all_hashes):
+    print(hash_val)
 EOF
 )
 

@@ -128,15 +128,12 @@ test.describe('Draft exclusion', () => {
 test.describe('Accessibility', () => {
   test('skip link focuses main content', async ({ page }) => {
     await page.goto('/');
-    const skipLink = page.locator('.skip-link');
-    await expect(skipLink).toBeVisible({ timeout: 100 }).catch(() => {});
     
-    if (await skipLink.isVisible()) {
-      await page.keyboard.press('Tab');
-      await page.keyboard.press('Enter');
-      const focusedElement = await page.evaluate(() => document.activeElement.id);
-      expect(focusedElement).toBe('main');
-    }
+    await page.keyboard.press('Tab');
+    await page.keyboard.press('Enter');
+    
+    const focusedElement = await page.evaluate(() => document.activeElement?.id);
+    expect(focusedElement).toBe('main');
   });
 
   test('RSS link is reachable in navigation', async ({ page }) => {
