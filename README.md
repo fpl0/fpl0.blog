@@ -39,8 +39,26 @@ a vault.
 npm run dev       # dev server, drafts visible
 npm run build     # production build into dist/
 npm run preview   # serve the production build locally
+npm run test      # run smoke tests (requires build first)
 npm run deploy    # build and upload to Cloudflare Pages
 ```
+
+## Testing
+
+The project includes smoke tests that verify core functionality:
+- Homepage loads and displays content correctly
+- Blog posts render with proper structure and metadata
+- 404 page works
+- RSS feed is valid XML
+
+To run tests locally:
+
+```bash
+npm run build    # build the site first
+npm test         # run tests against the preview server
+```
+
+The tests use Playwright and run automatically in CI on every push and pull request.
 
 ## Deploying
 
