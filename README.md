@@ -62,10 +62,17 @@ The tests use Playwright and run automatically in CI on every push and pull requ
 
 ## Deploying
 
-`npm run deploy` builds and uploads straight to the `fpl0` Pages project with wrangler.
-The project is not connected to GitHub, so pushing to `main` does not publish anything on
-its own; I have to run the deploy. (Connecting it to Git in the Cloudflare dashboard would
-change that, if I ever want push-to-deploy and preview URLs.)
+**Automated pipeline only (direction).** Publish should go through an automated
+pipeline with checks and a release log. That pipeline is TBD — Tech Lead owns
+Phase 1. Do not treat manual publish as the long-term happy path.
+
+Until the pipeline lands, the Cloudflare Pages project `fpl0` (live:
+https://www.fpl0.io/) is still not Git-connected, so a push to `main` does not
+publish by itself. The package.json `deploy` script (wrangler upload to project
+`fpl0`) is **emergency-only**. Prefer waiting for the pipeline over expanding
+step-by-step manual publish as primary.
+
+CI today is a merge gate only (install, audit, build, tests) and does not publish.
 
 `public/_headers` handles immutable caching for hashed assets, security headers, and a
 hash-based Content-Security-Policy. If either inline script in `BaseLayout.astro` changes,
