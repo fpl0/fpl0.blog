@@ -18,3 +18,5 @@ When stuck, pull from:
 ## Seeds
 
 <!-- Add seeds below as `- claim here` -->
+
+- After 12 years away, I'm returning to Java the way I learned it — by building Swing apps from scratch — as a nostalgia project and a path back into modern Java.
