@@ -57,7 +57,8 @@ test.describe('About page', () => {
   test('loads successfully and shows Hello World', async ({ page }) => {
     const response = await page.goto('/about');
     expect(response.status()).toBe(200);
-    await expect(page.locator('h1')).toContainText('Hello World');
+    await expect(page.locator('h1')).toContainText('About');
+    await expect(page.locator('.prose')).toContainText('Hello World');
   });
 });
 
