@@ -77,7 +77,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
         <a href="https://github.com/fpl0" rel="me">github</a>
         <a href="https://www.linkedin.com/in/filipelm" rel="me">linkedin</a>
         <a href="/rss.xml">rss</a>
-        <button id="theme-toggle" aria-label="Use dark theme" aria-pressed="false">
+        <button id="theme-toggle" aria-label="Use light theme">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <circle cx="8" cy="8" r="6.25" stroke="currentColor" stroke-width="1.5" />
             <path d="M8 1.75 A 6.25 6.25 0 0 1 8 14.25 Z" fill="currentColor" />
@@ -101,12 +101,13 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
         const media = matchMedia('(prefers-color-scheme: dark)');
         const resolved = () => root.dataset.theme || (media.matches ? 'dark' : 'light');
         const sync = () => {
+          const stored = root.dataset.theme;
           const current = resolved();
           const isDark = current === 'dark';
-          button.setAttribute('aria-pressed', String(isDark));
-          button.setAttribute('aria-label', isDark ? 'Use light theme' : 'Use dark theme');
+          const nextLabel = !stored ? 'Use light theme' : stored === 'light' ? 'Use dark theme' : 'Use system theme';
+          button.setAttribute('aria-label', nextLabel);
           const metas = document.querySelectorAll('meta[name="theme-color"]');
-          if (root.dataset.theme) {
+          if (stored) {
             const color = isDark ? '#16161a' : '#fbfbf9';
             metas.forEach(m => { m.content = color; m.removeAttribute('media'); });
           } else {
@@ -117,11 +118,21 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
           }
         };
         button.addEventListener('click', () => {
-          const next = resolved() === 'dark' ? 'light' : 'dark';
-          root.dataset.theme = next;
-          root.style.colorScheme = next;
+          const stored = root.dataset.theme;
           try {
-            localStorage.setItem('theme', next);
+            if (!stored) {
+              root.dataset.theme = 'light';
+              root.style.colorScheme = 'light';
+              localStorage.setItem('theme', 'light');
+            } else if (stored === 'light') {
+              root.dataset.theme = 'dark';
+              root.style.colorScheme = 'dark';
+              localStorage.setItem('theme', 'dark');
+            } else {
+              delete root.dataset.theme;
+              root.style.colorScheme = '';
+              localStorage.removeItem('theme');
+            }
           } catch {}
           sync();
         });
