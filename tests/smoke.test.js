@@ -142,4 +142,12 @@ test.describe('Accessibility', () => {
     await expect(rssLink).toBeVisible();
     await expect(rssLink).toHaveText('rss');
   });
+
+  test('index post titles are h2 headings', async ({ page }) => {
+    await page.goto('/');
+    const postTitles = page.locator('.posts li h2.title');
+    await expect(postTitles.first()).toBeVisible();
+    const count = await postTitles.count();
+    expect(count).toBeGreaterThan(0);
+  });
 });

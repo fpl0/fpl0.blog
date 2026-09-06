@@ -188,7 +188,11 @@ main { flex: 1; padding-block: 2rem 3rem; }
 
 .posts a { text-decoration: none; color: var(--fg); }
 
-.posts .title { font-weight: 500; }
+.posts .title {
+  font-weight: 500;
+  font-size: inherit;
+  margin: 0;
+}
 
 .posts time {
   font-family: var(--font-mono);
@@ -197,12 +201,11 @@ main { flex: 1; padding-block: 2rem 3rem; }
   color: var(--muted);
 }
 
-.posts a:hover .title { color: var(--accent); }
+.posts a:hover { color: var(--accent); }
 
 /* Sparse archive: each entry earns its space with its description. */
 .posts.sparse li { margin-block-end: 2rem; }
-.posts.sparse a { display: block; }
-.posts.sparse .title { display: block; font-size: 1.15em; }
+.posts.sparse .title { font-size: 1.15em; }
 
 .posts.sparse .desc {
   display: block;
@@ -215,9 +218,8 @@ main { flex: 1; padding-block: 2rem 3rem; }
 .posts.sparse time { display: block; }
 
 /* Dense archive: a table of contents with dotted leaders. */
-.posts.dense li { margin-block-end: 1.1rem; }
-
-.posts.dense a {
+.posts.dense li {
+  margin-block-end: 1.1rem;
   display: flex;
   align-items: baseline;
   gap: 1ch;
@@ -230,11 +232,10 @@ main { flex: 1; padding-block: 2rem 3rem; }
 }
 
 .posts.dense time { flex-shrink: 0; }
-.posts.dense a:hover .leader { border-color: var(--accent); }
+.posts.dense li:hover .leader { border-color: var(--accent); }
 
 @media (max-width: 480px) {
-  .posts.dense li { margin-block-end: 1.5rem; }
-  .posts.dense a { flex-direction: column; align-items: flex-start; gap: 0.1rem; }
+  .posts.dense li { margin-block-end: 1.5rem; flex-direction: column; align-items: flex-start; gap: 0.1rem; }
   .posts.dense .leader { display: none; }
 }
 
