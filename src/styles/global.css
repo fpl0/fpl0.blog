@@ -58,7 +58,7 @@ body {
   padding-inline: var(--gutter);
 }
 
-main { flex: 1; padding-block: 2.5rem 4rem; }
+main { flex: 1; padding-block: 2rem 3rem; }
 
 ::selection {
   background: color-mix(in oklab, var(--accent) 25%, transparent);
@@ -166,18 +166,23 @@ main { flex: 1; padding-block: 2.5rem 4rem; }
   margin-block: 1.75rem 0.5rem;
 }
 
-.masthead.compact { margin-block: 1.25rem 0.5rem; }
+.masthead.compact {
+  margin-block: 1rem 0.5rem;
+  font-size: clamp(2.3rem, 1.9rem + 1.8vw, 2.45rem);
+}
 
 .masthead .dot { color: var(--accent); }
 
 .byline {
   font-family: var(--font-mono);
-  font-size: 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  max-inline-size: 42ch;
   color: var(--muted);
   margin-block: 0 3.5rem;
 }
 
-.byline.compact { margin-block: 0 2.5rem; }
+.byline.compact { margin-block: 0 1.75rem; }
 
 .posts { list-style: none; margin: 0; padding: 0; }
 
@@ -197,7 +202,7 @@ main { flex: 1; padding-block: 2.5rem 4rem; }
 /* Sparse archive: each entry earns its space with its description. */
 .posts.sparse li { margin-block-end: 2rem; }
 .posts.sparse a { display: block; }
-.posts.sparse .title { display: block; font-size: 1.05em; }
+.posts.sparse .title { display: block; font-size: 1.15em; }
 
 .posts.sparse .desc {
   display: block;
