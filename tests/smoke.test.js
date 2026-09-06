@@ -27,6 +27,30 @@ test.describe('Blog post', () => {
     await page.goto('/posts/hello-world/');
     await expect(page.locator('.fm time')).toBeVisible();
   });
+
+  test('shows friendly date format', async ({ page }) => {
+    await page.goto('/posts/hello-world/');
+    const timeElement = page.locator('.fm time').first();
+    await expect(timeElement).toBeVisible();
+    const dateText = await timeElement.textContent();
+    expect(dateText).toMatch(/^\d{1,2} \w+ \d{4}$/);
+  });
+
+  test('post navigation appears when multiple posts exist, or is absent when only one', async ({ page }) => {
+    await page.goto('/');
+    const postCount = await page.locator('.posts li').count();
+    
+    await page.goto('/posts/hello-world/');
+    const postNav = page.locator('.post-nav');
+    
+    if (postCount >= 2) {
+      await expect(postNav).toBeVisible();
+      const navLinks = postNav.locator('a');
+      await expect(navLinks.first()).toBeVisible();
+    } else {
+      await expect(postNav).not.toBeVisible();
+    }
+  });
 });
 
 test.describe('404 page', () => {
