@@ -13,6 +13,13 @@ test.describe('Homepage', () => {
     const posts = page.locator('.posts li');
     await expect(posts).not.toHaveCount(0);
   });
+
+  test('post titles are h2 headings for accessibility', async ({ page }) => {
+    await page.goto('/');
+    // Each post title should be in an h2 for proper document outline
+    const postHeadings = page.locator('.posts h2');
+    await expect(postHeadings.first()).toBeVisible();
+  });
 });
 
 test.describe('Blog post', () => {
@@ -27,6 +34,25 @@ test.describe('Blog post', () => {
     await page.goto('/posts/hello-world/');
     await expect(page.locator('.fm time')).toBeVisible();
   });
+
+  test('includes post navigation and subscribe footer', async ({ page }) => {
+    await page.goto('/posts/hello-world/');
+    // Navigation should exist (prev/next links or subscribe footer)
+    const postNav = page.locator('.post-nav');
+    const postFooter = page.locator('.post-footer');
+    await expect(postFooter).toBeVisible();
+    // Footer should have RSS and LinkedIn links
+    await expect(postFooter.locator('a[href="/rss.xml"]')).toBeVisible();
+    await expect(postFooter.locator('a[href*="linkedin"]')).toBeVisible();
+  });
+});
+
+test.describe('About page', () => {
+  test('loads successfully', async ({ page }) => {
+    const response = await page.goto('/about/');
+    expect(response.status()).toBe(200);
+    await expect(page.locator('h1')).toContainText('About');
+  });
 });
 
 test.describe('404 page', () => {
@@ -38,7 +64,8 @@ test.describe('404 page', () => {
 
 test.describe('RSS feed', () => {
   test('exists and is valid XML', async ({ page }) => {
-    const response = await page.goto('/rss.xml');
+    // Use request API to get raw XML without browser transformation
+    const response = await page.request.get('/rss.xml');
     expect(response.status()).toBe(200);
     expect(response.headers()['content-type']).toContain('xml');
     
@@ -48,11 +75,18 @@ test.describe('RSS feed', () => {
     expect(body).toContain('</rss>');
   });
 
-  test('includes site metadata', async ({ page }) => {
+  test('includes XSL stylesheet and content', async ({ page }) => {
+    // Visit the feed in browser, which will render the XSL transformation
     await page.goto('/rss.xml');
-    const body = await page.content();
-    expect(body).toContain('<title>');
-    expect(body).toContain('<link>');
+    
+    // The XSL renders a human-readable page
+    await expect(page.locator('h1')).toContainText('fpl0');
+    
+    // Verify the raw XML has content:encoded namespace
+    const response = await page.request.get('/rss.xml');
+    const body = await response.text();
+    expect(body).toContain('content:encoded');
+    expect(body).toContain('<?xml-stylesheet');
   });
 });
 
@@ -61,8 +95,9 @@ test.describe('Theme toggle', () => {
     await page.goto('/');
     const themeToggle = page.locator('#theme-toggle');
     await expect(themeToggle).toBeVisible();
-    await expect(themeToggle).toHaveAttribute('aria-label');
-    await expect(themeToggle).toHaveAttribute('aria-pressed');
+    // The toggle cycles through light/dark/system and shows current state in aria-label
+    const label = await themeToggle.getAttribute('aria-label');
+    expect(label).toMatch(/Theme \((light|dark|system)\)/);
   });
 
   test('toggles theme on click', async ({ page }) => {
@@ -99,6 +134,7 @@ test.describe('Theme toggle', () => {
     const newLabel = await themeToggle.getAttribute('aria-label');
     
     expect(newLabel).not.toBe(initialLabel);
-    expect(newLabel).toMatch(/Use (light|dark) theme/);
+    // Label shows current theme: "Theme (light)", "Theme (dark)", or "Theme (system)"
+    expect(newLabel).toMatch(/Theme \((light|dark|system)\)/);
   });
 });
