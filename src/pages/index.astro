@@ -21,15 +21,15 @@ const dense = posts.length >= 4;
     {
       posts.map((post) => (
         <li>
-          <a href={`/posts/${post.id}/`}>
-            <span class="title">
+          <h2 class="title">
+            <a href={`/posts/${post.id}/`}>
               {post.data.title}
               {post.data.draft && <span class="draft-badge">draft</span>}
-            </span>
-            {!dense && <span class="desc">{post.data.description}</span>}
-            {dense && <span class="leader" aria-hidden="true" />}
-            <time datetime={isoDate(post.data.date)}>{isoDate(post.data.date)}</time>
-          </a>
+            </a>
+          </h2>
+          {!dense && <p class="desc">{post.data.description}</p>}
+          {dense && <span class="leader" aria-hidden="true" />}
+          <time datetime={isoDate(post.data.date)}>{isoDate(post.data.date)}</time>
         </li>
       ))
     }
