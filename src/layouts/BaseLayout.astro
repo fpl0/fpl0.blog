@@ -12,11 +12,14 @@ interface Props {
   home?: boolean;
   /** 404: the page has no real URL, so no canonical and no indexing. */
   noindex?: boolean;
+  /** Override the OG image slug (e.g., for posts, pass `post/${slug}`). */
+  ogImageSlug?: string;
 }
 
-const { title, description = SITE_DESCRIPTION, article, home, noindex } = Astro.props;
+const { title, description = SITE_DESCRIPTION, article, home, noindex, ogImageSlug } = Astro.props;
 const pageTitle = title ? `${title} · ${SITE_TITLE}` : SITE_TITLE;
 const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL(`/og/${ogImageSlug || 'home'}.png`, Astro.site);
 ---
 
 <!doctype html>
@@ -46,13 +49,21 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta property="og:description" content={description} />
     {!noindex && <meta property="og:url" content={canonical} />}
     <meta property="og:type" content={article ? 'article' : 'website'} />
+    {!noindex && (
+      <>
+        <meta property="og:image" content={ogImage} />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:type" content="image/png" />
+      </>
+    )}
     {article && (
       <meta property="article:published_time" content={article.published.toISOString()} />
     )}
     {article?.updated && (
       <meta property="article:modified_time" content={article.updated.toISOString()} />
     )}
-    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:card" content="summary_large_image" />
 
     <Font cssVariable="--font-serif" preload={[{ style: 'normal' }]} />
     <Font cssVariable="--font-mono" />
@@ -74,10 +85,11 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <header class="site-header wrap">
       {!home && <a class="brand" href="/">{SITE_TITLE}<span class="dot">.</span></a>}
       <nav>
+        <a href="/about/">about</a>
         <a href="https://github.com/fpl0" rel="me">github</a>
         <a href="https://www.linkedin.com/in/filipelm" rel="me">linkedin</a>
         <a href="/rss.xml">rss</a>
-        <button id="theme-toggle" aria-label="Use dark theme" aria-pressed="false">
+        <button id="theme-toggle" aria-label="Theme">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <circle cx="8" cy="8" r="6.25" stroke="currentColor" stroke-width="1.5" />
             <path d="M8 1.75 A 6.25 6.25 0 0 1 8 14.25 Z" fill="currentColor" />
@@ -92,6 +104,12 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
 
     <footer class="site-footer wrap">
       © {AUTHOR}
+      {' · '}
+      <a href="/rss.xml">rss</a>
+      {' · '}
+      <a href="https://github.com/fpl0/fpl0.blog">source</a>
+      {' · '}
+      <a href="https://www.linkedin.com/in/filipelm" rel="me">linkedin</a>
     </footer>
 
     <script is:inline>
@@ -101,12 +119,13 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
         const media = matchMedia('(prefers-color-scheme: dark)');
         const resolved = () => root.dataset.theme || (media.matches ? 'dark' : 'light');
         const sync = () => {
+          const stored = root.dataset.theme;
           const current = resolved();
           const isDark = current === 'dark';
-          button.setAttribute('aria-pressed', String(isDark));
-          button.setAttribute('aria-label', isDark ? 'Use light theme' : 'Use dark theme');
+          const label = !stored ? 'Theme (system)' : isDark ? 'Theme (dark)' : 'Theme (light)';
+          button.setAttribute('aria-label', label);
           const metas = document.querySelectorAll('meta[name="theme-color"]');
-          if (root.dataset.theme) {
+          if (stored) {
             const color = isDark ? '#16161a' : '#fbfbf9';
             metas.forEach(m => { m.content = color; m.removeAttribute('media'); });
           } else {
@@ -117,12 +136,27 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
           }
         };
         button.addEventListener('click', () => {
-          const next = resolved() === 'dark' ? 'light' : 'dark';
-          root.dataset.theme = next;
-          root.style.colorScheme = next;
-          try {
-            localStorage.setItem('theme', next);
-          } catch {}
+          const stored = root.dataset.theme;
+          if (!stored) {
+            const next = media.matches ? 'light' : 'dark';
+            root.dataset.theme = next;
+            root.style.colorScheme = next;
+            try {
+              localStorage.setItem('theme', next);
+            } catch {}
+          } else if (stored === 'light') {
+            root.dataset.theme = 'dark';
+            root.style.colorScheme = 'dark';
+            try {
+              localStorage.setItem('theme', 'dark');
+            } catch {}
+          } else {
+            delete root.dataset.theme;
+            root.style.colorScheme = '';
+            try {
+              localStorage.removeItem('theme');
+            } catch {}
+          }
           sync();
         });
         media.addEventListener('change', sync);
