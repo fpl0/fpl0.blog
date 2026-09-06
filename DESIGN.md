@@ -52,14 +52,21 @@ These exist in CSS today (class names are the contract):
 | `.prose` | Measure, pretty wrap, hanging punctuation; accent-tint link underlines; blockquote rule; mono `* * *` hr; scrollable tables; code on `--code-bg` (Shiki colors only — surface stays `--code-bg`) |
 | `:focus-visible` / `.sr-only` | Accessibility primitives already in the kit |
 
+## Archive strategy
+
+The index page serves as the archive until the post count warrants separation:
+
+- **Current** (< 15 posts): Index lists all posts (sparse < 4, dense ≥ 4).
+- **Future** (≥ 15 posts): Index shows recent N posts; full archive moves to `/posts/` grouped by year.
+- **Tags**: Deferred until the catalogue is large enough to benefit from filtering.
+
 ## Gaps (blog UX only)
 
 Tighten later if these ship or hurt:
 
 1. **Skip link** — no visible "skip to content" before header chrome.
-2. **Theme toggle a11y** — confirm accessible name + current state (icon-only today).
-3. **Dense archive on small screens** — leaders hide; re-check spacing / tap feel.
-4. **Code block overflow** — horizontal scroll exists; no scroll cue or copy affordance.
-5. **Footnote back-links** — verify return-link hit area if footnotes grow.
+2. **Dense archive on small screens** — leaders hide; re-check spacing / tap feel.
+3. **Code block overflow** — horizontal scroll exists; no scroll cue or copy affordance.
+4. **Footnote back-links** — verify return-link hit area if footnotes grow.
 
 Do **not** add Button / Input / Field / Dialog / Toast here unless the blog itself needs them. Other products own their own kits.
