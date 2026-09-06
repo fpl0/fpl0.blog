@@ -1,7 +1,7 @@
 ---
 import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { isoDate } from '../../lib/format';
+import { isoDate, friendlyDate } from '../../lib/format';
 
 export async function getStaticPaths() {
   // Must match the filter in index.astro — drafts render in `astro dev`
@@ -16,9 +16,18 @@ export async function getStaticPaths() {
 const { post } = Astro.props;
 const { Content } = await render(post);
 const { title, description, date, updated, draft } = post.data;
+
+// Get all posts for prev/next navigation, sorted by date
+const allPosts = (
+  await getCollection('blog', ({ data }) => import.meta.env.DEV || !data.draft)
+).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const currentIndex = allPosts.findIndex((p) => p.id === post.id);
+const prevPost = currentIndex < allPosts.length - 1 ? allPosts[currentIndex + 1] : null;
+const nextPost = currentIndex > 0 ? allPosts[currentIndex - 1] : null;
 ---
 
-<BaseLayout {title} {description} article={{ published: date, updated }}>
+<BaseLayout {title} {description} article={{ published: date, updated }} ogImageSlug={`post/${post.id}`}>
   <a href="/" class="back-link">← index</a>
   <article>
     <header class="post-header">
@@ -27,12 +36,12 @@ const { title, description, date, updated, draft } = post.data;
       <p class="fm">
         <span>
           <span class="fm-key">date:</span>{' '}
-          <time datetime={isoDate(date)}>{isoDate(date)}</time>
+          <time datetime={isoDate(date)}>{friendlyDate(date)}</time>
         </span>
         {updated && (
           <span>
             <span class="fm-key">updated:</span>{' '}
-            <time datetime={isoDate(updated)}>{isoDate(updated)}</time>
+            <time datetime={isoDate(updated)}>{friendlyDate(updated)}</time>
           </span>
         )}
         {draft && (
@@ -46,4 +55,27 @@ const { title, description, date, updated, draft } = post.data;
       <Content />
     </div>
   </article>
+
+  <nav class="post-nav" aria-label="Post navigation">
+    {(prevPost || nextPost) && (
+      <div class="post-nav-links">
+        {prevPost && (
+          <a href={`/posts/${prevPost.id}/`} rel="prev">
+            ← {prevPost.data.title}
+          </a>
+        )}
+        {nextPost && (
+          <a href={`/posts/${nextPost.id}/`} rel="next">
+            {nextPost.data.title} →
+          </a>
+        )}
+      </div>
+    )}
+  </nav>
+
+  <footer class="post-footer">
+    <a href="/rss.xml">rss</a>
+    {' · '}
+    <a href="https://www.linkedin.com/in/filipelm" rel="me">linkedin</a>
+  </footer>
 </BaseLayout>
