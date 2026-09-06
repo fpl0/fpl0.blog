@@ -29,6 +29,14 @@ test.describe('Blog post', () => {
   });
 });
 
+test.describe('About page', () => {
+  test('loads successfully and shows Hello World', async ({ page }) => {
+    const response = await page.goto('/about');
+    expect(response.status()).toBe(200);
+    await expect(page.locator('h1')).toContainText('Hello World');
+  });
+});
+
 test.describe('404 page', () => {
   test('shows custom 404 for non-existent page', async ({ page }) => {
     const response = await page.goto('/this-page-does-not-exist');
