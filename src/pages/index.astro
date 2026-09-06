@@ -2,7 +2,7 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
-import { isoDate } from '../lib/format';
+import { isoDate, readingTime, countWords } from '../lib/format';
 
 // Drafts are visible in `astro dev` but never built for production.
 const posts = (
@@ -19,19 +19,27 @@ const dense = posts.length >= 4;
   <p class:list={['byline', !dense && 'compact']}>{SITE_DESCRIPTION}</p>
   <ul class:list={['posts', dense ? 'dense' : 'sparse']}>
     {
-      posts.map((post) => (
-        <li>
-          <a href={`/posts/${post.id}/`}>
-            <span class="title">
-              {post.data.title}
-              {post.data.draft && <span class="draft-badge">draft</span>}
-            </span>
-            {!dense && <span class="desc">{post.data.description}</span>}
-            {dense && <span class="leader" aria-hidden="true" />}
-            <time datetime={isoDate(post.data.date)}>{isoDate(post.data.date)}</time>
-          </a>
-        </li>
-      ))
+      posts.map((post) => {
+        const mins = readingTime(countWords(post.body));
+        const readingLabel = `${mins} min read`;
+        return (
+          <li>
+            <h2>
+              <a href={`/posts/${post.id}/`}>
+                <span class="title">
+                  {post.data.title}
+                  {post.data.draft && <span class="draft-badge">draft</span>}
+                </span>
+                {!dense && <span class="desc">{post.data.description}</span>}
+                {dense && <span class="leader" aria-hidden="true" />}
+                <span class="meta">
+                  {dense ? readingLabel : <time datetime={isoDate(post.data.date)}>{isoDate(post.data.date)}</time>}
+                </span>
+              </a>
+            </h2>
+          </li>
+        );
+      })
     }
   </ul>
 </BaseLayout>

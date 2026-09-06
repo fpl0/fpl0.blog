@@ -153,6 +153,13 @@ main { flex: 1; padding-block: 2rem 3rem; }
   background: var(--rule);
 }
 
+.site-footer a {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.site-footer a:hover { color: var(--fg); }
+
 /* The index (home) ----------------------------------------------------------
    The identity is typographic: the author's name in the serif's display
    range, closed by the site's one colour — a cobalt full stop. Below it,
@@ -177,7 +184,8 @@ main { flex: 1; padding-block: 2rem 3rem; }
   font-family: var(--font-mono);
   font-size: 0.875rem;
   line-height: 1.45;
-  max-inline-size: 42ch;
+  max-inline-size: 48ch;
+  text-wrap: balance;
   color: var(--muted);
   margin-block: 0 3.5rem;
 }
@@ -186,11 +194,18 @@ main { flex: 1; padding-block: 2rem 3rem; }
 
 .posts { list-style: none; margin: 0; padding: 0; }
 
+.posts h2 {
+  margin: 0;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+}
+
 .posts a { text-decoration: none; color: var(--fg); }
 
 .posts .title { font-weight: 500; }
 
-.posts time {
+.posts .meta {
   font-family: var(--font-mono);
   font-size: 0.75rem;
   font-variant-numeric: tabular-nums;
@@ -212,7 +227,7 @@ main { flex: 1; padding-block: 2rem 3rem; }
   margin-block: 0.2rem 0.35rem;
 }
 
-.posts.sparse time { display: block; }
+.posts.sparse .meta { display: block; }
 
 /* Dense archive: a table of contents with dotted leaders. */
 .posts.dense li { margin-block-end: 1.1rem; }
@@ -229,7 +244,7 @@ main { flex: 1; padding-block: 2rem 3rem; }
   transform: translateY(-0.3em);
 }
 
-.posts.dense time { flex-shrink: 0; }
+.posts.dense .meta { flex-shrink: 0; }
 .posts.dense a:hover .leader { border-color: var(--accent); }
 
 @media (max-width: 480px) {
@@ -286,6 +301,49 @@ main { flex: 1; padding-block: 2rem 3rem; }
 .fm > span { display: block; }
 
 .fm .fm-key { color: var(--muted); }
+
+/* Post navigation and footer ---------------------------------------------- */
+
+.post-nav {
+  margin-block-start: 3rem;
+  padding-block-start: 2rem;
+  border-block-start: 1px solid var(--rule);
+}
+
+.post-nav-links {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.post-nav-links a {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--muted);
+  text-decoration: none;
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.post-nav-links a[rel='prev'] { text-align: left; }
+.post-nav-links a[rel='next'] { text-align: right; margin-inline-start: auto; }
+.post-nav-links a:hover { color: var(--fg); }
+
+.post-footer {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-block-start: 2.5rem;
+  text-align: center;
+}
+
+.post-footer a {
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.post-footer a:hover { color: var(--fg); }
 
 /* Prose ------------------------------------------------------------------- */
 
