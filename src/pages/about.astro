@@ -1,0 +1,22 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { SITE_DESCRIPTION } from '../consts';
+---
+
+<BaseLayout title="About">
+  <article class="prose">
+    <h1>About</h1>
+    
+    <p>
+      I'm Filipe Lima, and this is my personal writing space.
+    </p>
+
+    <p>
+      {SITE_DESCRIPTION}
+    </p>
+
+    <p>
+      You can find me on <a href="https://github.com/fpl0">GitHub</a> and <a href="https://www.linkedin.com/in/filipelm" rel="me">LinkedIn</a>.
+    </p>
+  </article>
+</BaseLayout>
