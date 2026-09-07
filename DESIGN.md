@@ -7,7 +7,7 @@ This kit is **for this blog only**. Other products get their own systems. Hand-w
 
 ## Tokens
 
-All color tokens use `light-dark()` on `:root` (`color-scheme: light dark`). Manual override: `data-theme="light"` | `"dark"` on `:root` (theme toggle).
+All color tokens use `light-dark()` on `:root` (`color-scheme: dark` by default). `data-theme` is `light` | `dark` on `:root` (theme toggle).
 
 | Token | Light | Dark | Role |
 | --- | --- | --- | --- |
@@ -32,7 +32,7 @@ Derived mixes (not separate tokens): `color-mix(in oklab, …)` for selection, m
 2. **Serif owns reading; mono owns chrome.** Body, headings, prose → `--font-serif`. Nav, brand, byline, dates, frontmatter, badges, hr ornaments, code → `--font-mono`.
 3. **One column.** `.wrap` centers content at `max-inline-size: calc(43.5rem + 2 * var(--gutter))` (≈66ch of serif at the 21px ceiling). Use rem for the wrap max-width so mono chrome matches serif measure. Prose itself caps at `--measure`.
 4. **Type stays quiet.** Body via `--step-0`; headings in `em` so they track the fluid base. Old-style figures in prose; lining tabular figures in mono, code, and tables.
-5. **Theme is a preference, not a skin.** Toggle sets `data-theme`; without it, OS `prefers-color-scheme` wins through `light-dark()`.
+5. **Theme is a preference, not a skin.** Dark is the default. The toggle cycles dark ↔ light only — no system theme, no OS-follow path. `data-theme` is `light` | `dark`. FOUC boot: anything other than `light` in localStorage → dark. Toggle `aria-label` is the next action only (`Use light theme` / `Use dark theme`); no `aria-pressed`. `theme-color` is a solid value from the current theme.
 6. **Motion is optional.** Smooth scroll and theme-icon spin only under `prefers-reduced-motion: no-preference`.
 7. **Focus is always accent.** `:focus-visible` → 2px `var(--accent)` outline, 2px offset, 2px radius. Do not invent a second focus style.
 
@@ -56,10 +56,8 @@ These exist in CSS today (class names are the contract):
 
 Tighten later if these ship or hurt:
 
-1. **Skip link** — no visible "skip to content" before header chrome.
-2. **Theme toggle a11y** — confirm accessible name + current state (icon-only today).
-3. **Dense archive on small screens** — leaders hide; re-check spacing / tap feel.
-4. **Code block overflow** — horizontal scroll exists; no scroll cue or copy affordance.
-5. **Footnote back-links** — verify return-link hit area if footnotes grow.
+1. **Dense archive on small screens** — leaders hide; re-check spacing / tap feel.
+2. **Code block overflow** — horizontal scroll exists; no scroll cue or copy affordance.
+3. **Footnote back-links** — verify return-link hit area if footnotes grow.
 
 Do **not** add Button / Input / Field / Dialog / Toast here unless the blog itself needs them. Other products own their own kits.
