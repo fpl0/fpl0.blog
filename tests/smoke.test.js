@@ -96,92 +96,59 @@ test.describe('Theme toggle', () => {
     await expect(toggle).toHaveAttribute('aria-label', /theme/i);
   });
 
-  test('cycles through light → dark → system states', async ({ page }) => {
+  test('defaults to dark and toggles dark ↔ light', async ({ page }) => {
     await page.goto('/');
     const html = page.locator('html');
     const toggle = page.locator('#theme-toggle');
-    
-    const initialTheme = await html.getAttribute('data-theme');
-    const initialLabel = await toggle.getAttribute('aria-label');
-    
-    await toggle.click();
-    let theme1 = await html.getAttribute('data-theme');
-    let label1 = await toggle.getAttribute('aria-label');
-    expect(theme1).toBe('light');
-    expect(label1).toBe('Use dark theme');
-    
-    await toggle.click();
-    let theme2 = await html.getAttribute('data-theme');
-    let label2 = await toggle.getAttribute('aria-label');
-    expect(theme2).toBe('dark');
-    expect(label2).toBe('Use system theme');
-    
-    await toggle.click();
-    let theme3 = await html.getAttribute('data-theme');
-    let label3 = await toggle.getAttribute('aria-label');
-    expect(theme3).toBeNull();
-    expect(label3).toBe('Use light theme');
-  });
 
-  test('aria-label shows next action', async ({ page }) => {
-    await page.goto('/');
-    const toggle = page.locator('#theme-toggle');
-    
     await page.evaluate(() => {
-      delete document.documentElement.dataset.theme;
       localStorage.removeItem('theme');
     });
     await page.reload();
-    let label = await toggle.getAttribute('aria-label');
-    expect(label).toBe('Use light theme');
-    
+
+    expect(await html.getAttribute('data-theme')).toBe('dark');
+    expect(await toggle.getAttribute('aria-label')).toBe('Use light theme');
+
     await toggle.click();
-    label = await toggle.getAttribute('aria-label');
-    expect(label).toBe('Use dark theme');
-    
+    expect(await html.getAttribute('data-theme')).toBe('light');
+    expect(await toggle.getAttribute('aria-label')).toBe('Use dark theme');
+
     await toggle.click();
-    label = await toggle.getAttribute('aria-label');
-    expect(label).toBe('Use system theme');
+    expect(await html.getAttribute('data-theme')).toBe('dark');
+    expect(await toggle.getAttribute('aria-label')).toBe('Use light theme');
+  });
+
+  test('aria-label shows next action only (no aria-pressed)', async ({ page }) => {
+    await page.goto('/');
+    const toggle = page.locator('#theme-toggle');
+
+    await expect(toggle).not.toHaveAttribute('aria-pressed');
+    await page.evaluate(() => localStorage.removeItem('theme'));
+    await page.reload();
+
+    expect(await toggle.getAttribute('aria-label')).toBe('Use light theme');
+    await toggle.click();
+    expect(await toggle.getAttribute('aria-label')).toBe('Use dark theme');
+    await expect(toggle).not.toHaveAttribute('aria-pressed');
   });
 
   test('persists theme preference across page reload via localStorage', async ({ page }) => {
     await page.goto('/');
     const html = page.locator('html');
     const toggle = page.locator('#theme-toggle');
-    
+
     await toggle.click();
     const themeAfterToggle = await html.getAttribute('data-theme');
     const colorSchemeAfterToggle = await html.evaluate(el => el.style.colorScheme);
     const localStorageTheme = await page.evaluate(() => localStorage.getItem('theme'));
-    
+
     expect(localStorageTheme).toBe(themeAfterToggle);
     expect(themeAfterToggle).toMatch(/^(light|dark)$/);
-    
-    await page.reload();
-    
-    const themeAfterReload = await html.getAttribute('data-theme');
-    const colorSchemeAfterReload = await html.evaluate(el => el.style.colorScheme);
-    
-    expect(themeAfterReload).toBe(themeAfterToggle);
-    expect(colorSchemeAfterReload).toBe(colorSchemeAfterToggle);
-  });
 
-  test('clears override when cycling to system', async ({ page }) => {
-    await page.goto('/');
-    const html = page.locator('html');
-    const toggle = page.locator('#theme-toggle');
-    
-    await toggle.click();
-    await toggle.click();
-    await toggle.click();
-    
-    const theme = await html.getAttribute('data-theme');
-    const colorScheme = await html.evaluate(el => el.style.colorScheme);
-    const localStorageTheme = await page.evaluate(() => localStorage.getItem('theme'));
-    
-    expect(theme).toBeNull();
-    expect(colorScheme).toBe('');
-    expect(localStorageTheme).toBeNull();
+    await page.reload();
+
+    expect(await html.getAttribute('data-theme')).toBe(themeAfterToggle);
+    expect(await html.evaluate(el => el.style.colorScheme)).toBe(colorSchemeAfterToggle);
   });
 });
 

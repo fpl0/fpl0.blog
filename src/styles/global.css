@@ -6,7 +6,7 @@
 /* Tokens ------------------------------------------------------------------ */
 
 :root {
-  color-scheme: light dark;
+  color-scheme: dark;
 
   --bg: light-dark(#fbfbf9, #16161a);
   --fg: light-dark(#16161a, #e2e0db);
@@ -439,19 +439,13 @@ code {
 
 .astro-code code { font-size: 0.75em; }
 
-/* Shiki dual themes: token colours follow the OS unless the toggle forces
-   a side. Only text colour — the surface stays --code-bg. */
+/* Shiki dual themes: token colours follow data-theme. Only text colour —
+   the surface stays --code-bg. */
 :root[data-theme='dark'] .astro-code,
 :root[data-theme='dark'] .astro-code span {
   color: var(--shiki-dark) !important;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) .astro-code,
-  :root:not([data-theme='light']) .astro-code span {
-    color: var(--shiki-dark) !important;
-  }
-}
 
 /* Footnotes --------------------------------------------------------------- */
 

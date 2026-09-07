@@ -7,7 +7,7 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=()
   X-Frame-Options: DENY
-  Content-Security-Policy: default-src 'none'; script-src 'sha256-XqhKGxHfK4kNs4uRxdhLqNGdGWeZN+a4UpBeXnJT9qw=' 'sha256-zHo8THjiAAouYYE5Guypx9IrP/0rvOh/xsBqeTRrHa8=' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src https://cloudflareinsights.com; base-uri 'none'; form-action 'none'; frame-ancestors 'none'
+  Content-Security-Policy: default-src 'none'; script-src 'sha256-4cvU8I95XnIVopWOUIUEO4DFDsvKNr8w3kvX+Q9oEPw=' 'sha256-j8VmAd1yea63kPByYip3H6ZWk6et1G9xpmJ3IOiNkBc=' https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src https://cloudflareinsights.com; base-uri 'none'; form-action 'none'; frame-ancestors 'none'
 
 /rss.xml
   Access-Control-Allow-Origin: *

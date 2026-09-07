@@ -24,9 +24,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="color-scheme" content="light dark" />
-    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#fbfbf9" />
-    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#16161a" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="theme-color" content="#16161a" />
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
     <meta name="author" content={AUTHOR} />
@@ -61,12 +60,13 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
          localStorage is guarded: it throws when the user blocks site data. -->
     <script is:inline>
       try {
-        const theme = localStorage.getItem('theme');
-        if (theme === 'light' || theme === 'dark') {
-          document.documentElement.dataset.theme = theme;
-          document.documentElement.style.colorScheme = theme;
-        }
-      } catch {}
+        const theme = localStorage.getItem('theme') === 'light' ? 'light' : 'dark';
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+      } catch {
+        document.documentElement.dataset.theme = 'dark';
+        document.documentElement.style.colorScheme = 'dark';
+      }
     </script>
   </head>
   <body>
@@ -99,45 +99,27 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
       (() => {
         const root = document.documentElement;
         const button = document.getElementById('theme-toggle');
-        const media = matchMedia('(prefers-color-scheme: dark)');
-        const resolved = () => root.dataset.theme || (media.matches ? 'dark' : 'light');
+        const apply = (theme) => {
+          root.dataset.theme = theme;
+          root.style.colorScheme = theme;
+          try {
+            localStorage.setItem('theme', theme);
+          } catch {}
+        };
         const sync = () => {
-          const stored = root.dataset.theme;
-          const current = resolved();
-          const isDark = current === 'dark';
-          const nextLabel = !stored ? 'Use light theme' : stored === 'light' ? 'Use dark theme' : 'Use system theme';
-          button.setAttribute('aria-label', nextLabel);
-          const metas = document.querySelectorAll('meta[name="theme-color"]');
-          if (stored) {
-            const color = isDark ? '#16161a' : '#fbfbf9';
-            metas.forEach(m => { m.content = color; m.removeAttribute('media'); });
-          } else {
-            metas[0]?.setAttribute('media', '(prefers-color-scheme: light)');
-            metas[0] && (metas[0].content = '#fbfbf9');
-            metas[1]?.setAttribute('media', '(prefers-color-scheme: dark)');
-            metas[1] && (metas[1].content = '#16161a');
-          }
+          const current = root.dataset.theme === 'light' ? 'light' : 'dark';
+          if (root.dataset.theme !== current) apply(current);
+          button.setAttribute('aria-label', current === 'dark' ? 'Use light theme' : 'Use dark theme');
+          const color = current === 'dark' ? '#16161a' : '#fbfbf9';
+          document.querySelectorAll('meta[name="theme-color"]').forEach((m) => {
+            m.content = color;
+            m.removeAttribute('media');
+          });
         };
         button.addEventListener('click', () => {
-          const stored = root.dataset.theme;
-          try {
-            if (!stored) {
-              root.dataset.theme = 'light';
-              root.style.colorScheme = 'light';
-              localStorage.setItem('theme', 'light');
-            } else if (stored === 'light') {
-              root.dataset.theme = 'dark';
-              root.style.colorScheme = 'dark';
-              localStorage.setItem('theme', 'dark');
-            } else {
-              delete root.dataset.theme;
-              root.style.colorScheme = '';
-              localStorage.removeItem('theme');
-            }
-          } catch {}
+          apply(root.dataset.theme === 'light' ? 'dark' : 'light');
           sync();
         });
-        media.addEventListener('change', sync);
         sync();
       })();
     </script>
