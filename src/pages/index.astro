@@ -2,7 +2,7 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
-import { isoDate } from '../lib/format';
+import { isoDate, friendlyDate } from '../lib/format';
 
 // Drafts are visible in `astro dev` but never built for production.
 const posts = (
@@ -29,7 +29,7 @@ const dense = posts.length >= 4;
           </h2>
           {!dense && <p class="desc">{post.data.description}</p>}
           {dense && <span class="leader" aria-hidden="true" />}
-          <time datetime={isoDate(post.data.date)}>{isoDate(post.data.date)}</time>
+          <time datetime={isoDate(post.data.date)}>{friendlyDate(post.data.date)}</time>
         </li>
       ))
     }
